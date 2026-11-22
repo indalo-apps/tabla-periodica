@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.8">
+<meta name="app-version" content="3.9">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -612,6 +612,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["3.9",["🔄 La app busca actualizaciones nada más abrirla, y en Ajustes hay un botón «Buscar actualizaciones»"]],
   ["3.8",["🔎 La lupa ya no tapa la tarjeta con el nombre: se coloca encima, a un lado o debajo del dedo, donde haya sitio"]],
   ["3.7",["©️ Autoría reforzada: licencia «Todos los derechos reservados» y autores en el código","🖼️ Al compartir el enlace por WhatsApp o redes sale una vista previa con el icono, el nombre y una descripción"]],
   ["3.6",["🔎 Efecto lupa: al deslizar el dedo por la tabla, una lupa redonda encima del dedo amplía esa zona","© El pie de página muestra el símbolo de copyright de los autores"]],
@@ -1531,7 +1532,8 @@ function openSettings(){
     <div class="set-group"><h3>Versión</h3>
       <p style="margin:0">Tabla periódica 4º ESO · <b>versión ${VERSION}</b></p>
       <p class="muted" style="margin:0;font-size:13px">Se actualiza sola cuando hay una versión nueva.</p>
-      <button class="btn ghost" id="set-nov" style="align-self:flex-start">Ver novedades</button></div>
+      <div class="row"><button class="btn ghost" id="set-upd">🔄 Buscar actualizaciones</button><button class="btn ghost" id="set-nov">Ver novedades</button></div>
+      <p class="muted" id="upd-msg" role="status" style="margin:0;font-size:13px">La app lo comprueba sola cada vez que la abres o vuelves a ella.</p></div>
     <div class="sheet-nav"><button class="btn block" data-close="1">Cerrar</button></div>
   </div></div>`;
   s.hidden=false;sheetShown();
@@ -1546,6 +1548,12 @@ $("#sheet").addEventListener("click",ev=>{
   if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();openTableOpts();return}
   if(b=t.closest("[data-print]")){printTable(b.dataset.print);return}
   if(b=t.closest("[data-sz]")){openSheet(+b.dataset.sz);return}
+  if(b=t.closest("#set-upd")){const m=$("#upd-msg");b.disabled=true;if(m)m.textContent="Comprobando…";
+    buscarVersion(true).then(v=>{b.disabled=false;if(!m)return;
+      if(!EN_WEB)m.textContent="Solo se puede comprobar en la app publicada.";
+      else if(v==null)m.textContent="No se ha podido comprobar. ¿Tienes conexión a internet?";
+      else if(verCmp(v,VERSION)>0)m.textContent=`Hay una versión nueva (${v}). Se instalará al cerrar esta ventana.`;
+      else m.textContent=`✓ Tienes la última versión (${VERSION}).`});return}
   if(t.closest("#set-nov")){verNovedades(null);return}
   if(t.closest("#set-install")||t.closest("#inst-again")){openInstall();return}
   if(t.closest("#inst-now")){installNow();return}
@@ -1696,20 +1704,24 @@ function actualizar(){
   $("#barra-act").hidden=false;
   setTimeout(()=>location.replace(location.pathname+"?u="+Date.now()),900);
 }
-async function buscarVersion(){
-  if(!EN_WEB)return;
+let lastCheck=0;
+async function buscarVersion(force){
+  if(!EN_WEB)return null;
+  if(!force&&Date.now()-lastCheck<4000)return null; // evita comprobar dos veces seguidas
+  lastCheck=Date.now();
   try{
     const txt=await (await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"})).text();
     const m=txt.match(/name="app-version" content="([^"]+)"/);
-    if(m&&verCmp(m[1],VERSION)>0)actualizar();
-  }catch(e){}
+    if(m&&verCmp(m[1],VERSION)>0){actualizar();return m[1]}
+    return VERSION;
+  }catch(e){return null}
 }
 // Si había una versión esperando, se aplica en cuanto se puede (al cambiar de pestaña, cerrar una ficha, acabar un test…)
 new MutationObserver(()=>{if(actPendiente&&seguroRecargar()){actPendiente=false;actualizar()}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","aria-current"]});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")buscarVersion()});
 setInterval(buscarVersion,90*1000);
-setTimeout(buscarVersion,1500);
+buscarVersion();
 addEventListener("focus",buscarVersion);
 addEventListener("pageshow",buscarVersion);
 // Limpia la marca ?u= de la dirección tras actualizar
