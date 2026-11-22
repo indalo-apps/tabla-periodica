@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.3">
+<meta name="app-version" content="4.4">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -547,6 +547,19 @@ main:focus{outline:none}
 .chip.t[aria-pressed="true"]{font-weight:600}
 .bigtile{box-shadow:inset 0 -3px 0 rgb(0 0 0 / .14),0 2px 6px -3px rgb(0 0 0 / .3)}
 .pt-wrap.big .pt.fit .cell{box-shadow:inset 0 -2px 0 rgb(0 0 0 / .13)}
+
+/* Ficha: ✕ fija arriba y barra fija abajo con el elemento anterior y el siguiente */
+.xbtn{position:sticky;top:2px;z-index:3;margin:0 0 -44px auto;width:44px;height:44px;border-radius:50%;border:0;background:var(--surface-2);font:500 20px/1 var(--f-body);color:var(--ink);display:grid;place-items:center;box-shadow:0 1px 4px rgb(0 0 0 / .18)}
+.sheet .el-head{padding-right:50px}
+.elnav{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom,0px));z-index:2;display:flex;gap:8px;margin:14px calc(-1 * max(18px,env(safe-area-inset-left,0px))) calc(-18px - env(safe-area-inset-bottom,0px));padding:10px max(18px,env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 16px -10px rgb(0 0 0 / .25)}
+.elnav .nb{flex:1;min-width:0;min-height:54px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);display:flex;align-items:center;gap:8px;padding:0 10px;font:600 15px var(--f-body);color:var(--ink);text-align:left}
+.elnav .nb.r{justify-content:flex-end;text-align:right}
+.elnav .nb.ph{visibility:hidden}
+.elnav .tl{flex:none;width:36px;height:36px;border-radius:8px;background:var(--cat);display:grid;place-items:center;font:700 16px var(--f-display);box-shadow:inset 0 -2px 0 rgb(0 0 0 / .14)}
+.elnav .tx{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+.elnav .tx small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.elnav .ar{flex:none;font-size:22px;color:var(--muted);line-height:1}
+.elnav .nb:active{transform:scale(.97)}
 </style>
 </head>
 <body>
@@ -641,6 +654,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.4",["✕ La ficha se cierra con la ✕ de arriba, que está siempre a la vista","‹ › Abajo, botones fijos con el elemento anterior y el siguiente (su casilla de color y su nombre)"]],
   ["4.3",["🎨 Colores de familia más vivos y fáciles de distinguir (también con daltonismo), en modo claro y oscuro","🟪 Leyenda con muestras de color más grandes y, en Jugar, una franja de color en cada familia","✓ En el test, los tipos elegidos llevan una marca","🔤 Etiquetas en minúscula normal y títulos algo más grandes; la ficha tiene un ligero relieve"]],
   ["4.2",["🃏 Tarjetas: ahora puedes elegir el mazo (todos o una familia, por ejemplo solo halógenos)","❓ Test: al responder, la pregunta se encoge y sigue a la vista junto a la solución","🏷️ En la ficha, «Sin ver» pasa a ser «Aún no lo has practicado»"]],
   ["4.1",["🎮 Jugar se ve mejor en móviles pequeños: casillas más grandes y las fichas caben en una fila","📏 Botones más fáciles de tocar y etiquetas algo más grandes","🔍 Al pulsar «Ampliada» la tabla se coloca arriba, con el aviso de deslizar encima"]],
@@ -970,12 +984,13 @@ function openSheet(z){
   const notes=[ORIGIN[z],FACT[z],EXC[z]?`Excepción al diagrama de Moeller: un electrón ${EXC[z]===2?"(dos en el Pd) pasa":"pasa"} del orbital s al d porque los orbitales d semillenos o llenos son más estables. Con el diagrama saldría ${confShort(z,true)}.`:null].filter(Boolean);
   s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet k-${e.c}" role="dialog" aria-modal="true" aria-label="${e.n}">
     <div class="grab"></div>
+    <button class="xbtn" data-close="1" aria-label="Cerrar ficha">✕</button>
     <div class="el-head"><div class="bigtile"><span class="z">${e.z}</span><span class="s">${e.s}</span><span class="m">${mass(e)}</span></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h2>${e.n}</h2><span><span class="pill">${CATS[e.c]}</span></span>
       <span class="muted" style="font-size:13px">${familyOf(e)&&familyOf(e)!==CATS[e.c]?familyOf(e)+" · ":""}${lv?LVNAME[lv]:"Aún no lo has practicado"}${r?` · ${r.ok} ✓ ${r.ko} ✗`:""}</span></div></div>
     ${factsHTML(e)}
     ${notes.map(n=>`<div class="note">${n}</div>`).join("")}
-    <div class="sheet-nav"><button class="btn ghost" data-go="${z-1}" ${z===1?"disabled":""}>← ${z>1?BYZ[z-1].s:""}</button><button class="btn ghost" data-close="1">Cerrar</button><button class="btn ghost" data-go="${z+1}" ${z===118?"disabled":""}>${z<118?BYZ[z+1].s:""} →</button></div>
+    <div class="elnav">${z>1?(()=>{const a=BYZ[z-1];return `<button class="nb k-${a.c}" data-go="${z-1}" aria-label="Anterior: ${a.n}"><span class="ar" aria-hidden="true">‹</span><span class="tl" aria-hidden="true">${a.s}</span><span class="tx"><small>Anterior</small>${a.n}</span></button>`})():`<span class="nb ph"></span>`}${z<118?(()=>{const a=BYZ[z+1];return `<button class="nb r k-${a.c}" data-go="${z+1}" aria-label="Siguiente: ${a.n}"><span class="tx"><small>Siguiente</small>${a.n}</span><span class="tl" aria-hidden="true">${a.s}</span><span class="ar" aria-hidden="true">›</span></button>`})():`<span class="nb ph"></span>`}</div>
   </div></div>`;
   s.hidden=false;sheetShown();
 }
