@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.9">
+<meta name="app-version" content="5.0">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -585,6 +585,20 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .flash-actions .btn.yes i{background:#fff;color:var(--good)}
 /* Acción que borra datos */
 .danger{background:none;border:1.5px solid var(--bad);color:var(--bad);border-radius:12px;min-height:44px;padding:0 14px;font:600 14.5px var(--f-body);align-self:flex-start}
+
+/* Ponte a prueba: temas */
+.topics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.topic{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:left;font:inherit;color:var(--ink);min-height:112px}
+.topic .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--surface-2)}
+.topic b{font:700 16px/1.2 var(--f-display)}
+.topic .ex{font-size:13px;color:var(--accent);font-weight:600}
+.topic.mix{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;min-height:0;background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 6px 16px -8px rgb(31 86 214 / .7)}
+.topic.mix .ic{background:rgb(255 255 255 / .2)}
+.topic.mix small{display:block;font-size:13.5px;opacity:.9;margin-top:2px}
+.topic:active{transform:scale(.97)}
+.lnk{align-self:center;color:var(--accent);font-weight:600;font-size:14.5px;background:none;border:0;min-height:44px;padding:0 10px}
+.tmhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.tmhead > div{display:flex;flex-direction:column;gap:4px}
 </style>
 </head>
 <body>
@@ -679,6 +693,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["5.0",["🎯 «Ponte a prueba» más fácil: toca un tema y empieza (Todo mezclado, Nombres y símbolos, Posición, Familias, El átomo, Propiedades o Rellenar familias)","⚙︎ Para combinar tipos de pregunta, «Hacer una ronda a mi medida»"]],
   ["4.9",["✕ La franja de la familia resaltada se quita con la misma ✕ redonda que el resto de la app"]],
   ["4.8",["✂️ La franja de la familia resaltada muestra solo su nombre"]],
   ["4.7",["✕ Todas las ventanas se cierran con la misma ✕ de arriba a la derecha","✕ Para salir del test, del juego o de una serie, la misma ✕ arriba a la derecha","🎨 Al resaltar una familia aparece una franja de su color con «✕ Quitar»","🃏 Botones de las tarjetas más claros, con ✗ y ✓","🗑 «Borrar mi progreso» en rojo"]],
@@ -1089,6 +1104,7 @@ function flashAnswer(ok){record(FL.deck[FL.i],ok);if(ok)FL.known++;else if(FL.de
 /* ===================== TEST ===================== */
 const QTYPES={place:"Colocar en la tabla",ion:"Iones",trend:"Propiedades periódicas",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
 const ROUND=10;
+const TOPICS=[["names","🔤","Nombres y símbolos","Fe → hierro",["s2n","n2s"]],["pos","📍","Posición","Grupo y periodo",["place","pos","gp"]],["fam","🎨","Familias","¿Halógeno?",["fam","kind"]],["atom","⚛️","El átomo","1s² 2s² 2p⁶…",["conf","ion"]],["props","📈","Propiedades","¿Cuál es mayor?",["trend"]]];
 const QGROUPS=[["Nombres y símbolos",["s2n","n2s"]],["Posición en la tabla",["place","pos","gp"]],["Familias y tipos",["fam","kind"]],["Estructura del átomo",["conf","ion"]],["Propiedades",["trend"]]];
 let QZ=null;
 function pickOthers(answer,cands,n,prefer){
@@ -1098,7 +1114,7 @@ function pickOthers(answer,cands,n,prefer){
 }
 function makeQuestion(){
   const P=pool();
-  const types=PREF.types.length?PREF.types:["s2n"];
+  const types=QZ&&QZ.types&&QZ.types.length?QZ.types:(PREF.types.length?PREF.types:["s2n"]);
   for(let tries=0;tries<40;tries++){
     const t=types[Math.floor(Math.random()*types.length)];
     let cands=P;
@@ -1183,16 +1199,27 @@ function confetti(n){
     p.style.animationDelay=Math.random()*.5+"s";p.style.animationDuration=1.6+Math.random()*1.2+"s";p.style.setProperty("--dx",(Math.random()*120-60)+"px");p.style.transform=`rotate(${Math.random()*360}deg)`;box.appendChild(p)}
   document.body.appendChild(box);setTimeout(()=>box.remove(),3500);
 }
-function startQuiz(){subShown();QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest();SC.scrollTop=0}
+function startQuiz(types,title){subShown();QZ={i:0,score:0,miss:[],recent:[],q:null,done:false,types:(types&&types.length?types:PREF.types),title:title||""};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest();SC.scrollTop=0}
 function optLabel(q,o){if(q.t==="trend"){return `<b>${o}</b>&nbsp;<span class="muted" style="font-weight:500">${q.names[o]}</span>`}if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
 function renderTest(){
   if(!QZ&&PREF.tmode==="fill"){renderFill();return}
+  if(!QZ&&PREF.tmode!=="custom"){
+    main.innerHTML=`<section class="view gut"><div class="quiz">
+      <div style="display:flex;flex-direction:column;gap:4px"><h2>Ponte a prueba</h2>
+      <p class="muted" style="margin:0">Toca un tema para empezar una ronda de ${ROUND} preguntas.</p></div>
+      <div class="topics">
+        <button class="topic mix" data-topic="mix"><span class="ic" aria-hidden="true">🎯</span><span><b>Todo mezclado</b><small>Más preguntas de lo que fallas</small></span></button>
+        ${TOPICS.map(([k,ic,t,ex])=>`<button class="topic" data-topic="${k}"><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span class="ex">${ex}</span></button>`).join("")}
+        <button class="topic" data-topic="fill"><span class="ic" aria-hidden="true">🧩</span><b>Rellenar familias</b><span class="ex">Tabla muda</span></button>
+      </div>
+      <button class="lnk" id="tm-custom">⚙︎ Hacer una ronda a mi medida</button>
+    </div></section>`;return;
+  }
   if(!QZ){
     const n=pool().length;
     main.innerHTML=`<section class="view gut"><div class="quiz">
-      <div class="seg" role="group" aria-label="Modo" style="align-self:flex-start"><button data-tmode="q" aria-pressed="${PREF.tmode!=="fill"}">Preguntas</button><button data-tmode="fill" aria-pressed="${PREF.tmode==="fill"}">Rellenar familias</button></div>
-      <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Ronda de ${ROUND} preguntas</span><h2>Ponte a prueba</h2>
-      <p class="muted" style="margin:0">Preguntas sobre los ${n} elementos de la tabla. Las preguntas salen más de los elementos que fallas o que aún no has visto.</p></div>
+      <div class="tmhead"><div><span class="eyebrow">Ronda de ${ROUND} preguntas</span><h2>A mi medida</h2></div><button class="xexit" id="tm-home" aria-label="Volver a los temas">✕</button></div>
+      <p class="muted" style="margin:0">Elige los tipos de pregunta que quieras mezclar. Salen más los elementos que fallas o que aún no has visto.</p>
       <div class="setup"><h3>Tipos de pregunta <span class="muted" style="font:500 13px var(--f-body)">· elige uno o varios</span></h3>
         ${QGROUPS.map(([g,ks])=>`<div class="qgroup"><span class="ctl-l">${g}</span><div class="row">${ks.map(k=>`<button class="chip t" data-qt="${k}" aria-pressed="${PREF.types.includes(k)}">${QTYPES[k]}</button>`).join("")}</div></div>`).join("")}
         <button class="btn block" id="qz-start" ${PREF.types.length?"":"disabled"}>${PREF.types.length?"Empezar":"Elige al menos un tipo"}</button>
@@ -1206,12 +1233,12 @@ function renderTest(){
     main.innerHTML=`<section class="view gut"><div class="quiz"><div class="qcard">
       <span class="qtype">Resultado</span><div class="score">${pct===1?"🏆 ":pct>=.8?"⭐ ":""}${QZ.score}/${ROUND}</div><p style="margin:0">${msg}</p>
       ${QZ.miss.length?`<span class="eyebrow">Para repasar · toca para ver la ficha</span><div class="miss">${[...new Set(QZ.miss)].map(z=>`<button class="k-${BYZ[z].c}" data-z="${z}">${BYZ[z].s}</button>`).join("")}</div>`:""}
-      <div class="row" style="width:100%"><button class="btn ghost" style="flex:1" id="qz-setup">Cambiar tipos</button><button class="btn" style="flex:1" id="qz-again">Otra ronda</button></div>
+      <div class="row" style="width:100%"><button class="btn ghost" style="flex:1" id="qz-setup">Otro tema</button><button class="btn" style="flex:1" id="qz-again">Otra ronda</button></div>
     </div></div></section>`;return;
   }
   const q=QZ.q;const e=BYZ[q.z];const answered=q.picked!==null;
   main.innerHTML=`<section class="view gut"><div class="quiz${answered?" answered":""}">
-    <div class="counter"><span>Pregunta ${QZ.i+1} de ${ROUND} · ${QZ.score} aciertos</span><button class="xexit" id="qz-exit" aria-label="Salir del test">✕</button></div>
+    <div class="counter"><div class="cinfo">${QZ.title?`<span><b style="color:var(--ink)">${QZ.title}</b></span>`:""}<span>Pregunta ${QZ.i+1} de ${ROUND} · ${QZ.score} aciertos</span></div><button class="xexit" id="qz-exit" aria-label="Salir del test">✕</button></div>
     <div class="bar"><i style="width:${(QZ.i+(answered?1:0))/ROUND*100}%"></i></div>
     <div class="qcard"><span class="qtype">${QTYPES[q.t]}</span>${q.show}<div class="qprompt">${q.prompt}</div></div>
     ${q.t==="place"?placeTable(q,answered):""}
@@ -1274,8 +1301,8 @@ function fillTap(z){
 function renderFill(){
   if(!FILL){
     main.innerHTML=`<section class="view gut"><div class="quiz">
-      <div class="seg" role="group" aria-label="Modo" style="align-self:flex-start"><button data-tmode="q" aria-pressed="${PREF.tmode!=="fill"}">Preguntas</button><button data-tmode="fill" aria-pressed="${PREF.tmode==="fill"}">Rellenar familias</button></div>
-      <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Tabla muda</span><h2>Rellenar familias</h2>
+      <div class="tmhead"><div><span class="eyebrow">Tabla muda</span><h2>Rellenar familias</h2></div><button class="xexit" id="tm-home" aria-label="Volver a los temas">✕</button></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
       <p class="muted" style="margin:0">Coloca en orden los elementos de un grupo (de arriba abajo) o de un periodo (de izquierda a derecha). Si fallas dos veces una casilla, se rellena sola y cuenta como fallo.</p></div>
       <span class="eyebrow">Grupos</span>
       <div class="sets">${FILLSETS.filter(x=>x.g).map(setBtn).join("")}</div>
@@ -1525,7 +1552,14 @@ main.addEventListener("click",ev=>{
   if(t.closest("#fl-no")){flashAnswer(false);return}
   if(t.closest("#fl-new")){newDeck();renderFichas();return}
   if(b=t.closest("[data-qt]")){const k=b.dataset.qt;PREF.types=PREF.types.includes(k)?PREF.types.filter(x=>x!==k):[...PREF.types,k];savePref();renderTest();return}
-  if(t.closest("#qz-start")||t.closest("#qz-again")){startQuiz();return}
+  if(t.closest("#qz-start")){startQuiz(PREF.types,"A mi medida");return}
+  if(t.closest("#qz-again")){startQuiz(QZ&&QZ.types,QZ&&QZ.title);return}
+  if(b=t.closest("[data-topic]")){const k=b.dataset.topic;
+    if(k==="fill"){PREF.tmode="fill";savePref();FILL=null;renderTest();SC.scrollTop=0;return}
+    if(k==="mix"){startQuiz(Object.keys(QTYPES),"Todo mezclado");return}
+    const tp=TOPICS.find(x=>x[0]===k);startQuiz(tp[4],tp[2]);return}
+  if(t.closest("#tm-custom")){PREF.tmode="custom";savePref();renderTest();SC.scrollTop=0;return}
+  if(t.closest("#tm-home")){PREF.tmode="home";savePref();FILL=null;renderTest();SC.scrollTop=0;return}
   if(t.closest("#qz-setup")||t.closest("#qz-exit")){if(history.state&&history.state.sub){history.back()}else{QZ=null;renderTest()}return}
   if(b=t.closest("[data-tmode]")){PREF.tmode=b.dataset.tmode;savePref();renderTest();return}
   if(b=t.closest("[data-set]")){startFill(b.dataset.set);SC.scrollTop=0;return}
