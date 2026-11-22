@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="2.1">
+<meta name="app-version" content="2.2">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -364,6 +364,9 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 /* Con zoom: aparecen el número atómico y el nombre */
 @container (min-width:640px){.pt.fit .cell .z{display:block;font-size:max(9px,.85cqi)}.pt.fit .cell .s{margin-top:.6cqi}}
 @container (min-width:1100px){.pt.fit .cell .z{font-size:max(11px,.75cqi)}.pt.fit .cell .n{display:block;font-size:max(11px,.55cqi);max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;opacity:.85}}
+/* Leyenda agrupada con botones rectangulares */
+.leg-g{display:flex;flex-direction:column;gap:6px}
+.chip.rect{border-radius:10px}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -460,6 +463,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.2",["🎨 Los botones de familias se agrupan en Metales, Semimetales y No metales"]],
   ["2.1",["⬆️ El menú (Tabla, Fichas, Test, Progreso) pasa a la parte de arriba","👩‍🎓 En Ajustes figuran los autores: Adela Moreno Vega y Carlos Moreno Otto"]],
   ["2.0",["🤏 Pellizca la tabla para ampliarla (también con los botones − y +; ⤢ vuelve a verla entera). Al ampliar aparecen el número atómico y el nombre","👁 Nuevo «Ver en cada casilla»: Símbolo, Número o Nada (tabla muda)"]],
   ["1.9",["📚 Se estudia siempre la tabla entera: se quita el selector de nivel"]],
@@ -527,7 +531,7 @@ function renderTabla(){
   }});
   const legend=PREF.color==="lv"
     ? `<div class="lvleg">${LVNAME.map((n,i)=>`<span><i style="background:var(--lv${i})"></i>${n}</span>`).join("")}</div>`
-    : `<div class="legend">${Object.entries(CATS).map(([k,n])=>`<button class="chip k-${k}" data-cat="${k}" aria-pressed="${filterCat===k}"><span class="sw" style="background:var(--cat)"></span>${n}</button>`).join("")}</div>`;
+    : [["Metales",["am","at","mt","mp","lan","act"]],["Semimetales",["sm"]],["No metales",["nm","hal","gn"]]].map(([t,ks])=>`<div class="leg-g"><span class="ctl-l">${t}</span><div class="legend">${ks.map(k=>`<button class="chip rect k-${k}" data-cat="${k}" aria-pressed="${filterCat===k}"><span class="sw" style="background:var(--cat)"></span>${CATS[k]}</button>`).join("")}</div></div>`).join("");
   main.innerHTML=`<section class="view gut">
     ${installBannerHTML()}
     <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Busca un elemento (Fe, hierro, 26…)" autocomplete="off" value="${query}"></div>
