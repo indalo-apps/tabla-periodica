@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="2.6">
+<meta name="app-version" content="2.7">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -56,9 +56,10 @@ img{max-width:100%}
   --lv0:#263241; --lv1:#6b2c28; --lv2:#6b5714; --lv3:#1f6a40;
   color-scheme:dark;
 }
-html{height:100%;box-sizing:border-box}
+html{box-sizing:border-box;background:var(--surface)}
 *,*::before,*::after{box-sizing:border-box}
-body{height:100%;height:100dvh;background:var(--surface);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent}
+body{min-height:100%;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+#topbar{position:sticky;top:0;z-index:30;background:var(--surface)}
 button,select,input{font:inherit;color:inherit}
 button{cursor:pointer;touch-action:manipulation}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -66,7 +67,7 @@ button{cursor:pointer;touch-action:manipulation}
 
 /* Cabecera */
 header{flex:none;background:var(--surface);padding-top:calc(env(safe-area-inset-top,0px) + 4px)}
-#statusfill{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:100;pointer-events:none}
+#statusfill{position:fixed;top:0;left:0;right:0;height:max(1px,env(safe-area-inset-top,0px));background:var(--surface);z-index:100;pointer-events:none}
 .hd{display:flex;align-items:center;gap:12px;padding-block:10px;max-width:980px;margin:0 auto}
 .logo{flex:none;width:40px;height:40px;border-radius:10px;display:block}
 .logo i{font-style:normal;font:700 9px var(--f-mono)}
@@ -80,7 +81,7 @@ header{flex:none;background:var(--surface);padding-top:calc(env(safe-area-inset-
 .scope select{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:13px;font-weight:600;max-width:150px}
 @media (pointer:coarse){.scope select,.search input{font-size:16px}}
 
-main{flex:1;background:var(--bg);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+main{background:var(--bg);overflow-x:clip}
 .view{max-width:980px;margin:0 auto;padding-block:16px 28px;display:flex;flex-direction:column;gap:18px}
 h2{font:700 20px/1.2 var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
 h3{font:600 15px/1.3 var(--f-display);margin:0}
@@ -90,12 +91,12 @@ h3{font:600 15px/1.3 var(--f-display);margin:0}
 /* Pestañas inferiores */
 nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)}
 .view{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))!important}
-.tabs-in{display:grid;grid-template-columns:repeat(5,1fr);max-width:680px;margin:0 auto}
-.tab{background:none;border:0;border-bottom:3px solid transparent;padding:6px 4px 7px;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
-.tab[aria-current="page"]{border-bottom-color:var(--accent)}
+.tabs-in{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:680px;margin:0 auto;padding:4px 0 10px}
+.tab{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:6px 2px 7px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
+.tab[aria-current="page"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab[aria-current="page"]{color:var(--accent)}
-.tab[aria-current="page"] svg{stroke-width:2.3;fill:color-mix(in srgb,currentColor 18%,transparent)}
+.tab[aria-current="page"] svg{stroke-width:2.3}
 
 /* Controles */
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -424,15 +425,6 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .zseg button{min-width:44px;min-height:40px;padding:0 8px;font-variant-numeric:tabular-nums}
 .gwrap ~ .zseg,.zoom-box.game .zseg{position:static;margin-bottom:8px;display:inline-grid}
 .tbl-bar{position:static;transform:none;margin-top:8px}
-/* Lupa al arrastrar */
-#loupe{position:fixed;z-index:79;pointer-events:none;background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:8px;box-shadow:0 14px 30px -10px rgb(0 0 0 / .5);transform:translate(-50%,-100%)}
-#loupe .lg{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:3px}
-#loupe .lc{border-radius:7px;background:var(--surface-2);display:grid;place-items:center;font:700 15px var(--f-display);color:var(--ink)}
-#loupe .lc.t{background:var(--surface);outline:1.5px dashed var(--muted);outline-offset:-1.5px}
-#loupe .lc.ok{background:var(--cat)}
-#loupe .lc.c{outline:3px solid var(--accent);outline-offset:-1px;background:var(--accent-soft)}
-#loupe .lc.none{visibility:hidden}
-#loupe .lt{font-size:12.5px;font-weight:600;text-align:center;margin-top:6px;color:var(--ink)}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -446,6 +438,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 <body>
 
 <div id="statusfill" aria-hidden="true"></div>
+<div id="topbar">
 <header>
   <div class="hd gut">
     <img class="logo" src="icon-192.png" alt="" width="40" height="40">
@@ -463,6 +456,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
     <button class="tab" data-tab="progreso"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progreso</button>
   </div>
 </nav>
+</div>
 
 <main id="main"></main>
 
@@ -531,6 +525,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.7",["🗂️ Pestañas de arriba más visibles, como botones con borde","📱 La app se desplaza como una página normal con la cabecera fija arriba (para que el iPhone no difumine la parte superior)","🔍 Quitada la lupa del juego"]],
   ["2.6",["🔍 Zoom con botones 1× · 2× · 3× en la esquina superior izquierda de la tabla (y sigue el pellizco)","🎯 Jugar: al arrastrar una ficha aparece una lupa con la casilla de destino en grande y su grupo y periodo"]],
   ["2.5",["🧩 Jugar: zoom (pellizco o − +), casillas más grandes mostrando solo la zona de la familia, y las fichas en una fila que se desliza","↺ Botones de Reiniciar y 💡 Pista, reloj que se puede ocultar y que se para si sales","💬 Mensajes claros al acertar o fallar (también para lectores de pantalla)","✕ En el Test ya se puede salir a mitad de ronda, y el botón «atrás» del móvil vuelve al menú en Test, Rellenar y Jugar"]],
   ["2.4",["✍️ La autoría se ve en Ajustes (Acerca de) y al pie de la pantalla","⚠️ Aviso: en caso de error o duda, la fuente fiable es el material oficial de la materia","📱 Nuevo intento para que en el iPhone no se vea borrosa la parte de arriba"]],
@@ -571,6 +566,7 @@ function weightedPick(list){const tot=list.reduce((a,e)=>a+weightOf(e.z),0);let 
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const $=s=>document.querySelector(s);
 const main=$("#main");
+const SC=document.scrollingElement||document.documentElement;
 
 /* ===================== TABLA ===================== */
 function cellHTML(e,opts={}){
@@ -669,10 +665,10 @@ function setZoom(z,cx,cy){
   // Mantener quieto el punto bajo los dedos (o el centro)
   const r=box.getBoundingClientRect();
   const px=(cx??r.left+r.width/2)-r.left, py=(cy??r.top+r.height/2)-r.top;
-  const ax=(box.scrollLeft+px)/old, ay=(main.scrollTop+py+r.top-main.getBoundingClientRect().top)/old;
+  const ax=(box.scrollLeft+px)/old;
   w.style.setProperty("--z",ZOOM);
   box.scrollLeft=ax*ZOOM-px;
-  const mt=main.getBoundingClientRect().top;main.scrollTop=ay*ZOOM-py-(r.top-mt);
+  SC.scrollTop+=py*(ZOOM/old-1);
   document.querySelectorAll("[data-zoom]").forEach(b=>b.setAttribute("aria-pressed",Math.abs(ZOOM-+b.dataset.zoom)<.05));
 }
 (function(){
@@ -743,7 +739,7 @@ function exitSub(){
   if(PREF.tab==="test"&&QZ){QZ=null;renderTest()}
   else if(PREF.tab==="test"&&FILL){FILL=null;renderFill()}
   else if(PREF.tab==="juego"&&GAME){GAME=null;clearInterval(ticker);renderJuego()}
-  main.scrollTop=0;
+  SC.scrollTop=0;
 }
 addEventListener("popstate",()=>{
   if(skipPop){skipPop=false;return}
@@ -910,7 +906,7 @@ function answerVal(v){
   renderTest();
   const fb=document.querySelector(".feedback");fb&&fb.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
-function nextQ(){QZ.i++;if(QZ.i>=ROUND){QZ.done=true}else{QZ.q=makeQuestion();QZ.recent=[...QZ.recent.slice(-5),QZ.q.z]}renderTest();main.scrollTop=0}
+function nextQ(){QZ.i++;if(QZ.i>=ROUND){QZ.done=true}else{QZ.q=makeQuestion();QZ.recent=[...QZ.recent.slice(-5),QZ.q.z]}renderTest();SC.scrollTop=0}
 
 
 /* ===================== RELLENAR FAMILIAS ===================== */
@@ -986,7 +982,7 @@ function startGame(cat){subShown();ZOOM=1;
   const items=cat==="mix"?shuffle(E.filter(e=>!e.f&&e.z<=86)).slice(0,10).map(e=>e.z):E.filter(e=>e.c===cat).map(e=>e.z);
   GAME={cat,items,tray:shuffle(items),placed:new Set(),errs:{},hints:0,sel:null,bad:null,hint:null,msg:"",elapsed:0,tStart:Date.now(),done:false};
   startTicker();
-  renderJuego();main.scrollTop=0;
+  renderJuego();SC.scrollTop=0;
 }
 function gbtn(k,label,n){const b=GAMEBEST[k];return `<button class="gbtn k-${k}" data-game="${k}"><span class="t">${k==="mix"?"🎲":`<span class="sw" style="background:var(--cat);width:12px;height:12px;border-radius:4px;border:1px solid rgb(0 0 0 / .15)"></span>`}${label}</span><span class="sub ${b===0?"ok":""}">${n} elementos${b===undefined?"":b===0?" · ✓ sin fallos":` · mejor: ${b} fallo${b===1?"":"s"}`}</span></button>`}
 function renderJuego(){
@@ -1042,26 +1038,6 @@ function gameTable(G,inG){
   }
   return h+"</div>";
 }
-// Lupa: la casilla de destino y sus vecinas, en grande, encima del dedo
-const POSMAP={};E.forEach(e=>{const p=gridPos(e);POSMAP[p.row+","+p.col]=e});
-function showLoupe(c,x,y){
-  let L=$("#loupe");
-  if(!c){if(L)L.hidden=true;return}
-  if(!L){L=document.createElement("div");L.id="loupe";L.setAttribute("aria-hidden","true");document.body.appendChild(L)}
-  const e=BYZ[+c.dataset.gz],p=gridPos(e),G=GAME,inG=new Set(G.items);
-  let h='<div class="lg">';
-  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-    const n=POSMAP[(p.row+dr)+","+(p.col+dc)];
-    if(!n){h+='<div class="lc none"></div>';continue}
-    const ok=G.placed.has(n.z),t=inG.has(n.z);
-    h+=`<div class="lc k-${n.c}${t?(ok?" ok":" t"):""}${dr===0&&dc===0?" c":""}">${ok?n.s:""}</div>`;
-  }
-  h+=`</div><div class="lt">${e.f?(e.c==="lan"?"Lantánidos":"Actínidos")+" · periodo "+e.p:"Grupo "+e.g+" · Periodo "+e.p}</div>`;
-  L.innerHTML=h;L.hidden=false;
-  const top=y-14<190?y+190:y-14; // si no cabe encima, debajo
-  L.style.left=Math.min(innerWidth-90,Math.max(90,x))+"px";L.style.top=top+"px";
-}
-function hideLoupe(){const L=$("#loupe");if(L)L.hidden=true}
 function gameTime(){const G=GAME;if(!G)return 0;return Math.round((G.elapsed+(G.tStart?Date.now()-G.tStart:0))/1000)}
 const fmtT=t=>`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
 let ticker=null;
@@ -1107,15 +1083,14 @@ function cellAt(x,y){
     // La ficha va un poco por encima del dedo para que se vea la casilla
     const gx=ev.clientX,gy=ev.clientY-(ev.pointerType==="touch"?46:0);drag.ghost.style.left=gx+"px";drag.ghost.style.top=gy+"px";
     const c=cellAt(gx,gy);if(drag.hl&&drag.hl!==c)drag.hl.classList.remove("ghl");if(c){c.classList.add("ghl")}drag.hl=c;
-    showLoupe(c,gx,gy-40);
   });
   const end=ev=>{
     if(!drag||ev.pointerId!==drag.id)return;const d=drag;drag=null;
-    if(d.ghost)d.ghost.remove();d.el.classList.remove("dragging");hideLoupe();
+    if(d.ghost)d.ghost.remove();d.el.classList.remove("dragging");
     if(!d.moved){GAME.sel=GAME.sel===d.z?null:d.z;renderJuego();return}
     gameDrop(d.z,d.hl?+d.hl.dataset.gz:null);
   };
-  main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{hideLoupe();if(drag){if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
+  main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{if(drag){if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
 })();
 
 /* ===================== PROGRESO ===================== */
@@ -1145,7 +1120,7 @@ function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===PREF.tab?"page":"false"));
   ({tabla:renderTabla,fichas:renderFichas,juego:renderJuego,test:renderTest,progreso:renderProgreso})[PREF.tab]();
 }
-document.querySelector("nav.tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;if(PREF.tab==="juego")pauseGame();PREF.tab=b.dataset.tab;if(PREF.tab==="juego")resumeGame();savePref();confirmReset=false;render();main.scrollTop=0});
+document.querySelector("nav.tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;if(PREF.tab==="juego")pauseGame();PREF.tab=b.dataset.tab;if(PREF.tab==="juego")resumeGame();savePref();confirmReset=false;render();SC.scrollTop=0});
 
 main.addEventListener("toggle",ev=>{if(ev.target.classList&&ev.target.classList.contains("fold")){PREF.famOpen=ev.target.open;savePref()}},true);
 main.addEventListener("input",ev=>{if(ev.target.id==="q"){query=ev.target.value;updateResults()}});
@@ -1169,16 +1144,16 @@ main.addEventListener("click",ev=>{
   if(t.closest("#qz-start")||t.closest("#qz-again")){startQuiz();return}
   if(t.closest("#qz-setup")||t.closest("#qz-exit")){if(history.state&&history.state.sub){history.back()}else{QZ=null;renderTest()}return}
   if(b=t.closest("[data-tmode]")){PREF.tmode=b.dataset.tmode;savePref();renderTest();return}
-  if(b=t.closest("[data-set]")){startFill(b.dataset.set);main.scrollTop=0;return}
+  if(b=t.closest("[data-set]")){startFill(b.dataset.set);SC.scrollTop=0;return}
   if(b=t.closest("[data-fill]")){fillTap(+b.dataset.fill);return}
   if(t.closest("#fill-hint")){FILL.hint=true;renderFill();return}
   if(t.closest("#fill-again")){startFill(FILL.key);return}
-  if(t.closest("#fill-list")){if(history.state&&history.state.sub){history.back()}else{FILL=null;renderFill();main.scrollTop=0}return}
+  if(t.closest("#fill-list")){if(history.state&&history.state.sub){history.back()}else{FILL=null;renderFill();SC.scrollTop=0}return}
   if(b=t.closest("[data-game]")){startGame(b.dataset.game);return}
   if(t.closest("#g-again")||t.closest("#g-restart")){startGame(GAME.cat);return}
   if(t.closest("#g-hint")){gameHint();return}
   if(t.closest("#g-time-t")){PREF.gtime=PREF.gtime===false;savePref();renderJuego();return}
-  if(t.closest("#g-list")){if(history.state&&history.state.sub){history.back()}else{GAME=null;clearInterval(ticker);renderJuego();main.scrollTop=0}return}
+  if(t.closest("#g-list")){if(history.state&&history.state.sub){history.back()}else{GAME=null;clearInterval(ticker);renderJuego();SC.scrollTop=0}return}
   if(b=t.closest(".gwrap [data-gz]")){if(GAME&&GAME.sel)gameDrop(GAME.sel,+b.dataset.gz);return}
   if(b=t.closest("[data-opt]")){answer(+b.dataset.opt);return}
   if(b=t.closest("[data-place]")){if(!b.disabled)answerVal(+b.dataset.place);return}
