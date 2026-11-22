@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.0">
+<meta name="app-version" content="3.1">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -56,7 +56,7 @@ img{max-width:100%}
   --lv0:#263241; --lv1:#6b2c28; --lv2:#6b5714; --lv3:#1f6a40;
   color-scheme:dark;
 }
-html{box-sizing:border-box;background:var(--surface)}
+html{box-sizing:border-box;background:var(--surface);scroll-padding-top:150px;scroll-padding-bottom:120px}
 *,*::before,*::after{box-sizing:border-box}
 body{min-height:100%;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 #topbar{position:sticky;top:0;z-index:30;background:var(--surface)}
@@ -427,6 +427,31 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .zseg output{min-width:52px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
 .gwrap ~ .zseg,.zoom-box.game .zseg{position:static;margin-bottom:8px;display:inline-flex;transform:none}
 .tbl-bar{position:static;transform:none;margin-top:8px}
+/* Impresión */
+.printbtns{display:flex;flex-wrap:wrap;gap:8px}.printbtns .btn{padding:0 12px;min-height:44px;font-size:14px}
+#print{display:none}
+@media print{
+  @page{size:A4 landscape;margin:9mm}
+  body{background:#fff!important;min-height:0}
+  body>*:not(#print){display:none!important}
+  #print{display:block;color:#000;font-family:var(--f-body)}
+  .phead{display:flex;justify-content:space-between;align-items:flex-end;gap:10mm;margin-bottom:4mm}
+  .phead h1{font:700 15pt var(--f-display);margin:0}
+  .pfields{display:flex;gap:6mm;font-size:10pt}
+  .pgrid{display:grid;grid-template-columns:6mm repeat(18,1fr);grid-template-rows:5mm repeat(7,14.5mm) 3mm repeat(2,14.5mm);gap:.8mm}
+  .pl{font:600 8pt var(--f-mono);display:flex;align-items:center;justify-content:center;color:#444}
+  .pf{font-size:8pt;display:flex;align-items:center;justify-content:flex-end;padding-right:2mm;color:#444}
+  .pc{border:.35mm solid #222;border-radius:1mm;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pc.ph{border-style:dashed;font-size:7pt;color:#555}
+  .pc[class*="k-"]{background:var(--cat)}
+  .pz{position:absolute;top:.6mm;left:1mm;font:600 7pt var(--f-mono)}
+  .ps{font:700 13pt var(--f-display);margin-top:1.5mm}
+  .pn{font-size:5.5pt;max-width:95%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .pfoot{font-size:7pt;color:#555;margin:3mm 0 0;text-align:center}
+}
+.skip{position:absolute;left:8px;top:-60px;z-index:200;background:var(--accent);color:var(--accent-ink);padding:10px 14px;border-radius:10px;font-weight:700}
+.skip:focus{top:8px}
+main:focus{outline:none}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -439,6 +464,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 </head>
 <body>
 
+<a class="skip" href="#main">Saltar al contenido</a>
 <div id="statusfill" aria-hidden="true"></div>
 <div id="topbar">
 <header>
@@ -460,7 +486,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 </nav>
 </div>
 
-<main id="main"></main>
+<main id="main" tabindex="-1"></main>
 
 
 <div id="sheet" hidden></div>
@@ -527,6 +553,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["3.1",["⚡ Test: nuevas preguntas de iones («¿Qué ion forma el magnesio?» → Mg²⁺) y de propiedades periódicas (radio, electronegatividad, energía de ionización y carácter metálico), con la regla explicada","🧪 La ficha de cada elemento indica su ion más común","🖨 Tabla muda para imprimir o guardar en PDF (vacía, con números o con la solución), en «Opciones de la tabla»","🎯 Jugar: al arrastrar una ficha, la tabla se acerca sola y vuelve al soltarla","♿ Mejoras de accesibilidad (WCAG 2.2): lectores de pantalla, teclado y foco"]],
   ["3.0",["🎯 El zoom (− 100 % +) queda centrado en el hueco que dejan las columnas de la tabla"]],
   ["2.9",["⚡ Las actualizaciones llegan antes: la app comprueba si hay versión nueva al abrirla, al volver a ella y cada minuto y medio, y siempre descarga la última"]],
   ["2.8",["🔍 Zoom con botones − y + y el porcentaje (100 %, 150 %, 200 %, 300 %), arriba a la izquierda de la tabla y en Jugar"]],
@@ -558,6 +585,7 @@ let PROG=store.get("tp-prog-v1",{});
 let PREF=Object.assign({scope:"basicos",tab:"tabla",fit:true,color:"cat",hide:false,dir:"s2n",types:["place","s2n","n2s","fam","kind","pos","gp","conf"],tmode:"q"},store.get("tp-pref-v1",{}));
 PREF.scope="todos";
 if(!PREF.v12){PREF.v12=1;if(!PREF.types.includes("place"))PREF.types.unshift("place")}
+if(!PREF.v31){PREF.v31=1;["ion","trend"].forEach(k=>{if(!PREF.types.includes(k))PREF.types.push(k)})}
 const savePref=()=>store.set("tp-pref-v1",PREF);
 const saveProg=()=>store.set("tp-prog-v1",PROG);
 let filterCat=null, query="";
@@ -573,10 +601,60 @@ const $=s=>document.querySelector(s);
 const main=$("#main");
 const SC=document.scrollingElement||document.documentElement;
 
+
+/* ===================== IONES Y PROPIEDADES PERIÓDICAS ===================== */
+// Ion más habitual (temario de 4º): grupos 1, 2, Al, y no metales de los grupos 15–17
+const ANION={7:"nitruro",15:"fosfuro",8:"óxido",16:"sulfuro",34:"seleniuro",9:"fluoruro",17:"cloruro",35:"bromuro",53:"yoduro"};
+function ionOf(e){
+  if(e.c==="am")return 1; if(e.c==="at")return 2; if(e.z===13)return 3;
+  if(e.z===7||e.z===15)return -3; if(e.z===8||e.z===16||e.z===34)return -2; if([9,17,35,53].includes(e.z))return -1;
+  return null;
+}
+const ionSup=q=>(Math.abs(q)>1?SUP[Math.abs(q)]:"")+(q>0?"⁺":"⁻");
+const ionStr=(e,q)=>e.s+ionSup(q);
+function ionText(e){const q=ionOf(e);if(q==null)return null;return q>0?`${ionStr(e,q)} (catión ${e.n.toLowerCase()}): pierde ${q} ${q>1?"electrones":"electrón"}`:`${ionStr(e,q)} (anión ${ANION[e.z]}): gana ${-q} ${q<-1?"electrones":"electrón"}`}
+// Datos reales: electronegatividad (Pauling), 1.ª energía de ionización (kJ/mol), radio atómico (pm)
+const PROP={3:[.98,520,145],4:[1.57,899,105],5:[2.04,801,85],6:[2.55,1086,70],7:[3.04,1402,65],8:[3.44,1314,60],9:[3.98,1681,50],11:[.93,496,180],12:[1.31,738,150],13:[1.61,578,125],14:[1.90,787,110],15:[2.19,1012,100],16:[2.58,1000,100],17:[3.16,1251,100],19:[.82,419,220],20:[1.00,590,180],31:[1.81,579,130],32:[2.01,762,125],33:[2.18,947,115],34:[2.55,941,115],35:[2.96,1140,115],37:[.82,403,235],38:[.95,549,200],49:[1.78,558,155],50:[1.96,709,145],51:[2.05,834,145],52:[2.10,869,140],53:[2.66,1008,140],55:[.79,376,260],56:[.89,503,215]};
+const TPROPS={radio:"mayor radio atómico",en:"mayor electronegatividad",ei:"mayor energía de ionización",met:"más carácter metálico"};
+// Elige una pareja en el mismo grupo o periodo en la que la regla del libro coincide con los datos reales
+function trendPair(){
+  const zs=Object.keys(PROP).map(Number);
+  for(let k=0;k<200;k++){
+    const a=BYZ[zs[Math.floor(Math.random()*zs.length)]];
+    const same=zs.map(z=>BYZ[z]).filter(b=>b.z!==a.z&&(b.g===a.g||b.p===a.p));
+    if(!same.length)continue;
+    const b=same[Math.floor(Math.random()*same.length)];
+    const prop=Object.keys(TPROPS)[Math.floor(Math.random()*4)];
+    const sp=a.p===b.p, A=PROP[a.z],B=PROP[b.z];
+    // regla
+    let rule;
+    if(prop==="radio"||prop==="met")rule=sp?(a.g<b.g?a:b):(a.p>b.p?a:b);
+    else rule=sp?(a.g>b.g?a:b):(a.p<b.p?a:b);
+    // datos
+    const idx={en:0,ei:1,radio:2,met:0}[prop];
+    let va=A[idx],vb=B[idx];if(prop==="met"){va=-va;vb=-vb}
+    if(Math.abs(va-vb)/Math.max(Math.abs(va),Math.abs(vb))<.05)continue;
+    const data=va>vb?a:b;
+    if(data!==rule)continue;
+    return {a,b,prop,ans:rule,sp};
+  }
+  return null;
+}
+function trendExpl(t){
+  const {a,b,prop,ans,sp}=t, o=ans===a?b:a;
+  const where=sp?`están en el mismo periodo (${a.p})`:`están en el mismo grupo (${a.g})`;
+  const rule={radio:sp?"en un periodo, el radio disminuye hacia la derecha (→)":"en un grupo, el radio aumenta hacia abajo (↓)",
+    met:sp?"en un periodo, el carácter metálico disminuye hacia la derecha (→)":"en un grupo, el carácter metálico aumenta hacia abajo (↓)",
+    en:sp?"en un periodo, la electronegatividad aumenta hacia la derecha (→)":"en un grupo, la electronegatividad disminuye hacia abajo (↓)",
+    ei:sp?"en un periodo, la energía de ionización aumenta hacia la derecha (→)":"en un grupo, la energía de ionización disminuye hacia abajo (↓)"}[prop];
+  const val={radio:z=>PROP[z][2]+" pm",en:z=>String(PROP[z][0]).replace(".",","),ei:z=>PROP[z][1]+" kJ/mol",met:null}[prop];
+  return `${a.s} y ${b.s} ${where}: ${rule}. Por eso es el <b>${ans.n.toLowerCase()} (${ans.s})</b>${val?` (${val(ans.z)} frente a ${val(o.z)})`:""}.`;
+}
+
 /* ===================== TABLA ===================== */
 function cellHTML(e,opts={}){
   const lv=level(e.z);
-  return `<button class="cell k-${e.c}${opts.cls||""}" style="grid-column:${opts.col};grid-row:${opts.row};--lvc:var(--lv${lv})" data-z="${e.z}" aria-label="${e.n}, número atómico ${e.z}"><span class="z">${e.z}</span><span class="s">${opts.label??e.s}</span><span class="n">${e.n}</span></button>`;
+  return `<button class="cell k-${e.c}${opts.cls||""}" style="grid-column:${opts.col};grid-row:${opts.row};--lvc:var(--lv${lv})" data-z="${e.z}" aria-label="${opts.label??e.s}: ${e.n}, número atómico ${e.z}"><span class="z">${e.z}</span><span class="s">${opts.label??e.s}</span><span class="n">${e.n}</span></button>`;
 }
 function gridPos(e){
   if(e.f){const base=e.c==="lan"?57:89;return {col:(e.z-base)+4,row:e.c==="lan"?10:11}}
@@ -711,6 +789,9 @@ function openTableOpts(){
     <div class="set-group"><h3>Ver en cada casilla</h3>
       <div class="seg" role="group"><button data-show="s" aria-pressed="${show==="s"}">Símbolo</button><button data-show="z" aria-pressed="${show==="z"}">Número</button><button data-show="n" aria-pressed="${show==="n"}">Nada</button></div>
       <p class="muted" style="margin:0;font-size:13px">Para repasar: con «Número» o «Nada», intenta recordar cada elemento y tócalo para comprobarlo.</p></div>
+    <div class="set-group"><h3>Imprimir o guardar en PDF</h3>
+      <div class="printbtns"><button class="btn ghost" data-print="muda">🖨 Tabla muda</button><button class="btn ghost" data-print="num">🖨 Con números</button><button class="btn ghost" data-print="sol">🖨 Solución</button></div>
+      <p class="muted" style="margin:0;font-size:13px">Se abre la ventana de imprimir. Para tener un PDF, elige «Guardar como PDF» (en el iPhone: Compartir → Guardar en Archivos).</p></div>
     <div class="sheet-nav"><button class="btn block" data-close="1">Cerrar</button></div>
   </div></div>`;
   s.hidden=false;sheetShown();
@@ -729,6 +810,7 @@ function factsHTML(e){
     <div class="wide"><dt>Configuración electrónica</dt><dd class="mono">${confFull(e.z)}</dd></div>
     ${e.z>2?`<div class="wide"><dt>Abreviada</dt><dd class="mono">${confShort(e.z)}</dd></div>`:""}
     ${v?`<div class="wide"><dt>Electrones de valencia</dt><dd>${v} (capa ${e.p})</dd></div>`:""}
+    ${ionText(e)?`<div class="wide"><dt>Ion más común</dt><dd>${ionText(e)}</dd></div>`:""}
   </dl>`;
 }
 function openSheet(z){
@@ -747,8 +829,9 @@ function openSheet(z){
   s.hidden=false;sheetShown();
 }
 let skipPop=false;
-function closeSheet(fromPop){const s=$("#sheet");if(s.hidden)return;s.hidden=true;s.innerHTML="";if(!fromPop&&history.state&&history.state.sheet){skipPop=true;history.back()}}
-function sheetShown(){if(!(history.state&&history.state.sheet))history.pushState({sheet:1},"");const sh=document.querySelector("#sheet .sheet");if(sh){sh.tabIndex=-1;sh.focus({preventScroll:true})}}
+function closeSheet(fromPop){const s=$("#sheet");if(s.hidden)return;s.hidden=true;s.innerHTML="";if(sheetOpener&&document.body.contains(sheetOpener))sheetOpener.focus({preventScroll:true});sheetOpener=null;if(!fromPop&&history.state&&history.state.sheet){skipPop=true;history.back()}}
+let sheetOpener=null;
+function sheetShown(){if(!sheetOpener||!document.body.contains(sheetOpener))sheetOpener=document.activeElement;if(!(history.state&&history.state.sheet))history.pushState({sheet:1},"");const sh=document.querySelector("#sheet .sheet");if(sh){sh.tabIndex=-1;sh.focus({preventScroll:true})}}
 // Botón/gesto «atrás» del móvil: cierra la hoja abierta o sale del test, la serie o el juego
 function subShown(){if(!(history.state&&(history.state.sub||history.state.sheet)))history.pushState({sub:1},"")}
 function exitSub(){
@@ -801,7 +884,7 @@ function renderFichas(){
 function flashAnswer(ok){record(FL.deck[FL.i],ok);if(ok)FL.known++;else if(FL.deck.length-FL.i>4){FL.deck.splice(FL.i+4+Math.floor(Math.random()*4),0,FL.deck[FL.i])}FL.i++;FL.flipped=false;renderFichas()}
 
 /* ===================== TEST ===================== */
-const QTYPES={place:"Colocar en la tabla",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
+const QTYPES={place:"Colocar en la tabla",ion:"Iones",trend:"Propiedades periódicas",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
 const ROUND=10;
 let QZ=null;
 function pickOthers(answer,cands,n,prefer){
@@ -818,6 +901,8 @@ function makeQuestion(){
     if(t==="fam")cands=P.filter(e=>familyOf(e));
     if(t==="gp")cands=P.filter(e=>!e.f);
     if(t==="conf")cands=P.filter(e=>e.z<=56&&!EXC[e.z]);
+    if(t==="ion")cands=P.filter(e=>ionOf(e)!=null);
+    if(t==="trend"){const tp=trendPair();if(tp)return buildTrend(tp);continue}
     if(!cands.length)continue;
     const e=weightedPick(cands);
     if(QZ&&QZ.recent.includes(e.z)&&cands.length>4)continue;
@@ -852,6 +937,13 @@ function buildQ(t,e,P){
     const near=E.filter(x=>x.z!==e.z&&((x.f===e.f&&!x.f&&(Math.abs(x.g-e.g)<=1&&Math.abs(x.p-e.p)<=1))||(x.f&&e.f&&x.c===e.c&&Math.abs(x.z-e.z)<=2))).map(x=>x.z);
     opts=[correct,...pickOthers(correct,E.filter(x=>Math.abs(x.z-e.z)<12).map(x=>x.z),3,near)];
     expl=`Es el <b>${e.n.toLowerCase()} (${e.s})</b>: ${e.f?(e.c==="lan"?"lantánidos":"actínidos")+", periodo "+e.p:"grupo "+e.g+", periodo "+e.p}.`;
+  }else if(t==="ion"){
+    const q=ionOf(e);correct=ionStr(e,q);show=`<div class="qbig k-${e.c}">${e.s}</div><div class="muted">${e.n}</div>`;prompt=`¿Qué ion forma el ${e.n.toLowerCase()}?`;
+    const alt=[-q,q+(q>0?1:-1),q-(q>0?1:-1),q>0?q+2:q-2].filter(x=>x!==0&&Math.abs(x)<=4&&x!==q).map(x=>ionStr(e,x));
+    opts=[correct,...pickOthers(correct,alt,3)];
+    const v=valence(e);
+    expl=q>0?`Tiene ${v} ${v>1?"electrones":"electrón"} de valencia: ${v>1?"los pierde":"lo pierde"} y queda con la configuración del gas noble anterior → <b>${correct}</b> (catión ${e.n.toLowerCase()}).`
+      :`Tiene ${v} electrones de valencia: gana ${-q} para completar 8 (como el gas noble siguiente) → <b>${correct}</b> (anión ${ANION[e.z]}).`;
   }else if(t==="place"){
     correct=e.z;show=`<div class="qbig k-${e.c}">${e.s}</div><div class="muted">${e.n}</div>`;prompt="Toca su casilla en la tabla";opts=[];
     expl=`El ${e.n.toLowerCase()} está en ${e.f?"los "+(e.c==="lan"?"lantánidos":"actínidos")+", periodo "+e.p:"el grupo "+e.g+", periodo "+e.p}.`;
@@ -872,8 +964,14 @@ function buildQ(t,e,P){
   if(t!=="place")opts=shuffle(opts.slice(0,4));
   return {t,z:e.z,prompt,show,opts,correct,expl,picked:null,mono:t==="conf"};
 }
+function buildTrend(tp){
+  const {a,b,prop}=tp;
+  const tile=x=>`<div class="qbig k-${x.c}" style="font-size:44px;padding:6px 16px">${x.s}</div>`;
+  return {t:"trend",z:tp.ans.z,prompt:`¿Cuál tiene ${TPROPS[prop]}?`,show:`<div style="display:flex;gap:14px;align-items:center">${tile(a)}<span class="muted" style="font-weight:700">o</span>${tile(b)}</div>`,
+    opts:shuffle([a.s,b.s]),correct:tp.ans.s,expl:trendExpl(tp),picked:null,mono:false,names:{[a.s]:a.n,[b.s]:b.n}};
+}
 function startQuiz(){subShown();QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest()}
-function optLabel(q,o){if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
+function optLabel(q,o){if(q.t==="trend"){return `<b>${o}</b>&nbsp;<span class="muted" style="font-weight:500">${q.names[o]}</span>`}if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
 function renderTest(){
   if(!QZ&&PREF.tmode==="fill"){renderFill();return}
   if(!QZ){
@@ -904,7 +1002,7 @@ function renderTest(){
     <div class="qcard"><span class="qtype">${QTYPES[q.t]}</span>${q.show}<div class="qprompt">${q.prompt}</div></div>
     ${q.t==="place"?placeTable(q,answered):""}
     <div class="opts">${q.opts.map((o,i)=>{let c="";if(answered){if(o===q.correct)c=" ok";else if(o===q.picked)c=" ko"}return `<button class="opt${c}" data-opt="${i}" ${answered?"disabled":""}><span class="k" ${c?`aria-label="${c===" ok"?"Correcta":"Incorrecta"}"`:""}>${c===" ok"?"✓":c===" ko"?"✗":"ABCD"[i]}</span><span>${optLabel(q,o)}</span></button>`}).join("")}</div>
-    ${answered?`<div class="feedback ${q.picked===q.correct?"ok":"ko"}"><strong>${q.picked===q.correct?"¡Correcto!":(q.t==="place"?"No es esa casilla. Has tocado el "+BYZ[q.picked].n.toLowerCase()+" ("+BYZ[q.picked].s+")":"No es esa")}</strong>${q.expl}${ORIGIN[q.z]&&(q.t==="n2s"||q.t==="s2n")?" "+ORIGIN[q.z]:""}</div>
+    ${answered?`<div class="feedback ${q.picked===q.correct?"ok":"ko"}" role="status"><strong>${q.picked===q.correct?"¡Correcto!":(q.t==="place"?"No es esa casilla. Has tocado el "+BYZ[q.picked].n.toLowerCase()+" ("+BYZ[q.picked].s+")":"No es esa")}</strong>${q.expl}${ORIGIN[q.z]&&(q.t==="n2s"||q.t==="s2n")?" "+ORIGIN[q.z]:""}</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" data-z="${q.z}">Ver ficha</button><button class="btn" style="flex:2" id="qz-next">${QZ.i+1<ROUND?"Siguiente":"Ver resultado"}</button></div>`:""}
   </div></section>`;
   if(answered){const n=$("#qz-next");n&&n.focus({preventScroll:true})}
@@ -979,7 +1077,7 @@ function renderFill(){
   main.innerHTML=`<section class="view gut"><div class="quiz">
     <div class="counter"><span><b style="color:var(--ink)">${set.title}</b> · ${set.sub}</span><span>${F.pos}/${set.items.length} · ${Object.values(F.errs).reduce((a,b)=>a+b,0)} fallos</span></div>
     <div class="${vertical?"fill-col":"fill-row"}">${boxes}</div>
-    ${F.done?`<div class="feedback ${nerr?"ko":"ok"}"><strong>${nerr?`Completado con ${nerr} ${nerr===1?"elemento fallado":"elementos fallados"}`:"¡Perfecto, sin fallos!"}</strong>${nerr?"Los que has fallado están en rojo. Toca «Repetir» para volver a intentarlo.":"Ya te sabes esta serie."}${mn?`<div style="margin-top:6px">Truco: ${mn}</div>`:""}</div>
+    ${F.done?`<div class="feedback ${nerr?"ko":"ok"}" role="status"><strong>${nerr?`Completado con ${nerr} ${nerr===1?"elemento fallado":"elementos fallados"}`:"¡Perfecto, sin fallos!"}</strong>${nerr?"Los que has fallado están en rojo. Toca «Repetir» para volver a intentarlo.":"Ya te sabes esta serie."}${mn?`<div style="margin-top:6px">Truco: ${mn}</div>`:""}</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" id="fill-list">Otra serie</button><button class="btn" style="flex:1" id="fill-again">Repetir</button></div>`
     :`<p class="muted" style="margin:0;text-align:center;font-size:13.5px">¿Qué va en la casilla marcada? ${vertical?`(periodo ${BYZ[set.items[F.pos]].p})`:`(grupo ${BYZ[set.items[F.pos]].f?3:BYZ[set.items[F.pos]].g})`}</p>
       <div class="bank">${F.bank.map(z=>`<button data-fill="${z}" class="${F.used.has(z)?"used":""}">${BYZ[z].s}</button>`).join("")}</div>
@@ -1025,11 +1123,11 @@ function renderJuego(){
       ${zoomSeg()}
       <div class="pt-scroll" id="ptz"><div class="pt-wrap full gwrap" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
     </div>
-    ${G.done?`<div class="feedback ${nerr?"ko":"ok"}"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${fmtT(gameTime())}${G.hints?` con ${G.hints} pista${G.hints===1?"":"s"}`:""}.</div>
+    ${G.done?`<div class="feedback ${nerr?"ko":"ok"}" role="status"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${fmtT(gameTime())}${G.hints?` con ${G.hints} pista${G.hints===1?"":"s"}`:""}.</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" id="g-list">Otra familia</button><button class="btn" style="flex:1" id="g-again">Repetir</button></div>`
     :`<div class="tray"><p class="gmsg" role="status" aria-live="polite">${G.msg||(G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada ficha a su casilla (o tócala y luego toca la casilla)")}</p>
       ${left.length>6?`<span class="muted" style="font-size:12px;text-align:center">Quedan ${left.length} fichas · desliza la fila →</span>`:""}
-      <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
+      <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].s}: ${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
       <button class="ver" id="g-list" style="align-self:center">← Elegir otra familia</button></div>`}
   </section>`;
   G.bad=null;
@@ -1054,6 +1152,22 @@ function gameTable(G,inG){
   }
   return h+"</div>";
 }
+// Zoom automático: al entrar con la ficha en la tabla, si las casillas son pequeñas, se acerca alrededor del dedo;
+// cerca de los bordes, la tabla se desplaza sola; al soltar, vuelve al zoom anterior
+function autoZoom(d,x,y){
+  const box=$("#ptz");if(!box)return;const r=box.getBoundingClientRect();
+  const inside=x>=r.left&&x<=r.right&&y>=r.top-20&&y<=r.bottom+20;
+  if(!d.zoomed&&inside){
+    const cell=box.querySelector(".cell");const cw=cell?cell.getBoundingClientRect().width:99;
+    if(cw<40){d.zoomed=true;d.prevZ=ZOOM;setZoom(Math.min(ZMAX,ZOOM*Math.max(1.8,44/cw)),x,y)}
+  }
+  if(d.zoomed){
+    clearInterval(d.edge);const m=36,dx=x<r.left+m?-1:x>r.right-m?1:0,dy=y<r.top+m?-1:y>r.bottom-m?1:0;
+    if(dx||dy)d.edge=setInterval(()=>{box.scrollLeft+=dx*10;if(dy)SC.scrollTop+=dy*8;
+      const c=cellAt(x,y);if(d.hl&&d.hl!==c)d.hl.classList.remove("ghl");if(c)c.classList.add("ghl");d.hl=c},30);
+  }
+}
+function stopAutoZoom(d){clearInterval(d.edge);if(d.zoomed){d.zoomed=false;setZoom(d.prevZ)}}
 function gameTime(){const G=GAME;if(!G)return 0;return Math.round((G.elapsed+(G.tStart?Date.now()-G.tStart:0))/1000)}
 const fmtT=t=>`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
 let ticker=null;
@@ -1098,16 +1212,38 @@ function cellAt(x,y){
     if(!drag.moved){drag.moved=true;const g=document.createElement("div");g.id="ghost";g.className="k-"+BYZ[drag.z].c;g.style.background="var(--cat)";g.textContent=BYZ[drag.z].s;document.body.appendChild(g);drag.ghost=g;drag.el.classList.add("dragging")}
     // La ficha va un poco por encima del dedo para que se vea la casilla
     const gx=ev.clientX,gy=ev.clientY-(ev.pointerType==="touch"?46:0);drag.ghost.style.left=gx+"px";drag.ghost.style.top=gy+"px";
+    autoZoom(drag,gx,gy);
     const c=cellAt(gx,gy);if(drag.hl&&drag.hl!==c)drag.hl.classList.remove("ghl");if(c){c.classList.add("ghl")}drag.hl=c;
   });
   const end=ev=>{
     if(!drag||ev.pointerId!==drag.id)return;const d=drag;drag=null;
     if(d.ghost)d.ghost.remove();d.el.classList.remove("dragging");
     if(!d.moved){GAME.sel=GAME.sel===d.z?null:d.z;renderJuego();return}
-    gameDrop(d.z,d.hl?+d.hl.dataset.gz:null);
+    const target=d.hl?+d.hl.dataset.gz:null;
+    stopAutoZoom(d);
+    gameDrop(d.z,target);
   };
-  main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{if(drag){if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
+  main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{if(drag){stopAutoZoom(drag);if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
 })();
+
+
+/* ===================== TABLA MUDA PARA IMPRIMIR ===================== */
+function printTable(mode){
+  let pr=$("#print");if(!pr){pr=document.createElement("div");pr.id="print";document.body.appendChild(pr)}
+  const title={muda:"Tabla periódica muda",num:"Tabla periódica muda (con números atómicos)",sol:"Tabla periódica · solución"}[mode];
+  let g='<div class="pgrid">';
+  for(let c=1;c<=18;c++)g+=`<div class="pl" style="grid-column:${c+1};grid-row:1">${c}</div>`;
+  for(let r=1;r<=7;r++)g+=`<div class="pl" style="grid-column:1;grid-row:${r+1}">${r}</div>`;
+  g+=`<div class="pf" style="grid-column:1/4;grid-row:10">Lantánidos</div><div class="pf" style="grid-column:1/4;grid-row:11">Actínidos</div>`;
+  g+=`<div class="pc ph" style="grid-column:4;grid-row:7">57–71</div><div class="pc ph" style="grid-column:4;grid-row:8">89–103</div>`;
+  for(const e of E){const p=gridPos(e);
+    g+=`<div class="pc${mode==="sol"?" k-"+e.c:""}" style="grid-column:${p.col};grid-row:${p.row}">${mode!=="muda"?`<span class="pz">${e.z}</span>`:""}${mode==="sol"?`<span class="ps">${e.s}</span><span class="pn">${e.n}</span>`:""}</div>`}
+  g+="</div>";
+  pr.innerHTML=`<div class="phead"><h1>${title}</h1>${mode!=="sol"?`<div class="pfields"><span>Nombre: ______________________________</span><span>Curso: ________</span><span>Fecha: ____________</span></div>`:""}</div>${g}
+    <p class="pfoot">Tabla periódica 4º ESO · Adela Moreno Vega y Carlos Moreno Otto · indalo-apps.github.io/tabla-periodica · En caso de duda, la fuente fiable es el material oficial de la materia.</p>`;
+  closeSheet();
+  setTimeout(()=>window.print(),350);
+}
 
 /* ===================== PROGRESO ===================== */
 let confirmReset=false;
@@ -1188,6 +1324,7 @@ $("#sheet").addEventListener("click",ev=>{
   if(t.closest("[data-close]")&&(t.dataset.close||t.closest("button[data-close]"))){closeSheet()}
 });
 document.addEventListener("keydown",ev=>{
+  if(!$("#sheet").hidden&&ev.key==="Tab"){const f=[...document.querySelectorAll("#sheet .sheet button:not([disabled]),#sheet .sheet [href],#sheet .sheet input")];if(f.length){const i=f.indexOf(document.activeElement);if(ev.shiftKey&&(i<=0)){f[f.length-1].focus();ev.preventDefault()}else if(!ev.shiftKey&&i===f.length-1){f[0].focus();ev.preventDefault()}else if(i<0){f[0].focus();ev.preventDefault()}}}
   if(!$("#sheet").hidden&&ev.key==="Escape"){closeSheet();return}
   if(PREF.tab==="test"&&QZ&&!QZ.done&&$("#sheet").hidden){
     const i="1234abcd".indexOf(ev.key.toLowerCase());
@@ -1242,6 +1379,7 @@ $("#sheet").addEventListener("click",ev=>{
   if(b=t.closest("[data-theme-set]")){PREF.theme=b.dataset.themeSet;savePref();applyLook();document.querySelectorAll("[data-theme-set]").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
   if(b=t.closest("[data-color]")){PREF.color=b.dataset.color;savePref();renderTabla();openTableOpts();return}
   if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();openTableOpts();return}
+  if(b=t.closest("[data-print]")){printTable(b.dataset.print);return}
   if(t.closest("#set-nov")){verNovedades(null);return}
   if(t.closest("#set-install")||t.closest("#inst-again")){openInstall();return}
   if(t.closest("#inst-now")){installNow();return}
