@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.6">
+<meta name="app-version" content="4.7">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -568,6 +568,23 @@ main:focus{outline:none}
 /* Con el teclado abierto (buscador), la hoja sube por encima del teclado */
 .sheet-bg{padding-bottom:var(--kb,0px);transition:padding-bottom .15s}
 body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+
+/* ✕ igual en todas las ventanas y para salir de test, juego y series */
+.sheet > h2,.sheet .el-head{padding-right:50px}
+.counter .cinfo{flex:1;min-width:0;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.counter{gap:10px}
+.xexit{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--surface);font:500 20px/1 var(--f-body);color:var(--ink);display:grid;place-items:center;box-shadow:0 1px 4px rgb(0 0 0 / .18)}
+/* Filtro de familia */
+.filterbar{display:flex;align-items:center;gap:10px;background:var(--cat);border-radius:12px;padding:6px 6px 6px 14px;font-weight:600;font-size:14.5px;color:var(--ink);box-shadow:inset 0 -2px 0 rgb(0 0 0 / .12)}
+.filterbar button{margin-left:auto;min-height:44px;border:0;border-radius:10px;background:var(--surface);font:600 14px var(--f-body);color:var(--ink);padding:0 12px}
+.chip.rect[data-cat][aria-pressed="true"]{background:var(--cat);border-color:transparent;box-shadow:inset 0 -2px 0 rgb(0 0 0 / .16);font-weight:700}
+/* Tarjetas: respuesta */
+.flash-actions .btn{min-height:58px;font-size:15.5px;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;white-space:nowrap}
+.flash-actions .btn.yes{background:var(--good);color:#fff;border-color:var(--good)}
+.flash-actions .btn i{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:800;background:var(--bad);color:#fff}
+.flash-actions .btn.yes i{background:#fff;color:var(--good)}
+/* Acción que borra datos */
+.danger{background:none;border:1.5px solid var(--bad);color:var(--bad);border-radius:12px;min-height:44px;padding:0 14px;font:600 14.5px var(--f-body);align-self:flex-start}
 </style>
 </head>
 <body>
@@ -662,6 +679,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.7",["✕ Todas las ventanas se cierran con la misma ✕ de arriba a la derecha","✕ Para salir del test, del juego o de una serie, la misma ✕ arriba a la derecha","🎨 Al resaltar una familia aparece una franja de su color con «✕ Quitar»","🃏 Botones de las tarjetas más claros, con ✗ y ✓","🗑 «Borrar mi progreso» en rojo"]],
   ["4.6",["👆 Ahora puedes subir y bajar la pantalla aunque pongas el dedo sobre la tabla (para ver elementos en grande, desliza hacia un lado)","🚫 Al mantener pulsada una casilla ya no sale el menú de copiar texto","⌨️ En el buscador, la ventana sube por encima del teclado","🃏 Arreglado: una tarjeta podía quedarse torcida o contestarse sola al desplazar la pantalla"]],
   ["4.5",["🐞 Arreglado: al desplazar una ficha o una ventana se movía también la pantalla de detrás"]],
   ["4.4",["✕ La ficha se cierra con la ✕ de arriba, que está siempre a la vista","‹ › Abajo, botones fijos con el elemento anterior y el siguiente (su casilla de color y su nombre)"]],
@@ -815,6 +833,7 @@ function renderTabla(){
     ${installBannerHTML()}
     ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo hacia un lado por la tabla para verlos en grande.<br>🔍 Pulsa «Ampliada» si prefieres casillas más grandes.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
     ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
+    ${filterCat?`<div class="filterbar k-${filterCat}" role="status">Resaltando: ${CATS[filterCat]} (${E.filter(x=>x.c===filterCat).length})<button id="filter-x" aria-label="Quitar el resaltado">✕ Quitar</button></div>`:""}
     <div class="zoom-box">
       ${big?`<p class="bighint">↔︎ Desliza la tabla a los lados para ver el resto.</p>`:""}
       <div class="pt-scroll${big?" isbig":" scrub"}" id="ptz"><div class="pt-wrap full${big?" big":""}" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
@@ -856,10 +875,9 @@ const ALIAS={zinc:30,tungsteno:74,wolfram:74,kalium:19,natrium:11,"tungsteno (w)
 function openSearch(){
   const s=$("#sheet");
   s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Buscar un elemento">
-    <div class="grab"></div><h2>Buscar un elemento</h2>
+    <div class="grab"></div><button class="xbtn" data-close="1" aria-label="Cerrar">✕</button><h2>Buscar un elemento</h2>
     <div class="search" style="margin-top:12px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Nombre, símbolo o número (Fe, hierro, 26…)" autocomplete="off" enterkeyhint="search" value="${query}"></div>
     <div class="sres" id="res"></div>
-    <div class="sheet-nav"><button class="btn ghost block" data-close="1">Cerrar</button></div>
   </div></div>`;
   s.hidden=false;sheetShown();updateResults();
   const q=$("#q");setTimeout(()=>q&&q.focus(),60);
@@ -917,7 +935,7 @@ function setZoom(z,cx,cy){
 function openTableOpts(){
   const show=PREF.show||"s";const s=$("#sheet");
   s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Opciones de la tabla">
-    <div class="grab"></div><h2>Opciones de la tabla</h2>
+    <div class="grab"></div><button class="xbtn" data-close="1" aria-label="Cerrar">✕</button><h2>Opciones de la tabla</h2>
     <div class="set-group"><h3>Colorear por</h3>
       <div class="seg" role="group"><button data-color="cat" aria-pressed="${PREF.color==="cat"}">Familias</button><button data-color="lv" aria-pressed="${PREF.color==="lv"}">Mi progreso</button></div>
       <p class="muted" style="margin:0;font-size:13px">«Mi progreso» pinta cada elemento según lo que te lo sabes.</p></div>
@@ -927,7 +945,6 @@ function openTableOpts(){
     <div class="set-group"><h3>Imprimir o guardar en PDF</h3>
       <div class="printbtns"><button class="btn ghost" data-print="muda">🖨 Tabla muda</button><button class="btn ghost" data-print="num">🖨 Con números</button><button class="btn ghost" data-print="sol">🖨 Solución</button></div>
       <p class="muted" style="margin:0;font-size:13px">Se abre la ventana de imprimir. Para tener un PDF, elige «Guardar como PDF» (en el iPhone: Compartir → Guardar en Archivos).</p></div>
-    <div class="sheet-nav"><button class="btn block" data-close="1">Cerrar</button></div>
   </div></div>`;
   s.hidden=false;sheetShown();
 }
@@ -1060,7 +1077,7 @@ function renderFichas(){
         ${ORIGIN[e.z]?`<div class="note" style="text-align:left;width:100%">${ORIGIN[e.z]}</div>`:""}
       </div>
     </div></div>
-    <div class="flash-actions" ${FL.flipped?"":"style=\"visibility:hidden\""}><button class="btn no" id="fl-no">No me la sabía</button><button class="btn yes" id="fl-yes">Me la sabía</button></div>
+    <div class="flash-actions" ${FL.flipped?"":"style=\"visibility:hidden\""}><button class="btn no" id="fl-no"><i aria-hidden="true">✗</i>No me la sabía</button><button class="btn yes" id="fl-yes"><i aria-hidden="true">✓</i>Me la sabía</button></div>
     <p class="swipe-hint">${FL.flipped?"También puedes deslizar la tarjeta: ← no me la sabía · me la sabía →":""}</p>
     <p class="muted" style="margin:0;font-size:13px;text-align:center">Sé sincero: las que fallas vuelven a salir más a menudo.</p>
   </div></section>`;
@@ -1192,7 +1209,7 @@ function renderTest(){
   }
   const q=QZ.q;const e=BYZ[q.z];const answered=q.picked!==null;
   main.innerHTML=`<section class="view gut"><div class="quiz${answered?" answered":""}">
-    <div class="counter"><button class="exitbtn" id="qz-exit" aria-label="Salir del test">✕ Salir</button><span>Pregunta ${QZ.i+1} de ${ROUND} · ${QZ.score} aciertos</span></div>
+    <div class="counter"><span>Pregunta ${QZ.i+1} de ${ROUND} · ${QZ.score} aciertos</span><button class="xexit" id="qz-exit" aria-label="Salir del test">✕</button></div>
     <div class="bar"><i style="width:${(QZ.i+(answered?1:0))/ROUND*100}%"></i></div>
     <div class="qcard"><span class="qtype">${QTYPES[q.t]}</span>${q.show}<div class="qprompt">${q.prompt}</div></div>
     ${q.t==="place"?placeTable(q,answered):""}
@@ -1271,14 +1288,14 @@ function renderFill(){
   const nerr=set.items.filter(x=>F.errs[x]).length;
   const mn=set.g?MNEMO[set.g]:"";
   main.innerHTML=`<section class="view gut"><div class="quiz">
-    <div class="counter"><span><b style="color:var(--ink)">${set.title}</b> · ${set.sub}</span><span>${F.pos}/${set.items.length} · ${Object.values(F.errs).reduce((a,b)=>a+b,0)} fallos</span></div>
+    <div class="counter"><div class="cinfo"><span><b style="color:var(--ink)">${set.title}</b> · ${set.sub}</span><span>${F.pos}/${set.items.length} · ${Object.values(F.errs).reduce((a,b)=>a+b,0)} fallos</span></div><button class="xexit" id="fill-exit" aria-label="Salir de la serie">✕</button></div>
     <div class="${vertical?"fill-col":"fill-row"}">${boxes}</div>
     ${F.done?`<div class="feedback ${nerr?"ko":"ok"}" role="status"><strong>${nerr?`Completado con ${nerr} ${nerr===1?"elemento fallado":"elementos fallados"}`:"¡Perfecto, sin fallos!"}</strong>${nerr?"Los que has fallado están en rojo. Toca «Repetir» para volver a intentarlo.":"Ya te sabes esta serie."}${mn?`<div style="margin-top:6px">Truco: ${mn}</div>`:""}</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" id="fill-list">Otra serie</button><button class="btn" style="flex:1" id="fill-again">Repetir</button></div>`
     :`<p class="muted" style="margin:0;text-align:center;font-size:13.5px">¿Qué va en la casilla marcada? ${vertical?`(periodo ${BYZ[set.items[F.pos]].p})`:`(grupo ${BYZ[set.items[F.pos]].f?3:BYZ[set.items[F.pos]].g})`}</p>
       <div class="bank">${F.bank.map(z=>`<button data-fill="${z}" class="${F.used.has(z)?"used":""}">${BYZ[z].s}</button>`).join("")}</div>
       ${mn?(F.hint?`<div class="hintbox">${mn}</div>`:`<button class="btn ghost" id="fill-hint" style="align-self:center;padding:8px 14px;font-size:14px">Ver el truco</button>`):""}
-      <button class="ver" id="fill-list">← Elegir otra serie</button>`}
+      `}
   </div></section>`;
 }
 function setBtn(x){const b=FILLBEST[x.key];return `<button class="set" data-set="${x.key}"><b>${x.title}</b><span>${x.sub}</span>${b===undefined?"":`<span class="best ${b===0?"ok":""}">${b===0?"✓ Sin fallos":"Mejor: "+b+" fallo"+(b===1?"":"s")}</span>`}</button>`}
@@ -1313,7 +1330,7 @@ function renderJuego(){
   const tbl=gameTable(G,inG);
   const left=G.tray.filter(z=>!G.placed.has(z));
   main.innerHTML=`<section class="view gut">
-    <div class="counter"><span><b style="color:var(--ink)">${name}</b> · ${G.placed.size}/${G.items.length}</span><span>${nerr} fallo${nerr===1?"":"s"}${PREF.gtime!==false?` · ⏱ <span id="g-time">${fmtT(gameTime())}</span>`:""}</span></div>
+    <div class="counter"><div class="cinfo"><span><b style="color:var(--ink)">${name}</b> · ${G.placed.size}/${G.items.length}</span><span>${nerr} fallo${nerr===1?"":"s"}${PREF.gtime!==false?` · ⏱ <span id="g-time">${fmtT(gameTime())}</span>`:""}</span></div><button class="xexit" id="g-exit" aria-label="Salir del juego">✕</button></div>
     <div class="bar"><i style="width:${G.placed.size/G.items.length*100}%"></i></div>
     ${G.done?"":`<div class="gtools"><button class="btn ghost" id="g-restart">↺ Reiniciar</button><button class="btn ghost" id="g-hint">💡 Pista</button></div>`}
     <div class="zoom-box game">
@@ -1326,8 +1343,7 @@ function renderJuego(){
       <div class="next-bar" style="position:static;margin:0;padding:0;background:none"><button class="btn ghost" style="flex:1" id="g-no">Cancelar</button><button class="btn" style="flex:2" id="g-yes">Sí, colocar</button></div></div>`})()
     :`<div class="tray"><p class="gmsg" role="status" aria-live="polite">${G.msg||(G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada elemento a su casilla (o tócalo y luego toca la casilla)")}</p>
       <span class="muted" id="g-more" hidden style="font-size:12px;text-align:center">Quedan ${left.length} elementos · desliza la fila →</span>
-      <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].s}: ${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
-      <button class="ver" id="g-list" style="align-self:center">← Elegir otra familia</button></div>`}
+      <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].s}: ${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div></div>`}
   </section>`;
   requestAnimationFrame(()=>{const t=document.querySelector('.tray .tiles'),m=$('#g-more');if(t&&m)m.hidden=t.scrollWidth<=t.clientWidth+2});
   G.bad=null;G.badZ=null;G.good=null;
@@ -1471,7 +1487,7 @@ function renderProgreso(){
     <div class="pt-wrap">${tbl}</div>
     ${review.length?`<div class="panel"><h3>A repasar</h3><div class="miss" style="justify-content:flex-start">${review.map(e=>`<button class="k-${e.c}" data-z="${e.z}">${e.s}</button>`).join("")}</div></div>`:""}
     <div class="panel"><h3>Por familias</h3>${cats}</div>
-    ${confirmReset?`<div class="confirm"><span style="flex:1;min-width:180px">¿Borrar todo tu progreso? No se puede deshacer.</span><button class="btn ghost" id="rs-no">Cancelar</button><button class="btn" style="background:var(--bad);color:#fff" id="rs-yes">Borrar</button></div>`:`<button class="btn ghost" id="rs" style="align-self:flex-start">Reiniciar progreso</button>`}
+    ${confirmReset?`<div class="confirm"><span style="flex:1;min-width:180px">¿Borrar todo tu progreso? No se puede deshacer.</span><button class="btn ghost" id="rs-no">Cancelar</button><button class="btn" style="background:var(--bad);color:#fff" id="rs-yes">Borrar</button></div>`:`<button class="danger" id="rs">🗑 Borrar mi progreso</button>`}
     <button class="ver" id="ver">Ajustes · Versión ${VERSION} · Novedades</button>
     ${footerHTML()}
   </section>`;
@@ -1498,7 +1514,8 @@ main.addEventListener("click",ev=>{
   if(t.closest("#z-in")){zoomStep(1);return}
   if(t.closest("#z-out")){zoomStep(-1);return}
   if(b=t.closest("[data-color]")){PREF.color=b.dataset.color;savePref();renderTabla();return}
-  if(b=t.closest("[data-cat]")){filterCat=filterCat===b.dataset.cat?null:b.dataset.cat;renderTabla();return}
+  if(t.closest("#filter-x")){filterCat=null;renderTabla();return}
+  if(b=t.closest("[data-cat]")){filterCat=filterCat===b.dataset.cat?null:b.dataset.cat;renderTabla();const fb=$(".filterbar"),tb=$("#topbar");if(fb&&tb&&fb.getBoundingClientRect().top<tb.getBoundingClientRect().bottom){const y=fb.getBoundingClientRect().top+SC.scrollTop-tb.getBoundingClientRect().bottom-8;SC.scrollTo({top:Math.max(0,y),behavior:"smooth"})}return}
   if(t.closest("#fl-all")){PREF.fdeck="all";savePref();renderFichas();return}
   if(b=t.closest("[data-dir]")){PREF.dir=b.dataset.dir;savePref();FL.flipped=false;renderFichas();return}
   if(t.closest("#card")){FL.flipped=!FL.flipped;$("#card").classList.toggle("flipped",FL.flipped);const a=document.querySelector(".flash-actions");if(a)a.style.visibility=FL.flipped?"visible":"hidden";const sh=document.querySelector(".swipe-hint");if(sh)sh.textContent=FL.flipped?"También puedes deslizar la tarjeta: ← no me la sabía · me la sabía →":"";return}
@@ -1513,12 +1530,12 @@ main.addEventListener("click",ev=>{
   if(b=t.closest("[data-fill]")){fillTap(+b.dataset.fill);return}
   if(t.closest("#fill-hint")){FILL.hint=true;renderFill();return}
   if(t.closest("#fill-again")){startFill(FILL.key);return}
-  if(t.closest("#fill-list")){if(history.state&&history.state.sub){history.back()}else{FILL=null;renderFill();SC.scrollTop=0}return}
+  if(t.closest("#fill-list")||t.closest("#fill-exit")){if(history.state&&history.state.sub){history.back()}else{FILL=null;renderFill();SC.scrollTop=0}return}
   if(b=t.closest("[data-game]")){startGame(b.dataset.game);return}
   if(t.closest("#g-again")||t.closest("#g-restart")){startGame(GAME.cat);return}
   if(t.closest("#g-hint")){gameHint();return}
   if(t.closest("#g-time-t")){PREF.gtime=PREF.gtime===false;savePref();renderJuego();return}
-  if(t.closest("#g-list")){if(history.state&&history.state.sub){history.back()}else{GAME=null;clearInterval(ticker);renderJuego();SC.scrollTop=0}return}
+  if(t.closest("#g-list")||t.closest("#g-exit")){if(history.state&&history.state.sub){history.back()}else{GAME=null;clearInterval(ticker);renderJuego();SC.scrollTop=0}return}
   if(b=t.closest(".gwrap [data-gz]")){if(GAME&&GAME.sel&&!GAME.pending)gamePropose(GAME.sel,+b.dataset.gz);return}
   if(t.closest("#g-yes")){const p=GAME.pending;GAME.pending=null;gameDrop(p.z,p.target);return}
   if(t.closest("#g-no")){GAME.pending=null;GAME.sel=null;GAME.msg="Cancelado. Elige otra casilla.";renderJuego();return}
@@ -1567,7 +1584,7 @@ const THEMES=[["auto","Automático"],["light","Claro"],["dark","Oscuro"]];
 function openSettings(){
   const s=$("#sheet");
   s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Ajustes">
-    <div class="grab"></div><h2>Ajustes</h2>
+    <div class="grab"></div><button class="xbtn" data-close="1" aria-label="Cerrar">✕</button><h2>Ajustes</h2>
     <div class="set-group"><h3>Tamaño de letra</h3>
       <div class="seg" role="group" aria-label="Tamaño de letra">${FS.map(([k,l])=>`<button data-fsz="${k}" aria-pressed="${(PREF.fs||"m")===k}">${l}</button>`).join("")}</div>
       <p class="preview" style="margin:0">Así se verán los textos de la app.</p></div>
@@ -1587,7 +1604,6 @@ function openSettings(){
       <p class="muted" style="margin:0;font-size:13px">Se actualiza sola cuando hay una versión nueva.</p>
       <div class="row"><button class="btn ghost" id="set-upd">🔄 Buscar actualizaciones</button><button class="btn ghost" id="set-nov">Ver novedades</button></div>
       <p class="muted" id="upd-msg" role="status" style="margin:0;font-size:13px">La app lo comprueba sola cada vez que la abres o vuelves a ella.</p></div>
-    <div class="sheet-nav"><button class="btn block" data-close="1">Cerrar</button></div>
   </div></div>`;
   s.hidden=false;sheetShown();
 }
@@ -1692,11 +1708,11 @@ function openInstall(){
   }
   const s=$("#sheet");
   s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Instalar en el móvil">
-    <div class="grab"></div>
+    <div class="grab"></div><button class="xbtn" data-close="1" aria-label="Cerrar">✕</button>
     <div class="el-head"><img src="icon-192.png" alt="" style="width:56px;height:56px;border-radius:13px"><div><h2>Instalar la app</h2><span class="muted" style="font-size:13px">Gratis, sin tienda y sin registrarse</span></div></div>
     ${body}
     <p class="muted" style="font-size:13px;margin:12px 0 0">Una vez instalada se abre a pantalla completa, funciona sin conexión y se actualiza sola.</p>
-    <div class="sheet-nav">${deferredPrompt?`<button class="btn" id="inst-now">Instalar ahora</button>`:""}<button class="btn ${deferredPrompt?"ghost":"block"}" data-close="1">Entendido</button></div>
+    <div class="sheet-nav">${deferredPrompt?`<button class="btn block" id="inst-now">Instalar ahora</button>`:`<button class="btn block" data-close="1">Entendido</button>`}</div>
   </div></div>`;
   s.hidden=false;sheetShown();
 }
@@ -1730,7 +1746,7 @@ function verNovedades(desde){
   if(!todas.length)return;
   const s=$("#sheet");
   s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Novedades">
-    <div class="grab"></div><h2>${desde?"¡La app se ha actualizado!":"Novedades"}</h2>
+    <div class="grab"></div><button class="xbtn" data-close="1" aria-label="Cerrar">✕</button><h2>${desde?"¡La app se ha actualizado!":"Novedades"}</h2>
     <div class="nov">${todas.slice(0,4).map(([v,items])=>`<h4>Versión ${v}</h4><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul>`).join("")}</div>
     <div class="sheet-nav"><button class="btn block" data-close="1">Entendido</button></div>
   </div></div>`;
