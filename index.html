@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.2">
-<meta name="theme-color" content="#ffffff">
+<meta name="app-version" content="1.3">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -14,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{box-sizing:border-box}
 body{margin:0;padding:0}
 img{max-width:100%}
 [hidden]:not([hidden=until-found i]){display:none!important}
@@ -57,7 +59,7 @@ button{cursor:pointer;touch-action:manipulation}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* Cabecera */
-header{flex:none;background:var(--surface);border-bottom:1px solid var(--line)}
+header{flex:none;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 .hd{display:flex;align-items:center;gap:12px;padding-block:10px;max-width:980px;margin:0 auto}
 .logo{flex:none;width:40px;height:40px;border-radius:8px;background:var(--c-gn);border:1.5px solid var(--ink);display:grid;grid-template-rows:auto 1fr;padding:2px 4px;line-height:1}
 .logo i{font-style:normal;font:700 9px var(--f-mono)}
@@ -79,7 +81,7 @@ h3{font:600 15px/1.3 var(--f-display);margin:0}
 .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
 
 /* Pestañas inferiores */
-nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
+nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabs-in{display:grid;grid-template-columns:repeat(4,1fr);max-width:620px;margin:0 auto}
 .tab{background:none;border:0;padding:8px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--muted)}
 .tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -262,6 +264,48 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
   .view{padding-block:8px 16px;gap:12px}
   .pt-wrap.full{order:-1;width:min(100%,calc((100dvh - 100px) * 1.55));margin-inline:auto}
 }
+/* Colocar en la tabla */
+.placeq{width:100%}
+.placeq .cell{background:var(--surface-2);border:1px solid var(--line)}
+.placeq .cell.okc{background:var(--good);border-color:var(--good);color:#fff}
+.placeq .cell.koc{background:var(--bad);border-color:var(--bad);color:#fff}
+.placeq .cell:disabled{cursor:default}
+.placeq .cell .s{font-size:max(7px,2.6cqi)}
+/* Rellenar familias */
+.sets{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.set{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:64px}
+.set b{font:600 14.5px var(--f-display)}
+.set span{font-size:12px;color:var(--muted)}
+.set .best{font-size:12px;font-weight:600}
+.set .best.ok{color:var(--good)}
+.fill-col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.fill-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.slot{display:flex;align-items:center;gap:8px}
+.slot .pl{width:24px;text-align:right;font:600 11px var(--f-mono);color:var(--muted)}
+.box{width:58px;height:52px;border-radius:10px;border:2px dashed var(--line);background:var(--surface);display:grid;place-items:center;font:700 20px var(--f-display);position:relative}
+.fill-row .box{width:clamp(34px,10.5vw,58px)}
+.box.cur{border-color:var(--accent);border-style:solid;box-shadow:0 0 0 3px var(--accent-soft)}
+.box.done{border-style:solid;border-color:transparent;background:var(--cat)}
+.box.bad{border-color:var(--bad);border-style:solid;background:var(--bad-soft);color:var(--bad)}
+.box small{position:absolute;top:2px;left:4px;font:500 9px var(--f-mono);opacity:.7}
+.bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.bank button{min-width:56px;height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font:700 19px var(--f-display)}
+.bank button.used{visibility:hidden}
+.bank button.shake{animation:shake .35s;border-color:var(--bad);background:var(--bad-soft)}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.hintbox{background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:14px;text-align:center}
+.hintbox b{text-decoration:underline;text-decoration-color:var(--accent)}
+/* Pantallas táctiles: todo lo que se toca mide al menos 44 pt (guía de Apple) */
+@media (pointer:coarse){
+  .seg button{min-height:42px;padding-inline:12px}
+  .seg{padding:2px}
+  .chip{min-height:44px;padding-inline:12px}
+  .fam .els button{min-width:44px;min-height:44px}
+  .miss button{min-width:44px;min-height:44px}
+  .ver{min-height:44px}
+  .scope select{min-height:44px}
+  .sheet-nav .btn{min-height:46px}
+}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -359,6 +403,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["1.3",["📍 Nueva pregunta en el test: «Colocar en la tabla». Te dicen un elemento y tocas su casilla en la tabla vacía","🧩 Nuevo modo «Rellenar familias» (en Test): coloca en orden los elementos de cada grupo o periodo, con su truco para memorizar"]],
   ["1.2",["📱 Mejor en el móvil: la tabla entera aprovecha todo el ancho y se lee mejor","👉 En las fichas, desliza la tarjeta: a la derecha si te la sabías, a la izquierda si no","➡️ En el test, el botón «Siguiente» queda siempre a mano, sin tener que bajar","⬇️ La ficha de un elemento se cierra deslizándola hacia abajo o con el botón «atrás» del móvil","🔍 Al buscar ya no se amplía la pantalla en el iPhone"]],
   ["1.1",["🔄 La app se actualiza sola cuando hay una versión nueva, sin cortar un test ni las fichas a medias","📲 Se puede añadir a la pantalla de inicio del móvil, con su propio icono","✈️ Funciona también sin conexión"]],
   ["1.0",["Primera versión: tabla interactiva, fichas, test con 7 tipos de pregunta y progreso"]]
@@ -368,7 +413,8 @@ const verCmp=(a,b)=>{const x=a.split(".").map(Number),y=b.split(".").map(Number)
 /* ===================== ESTADO ===================== */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let PROG=store.get("tp-prog-v1",{});
-let PREF=Object.assign({scope:"basicos",tab:"tabla",fit:true,color:"cat",hide:false,dir:"s2n",types:["s2n","n2s","fam","kind","pos","gp","conf"]},store.get("tp-pref-v1",{}));
+let PREF=Object.assign({scope:"basicos",tab:"tabla",fit:true,color:"cat",hide:false,dir:"s2n",types:["place","s2n","n2s","fam","kind","pos","gp","conf"],tmode:"q"},store.get("tp-pref-v1",{}));
+if(!PREF.v12){PREF.v12=1;if(!PREF.types.includes("place"))PREF.types.unshift("place")}
 const savePref=()=>store.set("tp-pref-v1",PREF);
 const saveProg=()=>store.set("tp-prog-v1",PROG);
 let filterCat=null, query="";
@@ -533,7 +579,7 @@ function renderFichas(){
 function flashAnswer(ok){record(FL.deck[FL.i],ok);if(ok)FL.known++;else if(FL.deck.length-FL.i>4){FL.deck.splice(FL.i+4+Math.floor(Math.random()*4),0,FL.deck[FL.i])}FL.i++;FL.flipped=false;renderFichas()}
 
 /* ===================== TEST ===================== */
-const QTYPES={s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
+const QTYPES={place:"Colocar en la tabla",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
 const ROUND=10;
 let QZ=null;
 function pickOthers(answer,cands,n,prefer){
@@ -584,6 +630,9 @@ function buildQ(t,e,P){
     const near=E.filter(x=>x.z!==e.z&&((x.f===e.f&&!x.f&&(Math.abs(x.g-e.g)<=1&&Math.abs(x.p-e.p)<=1))||(x.f&&e.f&&x.c===e.c&&Math.abs(x.z-e.z)<=2))).map(x=>x.z);
     opts=[correct,...pickOthers(correct,E.filter(x=>Math.abs(x.z-e.z)<12).map(x=>x.z),3,near)];
     expl=`Es el <b>${e.n.toLowerCase()} (${e.s})</b>: ${e.f?(e.c==="lan"?"lantánidos":"actínidos")+", periodo "+e.p:"grupo "+e.g+", periodo "+e.p}.`;
+  }else if(t==="place"){
+    correct=e.z;show=`<div class="qbig k-${e.c}">${e.s}</div><div class="muted">${e.n}</div>`;prompt="Toca su casilla en la tabla";opts=[];
+    expl=`El ${e.n.toLowerCase()} está en ${e.f?"los "+(e.c==="lan"?"lantánidos":"actínidos")+", periodo "+e.p:"el grupo "+e.g+", periodo "+e.p}.`;
   }else if(t==="gp"){
     const lab=(g,p)=>`Grupo ${g} · Periodo ${p}`;
     correct=lab(e.g,e.p);show=`<div class="qbig k-${e.c}">${e.s}</div><div class="muted">${e.n}</div>`;prompt="¿Dónde está en la tabla?";
@@ -598,15 +647,17 @@ function buildQ(t,e,P){
     opts=[correct,...pickOthers(correct,others,3)];
     expl=`Z = ${e.z}, así que tiene ${e.z} electrones. Sigue el diagrama de Moeller: <span class="mono">${correct}</span>.`;
   }
-  opts=shuffle(opts.slice(0,4));
+  if(t!=="place")opts=shuffle(opts.slice(0,4));
   return {t,z:e.z,prompt,show,opts,correct,expl,picked:null,mono:t==="conf"};
 }
 function startQuiz(){QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest()}
 function optLabel(q,o){if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
 function renderTest(){
+  if(!QZ&&PREF.tmode==="fill"){renderFill();return}
   if(!QZ){
     const n=pool().length;
     main.innerHTML=`<section class="view gut"><div class="quiz">
+      <div class="seg" role="group" aria-label="Modo" style="align-self:flex-start"><button data-tmode="q" aria-pressed="${PREF.tmode!=="fill"}">Preguntas</button><button data-tmode="fill" aria-pressed="${PREF.tmode==="fill"}">Rellenar familias</button></div>
       <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Ronda de ${ROUND} preguntas</span><h2>Ponte a prueba</h2>
       <p class="muted" style="margin:0">Estudias ${SCOPES[PREF.scope].label.toLowerCase()} (${n} elementos). Las preguntas salen más de los elementos que fallas o que aún no has visto.</p></div>
       <div class="setup"><h3>Tipos de pregunta</h3>
@@ -629,20 +680,92 @@ function renderTest(){
     <div class="counter"><span>Pregunta ${QZ.i+1} de ${ROUND}</span><span>${QZ.score} aciertos</span></div>
     <div class="bar"><i style="width:${(QZ.i+(answered?1:0))/ROUND*100}%"></i></div>
     <div class="qcard"><span class="qtype">${QTYPES[q.t]}</span>${q.show}<div class="qprompt">${q.prompt}</div></div>
+    ${q.t==="place"?placeTable(q,answered):""}
     <div class="opts">${q.opts.map((o,i)=>{let c="";if(answered){if(o===q.correct)c=" ok";else if(o===q.picked)c=" ko"}return `<button class="opt${c}" data-opt="${i}" ${answered?"disabled":""}><span class="k">${"ABCD"[i]}</span><span>${optLabel(q,o)}</span></button>`}).join("")}</div>
-    ${answered?`<div class="feedback ${q.picked===q.correct?"ok":"ko"}"><strong>${q.picked===q.correct?"¡Correcto!":"No es esa"}</strong>${q.expl}${ORIGIN[q.z]&&(q.t==="n2s"||q.t==="s2n")?" "+ORIGIN[q.z]:""}</div>
+    ${answered?`<div class="feedback ${q.picked===q.correct?"ok":"ko"}"><strong>${q.picked===q.correct?"¡Correcto!":(q.t==="place"?"No es esa casilla. Has tocado el "+BYZ[q.picked].n.toLowerCase()+" ("+BYZ[q.picked].s+")":"No es esa")}</strong>${q.expl}${ORIGIN[q.z]&&(q.t==="n2s"||q.t==="s2n")?" "+ORIGIN[q.z]:""}</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" data-z="${q.z}">Ver ficha</button><button class="btn" style="flex:2" id="qz-next">${QZ.i+1<ROUND?"Siguiente":"Ver resultado"}</button></div>`:""}
   </div></section>`;
   if(answered){const n=$("#qz-next");n&&n.focus({preventScroll:true})}
 }
-function answer(i){
+function placeTable(q,answered){
+  return `<div class="placeq pt-wrap">${tableHTML({fit:true,cellFn:(x,p)=>{
+    let c="";if(answered){if(x.z===q.correct)c=" okc";else if(x.z===q.picked)c=" koc"}
+    return `<button class="cell${c}" style="grid-column:${p.col};grid-row:${p.row}" data-place="${x.z}" ${answered?"disabled":""} aria-label="Casilla ${x.f?(x.c==="lan"?"lantánidos":"actínidos"):"grupo "+x.g}, periodo ${x.p}">${c?`<span class="s">${x.s}</span>`:""}</button>`}})}</div>`;
+}
+function answer(i){answerVal(QZ.q.opts[i])}
+function answerVal(v){
   const q=QZ.q;if(q.picked!==null)return;
-  q.picked=q.opts[i];const ok=q.picked===q.correct;
+  q.picked=v;const ok=q.picked===q.correct;
   record(q.z,ok);if(ok)QZ.score++;else{QZ.miss.push(q.z);vibrar(60)}
   renderTest();
   const fb=document.querySelector(".feedback");fb&&fb.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function nextQ(){QZ.i++;if(QZ.i>=ROUND){QZ.done=true}else{QZ.q=makeQuestion();QZ.recent=[...QZ.recent.slice(-5),QZ.q.z]}renderTest();main.scrollTop=0}
+
+
+/* ===================== RELLENAR FAMILIAS ===================== */
+const FILLSETS=[
+  ...[1,2,13,14,15,16,17,18].map(g=>({key:"g"+g,title:`Grupo ${g}`,sub:FAM[g],g,items:E.filter(e=>!e.f&&e.g===g&&e.z<=88).map(e=>e.z)})),
+  ...[2,3,4].map(p=>({key:"p"+p,title:`Periodo ${p}`,sub:p===4?"De K a Kr (18)":"8 elementos",p,items:E.filter(e=>e.p===p).map(e=>e.z)}))
+];
+let FILL=null;
+let FILLBEST=store.get("tp-fill-v1",{});
+function startFill(key){
+  const set=FILLSETS.find(x=>x.key===key);
+  const items=set.items, inSet=new Set(items);
+  // Distractores: elementos cercanos (mismo periodo o grupos vecinos) que no están en la serie
+  const near=E.filter(e=>!inSet.has(e.z)&&!e.f&&e.z<=88&&(set.g?(Math.abs(e.g-set.g)===1||(set.g<=2&&e.g<=2)||(set.g>=13&&e.g>=13)):Math.abs(e.p-set.p)===1&&(e.g<=2||e.g>=13))).map(e=>e.z);
+  const nd=items.length>=10?4:3;
+  FILL={key,set,pos:0,errs:{},bank:shuffle([...items,...shuffle(near).slice(0,nd)]),used:new Set(),hint:false,done:false,shake:null};
+  renderFill();
+}
+function fillTap(z){
+  const F=FILL;if(!F||F.done)return;
+  const want=F.set.items[F.pos];
+  if(z===want){F.used.add(z);F.pos++}
+  else{
+    F.errs[want]=(F.errs[want]||0)+1;F.shake=z;vibrar(50);
+    if(F.errs[want]>=2){F.used.add(want);F.pos++}   // al segundo fallo se coloca solo (y cuenta como fallo)
+  }
+  if(F.pos>=F.set.items.length){
+    F.done=true;
+    F.set.items.forEach(x=>record(x,!F.errs[x]));
+    const nerr=F.set.items.filter(x=>F.errs[x]).length;
+    const prev=FILLBEST[F.key];if(prev===undefined||nerr<prev){FILLBEST[F.key]=nerr;store.set("tp-fill-v1",FILLBEST)}
+  }
+  renderFill();
+  if(F.shake){const b=document.querySelector(`.bank [data-fill="${F.shake}"]`);F.shake=null;b&&b.classList.add("shake")}
+}
+function renderFill(){
+  if(!FILL){
+    main.innerHTML=`<section class="view gut"><div class="quiz">
+      <div class="seg" role="group" aria-label="Modo" style="align-self:flex-start"><button data-tmode="q" aria-pressed="${PREF.tmode!=="fill"}">Preguntas</button><button data-tmode="fill" aria-pressed="${PREF.tmode==="fill"}">Rellenar familias</button></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Tabla muda</span><h2>Rellenar familias</h2>
+      <p class="muted" style="margin:0">Coloca en orden los elementos de un grupo (de arriba abajo) o de un periodo (de izquierda a derecha). Si fallas dos veces una casilla, se rellena sola y cuenta como fallo.</p></div>
+      <span class="eyebrow">Grupos</span>
+      <div class="sets">${FILLSETS.filter(x=>x.g).map(setBtn).join("")}</div>
+      <span class="eyebrow">Periodos</span>
+      <div class="sets">${FILLSETS.filter(x=>x.p).map(setBtn).join("")}</div>
+    </div></section>`;return;
+  }
+  const F=FILL,set=F.set,vertical=!!set.g;
+  const boxes=set.items.map((z,i)=>{const e=BYZ[z];const filled=i<F.pos;const bad=filled&&F.errs[z]>=2;
+    const box=`<div class="box k-${e.c}${filled?(bad?" bad":" done"):""}${i===F.pos&&!F.done?" cur":""}">${filled?`<small>${z}</small>${e.s}`:""}</div>`;
+    return vertical?`<div class="slot"><span class="pl">${e.p}</span>${box}</div>`:box}).join("");
+  const nerr=set.items.filter(x=>F.errs[x]).length;
+  const mn=set.g?MNEMO[set.g]:"";
+  main.innerHTML=`<section class="view gut"><div class="quiz">
+    <div class="counter"><span><b style="color:var(--ink)">${set.title}</b> · ${set.sub}</span><span>${F.pos}/${set.items.length} · ${Object.values(F.errs).reduce((a,b)=>a+b,0)} fallos</span></div>
+    <div class="${vertical?"fill-col":"fill-row"}">${boxes}</div>
+    ${F.done?`<div class="feedback ${nerr?"ko":"ok"}"><strong>${nerr?`Completado con ${nerr} ${nerr===1?"elemento fallado":"elementos fallados"}`:"¡Perfecto, sin fallos!"}</strong>${nerr?"Los que has fallado están en rojo. Toca «Repetir» para volver a intentarlo.":"Ya te sabes esta serie."}${mn?`<div style="margin-top:6px">Truco: ${mn}</div>`:""}</div>
+      <div class="next-bar"><button class="btn ghost" style="flex:1" id="fill-list">Otra serie</button><button class="btn" style="flex:1" id="fill-again">Repetir</button></div>`
+    :`<p class="muted" style="margin:0;text-align:center;font-size:13.5px">¿Qué va en la casilla marcada? ${vertical?`(periodo ${BYZ[set.items[F.pos]].p})`:`(grupo ${BYZ[set.items[F.pos]].f?3:BYZ[set.items[F.pos]].g})`}</p>
+      <div class="bank">${F.bank.map(z=>`<button data-fill="${z}" class="${F.used.has(z)?"used":""}">${BYZ[z].s}</button>`).join("")}</div>
+      ${mn?(F.hint?`<div class="hintbox">${mn}</div>`:`<button class="btn ghost" id="fill-hint" style="align-self:center;padding:8px 14px;font-size:14px">Ver el truco</button>`):""}
+      <button class="ver" id="fill-list">← Elegir otra serie</button>`}
+  </div></section>`;
+}
+function setBtn(x){const b=FILLBEST[x.key];return `<button class="set" data-set="${x.key}"><b>${x.title}</b><span>${x.sub}</span>${b===undefined?"":`<span class="best ${b===0?"ok":""}">${b===0?"✓ Sin fallos":"Mejor: "+b+" fallo"+(b===1?"":"s")}</span>`}</button>`}
 
 /* ===================== PROGRESO ===================== */
 let confirmReset=false;
@@ -694,7 +817,14 @@ main.addEventListener("click",ev=>{
   if(b=t.closest("[data-qt]")){const k=b.dataset.qt;PREF.types=PREF.types.includes(k)?PREF.types.filter(x=>x!==k):[...PREF.types,k];savePref();renderTest();return}
   if(t.closest("#qz-start")||t.closest("#qz-again")){startQuiz();return}
   if(t.closest("#qz-setup")){QZ=null;renderTest();return}
+  if(b=t.closest("[data-tmode]")){PREF.tmode=b.dataset.tmode;savePref();renderTest();return}
+  if(b=t.closest("[data-set]")){startFill(b.dataset.set);main.scrollTop=0;return}
+  if(b=t.closest("[data-fill]")){fillTap(+b.dataset.fill);return}
+  if(t.closest("#fill-hint")){FILL.hint=true;renderFill();return}
+  if(t.closest("#fill-again")){startFill(FILL.key);return}
+  if(t.closest("#fill-list")){FILL=null;renderFill();main.scrollTop=0;return}
   if(b=t.closest("[data-opt]")){answer(+b.dataset.opt);return}
+  if(b=t.closest("[data-place]")){if(!b.disabled)answerVal(+b.dataset.place);return}
   if(t.closest("#qz-next")){nextQ();return}
   if(t.closest("#rs")){confirmReset=true;renderProgreso();return}
   if(t.closest("#rs-no")){confirmReset=false;renderProgreso();return}
@@ -710,7 +840,7 @@ document.addEventListener("keydown",ev=>{
   if(!$("#sheet").hidden&&ev.key==="Escape"){closeSheet();return}
   if(PREF.tab==="test"&&QZ&&!QZ.done&&$("#sheet").hidden){
     const i="1234abcd".indexOf(ev.key.toLowerCase());
-    if(QZ.q.picked===null&&i>=0){answer(i%4);ev.preventDefault()}
+    if(QZ.q.picked===null&&i>=0&&QZ.q.t!=="place"){answer(i%4);ev.preventDefault()}
     else if(QZ.q.picked!==null&&ev.key==="Enter"){nextQ();ev.preventDefault()}
   }
 });
@@ -759,6 +889,7 @@ let actPendiente=false;
 function seguroRecargar(){
   if(!$("#sheet").hidden)return false;
   if(PREF.tab==="test"&&QZ&&!QZ.done)return false;
+  if(PREF.tab==="test"&&FILL&&!FILL.done&&FILL.pos>0)return false;
   if(PREF.tab==="fichas"&&FL&&FL.i>0&&FL.i<FL.deck.length)return false;
   return true;
 }
