@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="2.5">
+<meta name="app-version" content="2.6">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -418,6 +418,21 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .gmsg{margin:0;text-align:center;font-size:13.5px;color:var(--muted);min-height:2.6em}
 .gwrap button.cell{cursor:pointer}
 .exitbtn{border:0;background:var(--surface-2);border-radius:10px;min-height:40px;padding:0 12px;font-weight:600;font-size:13.5px;color:var(--ink)}
+/* Zoom 1× 2× 3× */
+.zoom-box{margin-bottom:0}
+.zseg{position:absolute;z-index:4;top:14px;left:calc(13.6% + 4px);background:color-mix(in srgb,var(--surface-2) 92%,transparent);box-shadow:0 2px 8px -4px rgb(0 0 0 / .3)}
+.zseg button{min-width:44px;min-height:40px;padding:0 8px;font-variant-numeric:tabular-nums}
+.gwrap ~ .zseg,.zoom-box.game .zseg{position:static;margin-bottom:8px;display:inline-grid}
+.tbl-bar{position:static;transform:none;margin-top:8px}
+/* Lupa al arrastrar */
+#loupe{position:fixed;z-index:79;pointer-events:none;background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:8px;box-shadow:0 14px 30px -10px rgb(0 0 0 / .5);transform:translate(-50%,-100%)}
+#loupe .lg{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:3px}
+#loupe .lc{border-radius:7px;background:var(--surface-2);display:grid;place-items:center;font:700 15px var(--f-display);color:var(--ink)}
+#loupe .lc.t{background:var(--surface);outline:1.5px dashed var(--muted);outline-offset:-1.5px}
+#loupe .lc.ok{background:var(--cat)}
+#loupe .lc.c{outline:3px solid var(--accent);outline-offset:-1px;background:var(--accent-soft)}
+#loupe .lc.none{visibility:hidden}
+#loupe .lt{font-size:12.5px;font-weight:600;text-align:center;margin-top:6px;color:var(--ink)}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -516,6 +531,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.6",["🔍 Zoom con botones 1× · 2× · 3× en la esquina superior izquierda de la tabla (y sigue el pellizco)","🎯 Jugar: al arrastrar una ficha aparece una lupa con la casilla de destino en grande y su grupo y periodo"]],
   ["2.5",["🧩 Jugar: zoom (pellizco o − +), casillas más grandes mostrando solo la zona de la familia, y las fichas en una fila que se desliza","↺ Botones de Reiniciar y 💡 Pista, reloj que se puede ocultar y que se para si sales","💬 Mensajes claros al acertar o fallar (también para lectores de pantalla)","✕ En el Test ya se puede salir a mitad de ronda, y el botón «atrás» del móvil vuelve al menú en Test, Rellenar y Jugar"]],
   ["2.4",["✍️ La autoría se ve en Ajustes (Acerca de) y al pie de la pantalla","⚠️ Aviso: en caso de error o duda, la fuente fiable es el material oficial de la materia","📱 Nuevo intento para que en el iPhone no se vea borrosa la parte de arriba"]],
   ["2.3",["🧩 Nuevo juego «Jugar»: arrastra cada elemento a su casilla de la tabla, eligiendo la familia (alcalinos, halógenos…) o 10 al azar","🧭 Pantalla principal más limpia: la tabla sube, la pista se puede cerrar y los ajustes de la tabla están en «⚙︎ Opciones de la tabla»","🔔 Si la tabla está en modo «Número», «Nada» o «Mi progreso», un aviso lo indica y te deja volver a lo normal"]],
@@ -599,11 +615,7 @@ function renderTabla(){
     <div class="zoom-box">
       <div class="pt-scroll" id="ptz"><div class="pt-wrap full" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
       <div class="tbl-bar"><button class="btn ghost" id="tbl-opts">⚙︎ Opciones de la tabla</button></div>
-      <div class="zoom-ctl" role="group" aria-label="Zoom de la tabla">
-        <button id="z-out" aria-label="Alejar" ${ZOOM<=1?"disabled":""}>−</button>
-        <button id="z-fit" aria-label="Ver la tabla entera" ${ZOOM<=1?"hidden":""}>⤢</button>
-        <button id="z-in" aria-label="Acercar" ${ZOOM>=ZMAX?"disabled":""}>+</button>
-      </div>
+      ${zoomSeg()}
     </div>
     ${legend}
     <p class="muted" style="margin:0;font-size:13px">${PREF.color==="lv"?"Cada color indica cuánto te sabes ese elemento.":show==="n"?"Tabla muda: intenta recordar cada casilla antes de tocarla.":show==="z"?"Solo números: ¿sabes qué símbolo va en cada casilla? Tócala para comprobarlo.":"Toca una familia de la leyenda para resaltarla en la tabla."}</p>
@@ -648,7 +660,8 @@ function updateResults(){
 }
 
 /* ===================== ZOOM DE LA TABLA ===================== */
-let ZOOM=1;const ZMAX=4;
+let ZOOM=1;const ZMAX=3;
+function zoomSeg(){return `<div class="zseg seg" role="group" aria-label="Zoom de la tabla">${[1,2,3].map(z=>`<button data-zoom="${z}" aria-pressed="${Math.abs(ZOOM-z)<.05}" aria-label="Zoom ${z} aumentos">${z}×</button>`).join("")}</div>`}
 function setZoom(z,cx,cy){
   const box=$("#ptz"),w=$("#ptw");if(!box||!w)return;
   z=Math.min(ZMAX,Math.max(1,z));
@@ -660,8 +673,7 @@ function setZoom(z,cx,cy){
   w.style.setProperty("--z",ZOOM);
   box.scrollLeft=ax*ZOOM-px;
   const mt=main.getBoundingClientRect().top;main.scrollTop=ay*ZOOM-py-(r.top-mt);
-  const zi=$("#z-in"),zo=$("#z-out"),zf=$("#z-fit");
-  if(zi)zi.disabled=ZOOM>=ZMAX;if(zo)zo.disabled=ZOOM<=1;if(zf)zf.hidden=ZOOM<=1;
+  document.querySelectorAll("[data-zoom]").forEach(b=>b.setAttribute("aria-pressed",Math.abs(ZOOM-+b.dataset.zoom)<.05));
 }
 (function(){
   let d0=0,z0=1;
@@ -997,13 +1009,9 @@ function renderJuego(){
     <div class="counter"><span><b style="color:var(--ink)">${name}</b> · ${G.placed.size}/${G.items.length}</span><span>${nerr} fallo${nerr===1?"":"s"}${PREF.gtime!==false?` · ⏱ <span id="g-time">${fmtT(gameTime())}</span>`:""}</span></div>
     <div class="bar"><i style="width:${G.placed.size/G.items.length*100}%"></i></div>
     ${G.done?"":`<div class="gtools"><button class="btn ghost" id="g-restart">↺ Reiniciar</button><button class="btn ghost" id="g-hint">💡 Pista</button><button class="btn ghost" id="g-time-t" aria-pressed="${PREF.gtime!==false}">⏱ ${PREF.gtime!==false?"Ocultar tiempo":"Ver tiempo"}</button></div>`}
-    <div class="zoom-box">
+    <div class="zoom-box game">
+      ${zoomSeg()}
       <div class="pt-scroll" id="ptz"><div class="pt-wrap full gwrap" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
-      <div class="zoom-ctl" role="group" aria-label="Zoom de la tabla">
-        <button id="z-out" aria-label="Alejar" ${ZOOM<=1?"disabled":""}>−</button>
-        <button id="z-fit" aria-label="Ver la tabla entera" ${ZOOM<=1?"hidden":""}>⤢</button>
-        <button id="z-in" aria-label="Acercar" ${ZOOM>=ZMAX?"disabled":""}>+</button>
-      </div>
     </div>
     ${G.done?`<div class="feedback ${nerr?"ko":"ok"}"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${fmtT(gameTime())}${G.hints?` con ${G.hints} pista${G.hints===1?"":"s"}`:""}.</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" id="g-list">Otra familia</button><button class="btn" style="flex:1" id="g-again">Repetir</button></div>`
@@ -1034,6 +1042,26 @@ function gameTable(G,inG){
   }
   return h+"</div>";
 }
+// Lupa: la casilla de destino y sus vecinas, en grande, encima del dedo
+const POSMAP={};E.forEach(e=>{const p=gridPos(e);POSMAP[p.row+","+p.col]=e});
+function showLoupe(c,x,y){
+  let L=$("#loupe");
+  if(!c){if(L)L.hidden=true;return}
+  if(!L){L=document.createElement("div");L.id="loupe";L.setAttribute("aria-hidden","true");document.body.appendChild(L)}
+  const e=BYZ[+c.dataset.gz],p=gridPos(e),G=GAME,inG=new Set(G.items);
+  let h='<div class="lg">';
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+    const n=POSMAP[(p.row+dr)+","+(p.col+dc)];
+    if(!n){h+='<div class="lc none"></div>';continue}
+    const ok=G.placed.has(n.z),t=inG.has(n.z);
+    h+=`<div class="lc k-${n.c}${t?(ok?" ok":" t"):""}${dr===0&&dc===0?" c":""}">${ok?n.s:""}</div>`;
+  }
+  h+=`</div><div class="lt">${e.f?(e.c==="lan"?"Lantánidos":"Actínidos")+" · periodo "+e.p:"Grupo "+e.g+" · Periodo "+e.p}</div>`;
+  L.innerHTML=h;L.hidden=false;
+  const top=y-14<190?y+190:y-14; // si no cabe encima, debajo
+  L.style.left=Math.min(innerWidth-90,Math.max(90,x))+"px";L.style.top=top+"px";
+}
+function hideLoupe(){const L=$("#loupe");if(L)L.hidden=true}
 function gameTime(){const G=GAME;if(!G)return 0;return Math.round((G.elapsed+(G.tStart?Date.now()-G.tStart:0))/1000)}
 const fmtT=t=>`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
 let ticker=null;
@@ -1079,14 +1107,15 @@ function cellAt(x,y){
     // La ficha va un poco por encima del dedo para que se vea la casilla
     const gx=ev.clientX,gy=ev.clientY-(ev.pointerType==="touch"?46:0);drag.ghost.style.left=gx+"px";drag.ghost.style.top=gy+"px";
     const c=cellAt(gx,gy);if(drag.hl&&drag.hl!==c)drag.hl.classList.remove("ghl");if(c){c.classList.add("ghl")}drag.hl=c;
+    showLoupe(c,gx,gy-40);
   });
   const end=ev=>{
     if(!drag||ev.pointerId!==drag.id)return;const d=drag;drag=null;
-    if(d.ghost)d.ghost.remove();d.el.classList.remove("dragging");
+    if(d.ghost)d.ghost.remove();d.el.classList.remove("dragging");hideLoupe();
     if(!d.moved){GAME.sel=GAME.sel===d.z?null:d.z;renderJuego();return}
     gameDrop(d.z,d.hl?+d.hl.dataset.gz:null);
   };
-  main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{if(drag){if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
+  main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{hideLoupe();if(drag){if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
 })();
 
 /* ===================== PROGRESO ===================== */
@@ -1128,9 +1157,7 @@ main.addEventListener("click",ev=>{
   if(t.closest("#tbl-opts")){openTableOpts();return}
   if(t.closest("#tip-x")){store.set("tp-tip-hide",1);renderTabla();return}
   if(t.closest("#mode-reset")){PREF.show="s";PREF.color="cat";savePref();renderTabla();return}
-  if(t.closest("#z-in")){setZoom(ZOOM*1.5);return}
-  if(t.closest("#z-out")){setZoom(ZOOM/1.5);return}
-  if(t.closest("#z-fit")){setZoom(1);return}
+  if(b=t.closest("[data-zoom]")){setZoom(+b.dataset.zoom);return}
   if(b=t.closest("[data-color]")){PREF.color=b.dataset.color;savePref();renderTabla();return}
   if(b=t.closest("[data-cat]")){filterCat=filterCat===b.dataset.cat?null:b.dataset.cat;renderTabla();return}
   if(b=t.closest("[data-dir]")){PREF.dir=b.dataset.dir;savePref();FL.flipped=false;renderFichas();return}
