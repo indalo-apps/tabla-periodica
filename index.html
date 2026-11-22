@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.7">
+<meta name="app-version" content="4.8">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -679,6 +679,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.8",["✂️ La franja de la familia resaltada muestra solo su nombre"]],
   ["4.7",["✕ Todas las ventanas se cierran con la misma ✕ de arriba a la derecha","✕ Para salir del test, del juego o de una serie, la misma ✕ arriba a la derecha","🎨 Al resaltar una familia aparece una franja de su color con «✕ Quitar»","🃏 Botones de las tarjetas más claros, con ✗ y ✓","🗑 «Borrar mi progreso» en rojo"]],
   ["4.6",["👆 Ahora puedes subir y bajar la pantalla aunque pongas el dedo sobre la tabla (para ver elementos en grande, desliza hacia un lado)","🚫 Al mantener pulsada una casilla ya no sale el menú de copiar texto","⌨️ En el buscador, la ventana sube por encima del teclado","🃏 Arreglado: una tarjeta podía quedarse torcida o contestarse sola al desplazar la pantalla"]],
   ["4.5",["🐞 Arreglado: al desplazar una ficha o una ventana se movía también la pantalla de detrás"]],
@@ -833,7 +834,7 @@ function renderTabla(){
     ${installBannerHTML()}
     ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo hacia un lado por la tabla para verlos en grande.<br>🔍 Pulsa «Ampliada» si prefieres casillas más grandes.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
     ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
-    ${filterCat?`<div class="filterbar k-${filterCat}" role="status">Resaltando: ${CATS[filterCat]} (${E.filter(x=>x.c===filterCat).length})<button id="filter-x" aria-label="Quitar el resaltado">✕ Quitar</button></div>`:""}
+    ${filterCat?`<div class="filterbar k-${filterCat}" role="status">${CATS[filterCat]} (${E.filter(x=>x.c===filterCat).length})<button id="filter-x" aria-label="Quitar el resaltado">✕ Quitar</button></div>`:""}
     <div class="zoom-box">
       ${big?`<p class="bighint">↔︎ Desliza la tabla a los lados para ver el resto.</p>`:""}
       <div class="pt-scroll${big?" isbig":" scrub"}" id="ptz"><div class="pt-wrap full${big?" big":""}" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
