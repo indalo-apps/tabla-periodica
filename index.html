@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.2">
+<meta name="app-version" content="3.3">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -321,7 +321,9 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
   .sheet-nav .btn{min-height:46px}
 }
 /* Ajustes, tamaño de letra e instalación */
-.gear{flex:none;width:44px;height:44px;border:0;background:none;border-radius:12px;display:grid;place-items:center;color:var(--muted);margin-right:-10px}
+.gear{flex:none;width:44px;height:44px;border:0;background:none;border-radius:12px;display:grid;place-items:center;color:var(--muted)}
+#gear{margin-right:-10px}
+#find{margin-right:-6px}
 .gear svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .gear:active{background:var(--surface-2)}
 .sheet:focus{outline:none}
@@ -395,7 +397,19 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .gwrap .cell.gt{background:var(--surface)!important;outline:1.5px dashed var(--muted);outline-offset:-1.5px}
 .gwrap .cell.gok{background:var(--cat)!important;color:var(--ink)}
 .gwrap .cell.ghl{outline:3px solid var(--accent)!important;outline-offset:-1px;background:var(--accent-soft)!important}
-.gwrap .cell.gbad{background:var(--bad)!important;animation:shake .35s}
+.gwrap .cell.gbad{animation:shake .35s;outline:none!important}
+.gwrap .cell.ggood{animation:pop .35s ease-out}
+.gwrap .cell.ggood::after,.gwrap .cell.gbad::after{content:"";position:absolute;inset:0;border-radius:inherit;animation:ovl 1.8s forwards}
+.gwrap .cell.ggood::after{background:var(--good)}
+.gwrap .cell.gbad::after{background:var(--bad)}
+.gwrap .cell.ggood .s,.gwrap .cell.gbad .s{position:relative;z-index:1}
+.gwrap .cell.ggood .s{animation:txtok 1.8s forwards}
+.gwrap .cell.gbad .s{animation:txtko 1.8s forwards}
+@keyframes pop{50%{transform:scale(1.18)}}
+@keyframes ovl{0%,65%{opacity:1}100%{opacity:0}}
+@keyframes txtok{0%,65%{color:#fff}100%{color:var(--ink)}}
+@keyframes txtko{0%,65%{color:#fff}100%{color:transparent}}
+@media (prefers-reduced-motion:reduce){.gwrap .cell.ggood::after,.gwrap .cell.gbad::after{animation:none;opacity:0}.gwrap .cell.ggood{box-shadow:inset 0 0 0 3px var(--good)}.gwrap .cell.gbad{box-shadow:inset 0 0 0 3px var(--bad)}}
 .tray{position:sticky;bottom:0;z-index:6;background:var(--bg);box-shadow:0 -10px 12px -6px var(--bg);padding:8px 0 4px;display:flex;flex-direction:column;gap:4px;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
 .tray .tiles{display:flex;flex-wrap:nowrap;gap:8px;justify-content:safe center;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
 .tray .tiles .gtile{flex:none}
@@ -465,6 +479,10 @@ main:focus{outline:none}
 #scrubbub .z{position:absolute;top:6px;left:8px;font:700 13px var(--f-mono)}
 #scrubbub .s{font:700 40px var(--f-display);letter-spacing:-.03em;margin-top:8px}
 #scrubbub .n{font-size:12px;font-weight:600;margin-top:4px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sres{display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:46vh;overflow-y:auto}
+.sitem{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 10px;min-height:52px;text-align:left}
+.sitem b{flex:none;width:40px;height:40px;border-radius:9px;background:var(--cat);display:grid;place-items:center;font:700 17px var(--f-display)}
+.sitem span{font-weight:600}.sitem small{margin-left:auto;color:var(--muted);font-size:12px;text-align:right}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -485,6 +503,7 @@ main:focus{outline:none}
     <img class="logo" src="icon-192.png" alt="" width="40" height="40">
     <h1>Tabla periódica<small>4º ESO · <span id="hd-ver"></span></small></h1>
     <div class="sp"></div>
+    <button class="gear" id="find" aria-label="Buscar un elemento"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
     <button class="gear" id="gear" aria-label="Ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
 </header>
@@ -566,6 +585,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["3.3",["🔍 Botón de búsqueda arriba, junto a Ajustes, disponible en todas las pestañas","☝️ La tabla ya no tiene botones de zoom: desliza el dedo por ella para ver cada elemento en grande (tipo lupa) y suelta para abrir su ficha","🟩 Jugar: la casilla se pone verde si aciertas y roja (con el símbolo que pusiste) si fallas"]],
   ["3.2",["👆 En la tabla, desliza el dedo: verás el elemento en grande y, al soltar, se abre su ficha","✋ Jugar: antes de colocar un elemento se pide confirmación (se puede desactivar)","🗂️ La pestaña de repaso pasa a llamarse «Tarjetas»","🧩 Los tipos de pregunta del Test van agrupados por temas","🎉 Celebración al acabar sin fallos"]],
   ["3.1",["⚡ Test: nuevas preguntas de iones («¿Qué ion forma el magnesio?» → Mg²⁺) y de propiedades periódicas (radio, electronegatividad, energía de ionización y carácter metálico), con la regla explicada","🧪 La ficha de cada elemento indica su ion más común","🖨 Tabla muda para imprimir o guardar en PDF (vacía, con números o con la solución), en «Opciones de la tabla»","🎯 Jugar: al arrastrar una ficha, la tabla se acerca sola y vuelve al soltarla","♿ Mejoras de accesibilidad (WCAG 2.2): lectores de pantalla, teclado y foco"]],
   ["3.0",["🎯 El zoom (− 100 % +) queda centrado en el hueco que dejan las columnas de la tabla"]],
@@ -686,6 +706,7 @@ function tableHTML({fit=true,cls="",cellFn}){
 }
 function footerHTML(){return `<footer class="foot"><p>${DISCLAIMER}</p><p>Hecha por <b>Adela Moreno Vega</b> y <b>Carlos Moreno Otto</b> · v${VERSION}</p></footer>`}
 function renderTabla(){
+  ZOOM=1;
   const inScope=new Set(pool().map(e=>e.z));
   const show=PREF.show||"s";
   const tbl=tableHTML({fit:true,cls:PREF.color==="lv"?"mastery":"",cellFn:(e,p)=>{
@@ -701,14 +722,11 @@ function renderTabla(){
     : [["Metales",["am","at","mt","mp","lan","act"]],["Semimetales",["sm"]],["No metales",["nm","hal","gn"]]].map(([t,ks])=>`<div class="leg-g"><span class="ctl-l">${t}</span><div class="legend">${ks.map(k=>`<button class="chip rect k-${k}" data-cat="${k}" aria-pressed="${filterCat===k}"><span class="sw" style="background:var(--cat)"></span>${CATS[k]}</button>`).join("")}</div></div>`).join("");
   main.innerHTML=`<section class="view gut">
     ${installBannerHTML()}
-    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Busca un elemento (Fe, hierro, 26…)" autocomplete="off" value="${query}"></div>
-    <div class="results" id="res"></div>
-    ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>🤏 Pellizca la tabla para ampliarla.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
+    ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo por la tabla para verlos en grande.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
     ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
     <div class="zoom-box">
       <div class="pt-scroll${ZOOM<=1.01?" scrub":""}" id="ptz"><div class="pt-wrap full" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
       <div class="tbl-bar"><button class="btn ghost" id="tbl-opts">⚙︎ Opciones de la tabla</button></div>
-      ${zoomSeg()}
     </div>
     ${legend}
     <p class="muted" style="margin:0;font-size:13px">${PREF.color==="lv"?"Cada color indica cuánto te sabes ese elemento.":show==="n"?"Tabla muda: intenta recordar cada casilla antes de tocarla.":show==="z"?"Solo números: ¿sabes qué símbolo va en cada casilla? Tócala para comprobarlo.":"Toca una familia de la leyenda para resaltarla en la tabla."}</p>
@@ -716,7 +734,6 @@ function renderTabla(){
     <div class="fam">${famCards()}</div>
     ${footerHTML()}
   </section>`;
-  updateResults();
   requestAnimationFrame(placeZoom);
 }
 const MNEMO={
@@ -744,13 +761,24 @@ function famCards(){
 }
 function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
 const ALIAS={zinc:30,tungsteno:74,wolfram:74,kalium:19,natrium:11,"tungsteno (w)":74};
+function openSearch(){
+  const s=$("#sheet");
+  s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Buscar un elemento">
+    <div class="grab"></div><h2>Buscar un elemento</h2>
+    <div class="search" style="margin-top:12px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Nombre, símbolo o número (Fe, hierro, 26…)" autocomplete="off" enterkeyhint="search" value="${query}"></div>
+    <div class="sres" id="res"></div>
+    <div class="sheet-nav"><button class="btn ghost block" data-close="1">Cerrar</button></div>
+  </div></div>`;
+  s.hidden=false;sheetShown();updateResults();
+  const q=$("#q");setTimeout(()=>q&&q.focus(),60);
+}
 function updateResults(){
   const res=$("#res");if(!res)return;
   const q=norm(query.trim());
-  if(!q){res.innerHTML="";return}
+  if(!q){res.innerHTML=`<p class="muted" style="margin:4px 0 0;font-size:13px">Escribe el nombre, el símbolo o el número atómico.</p>`;return}
   const al=Object.entries(ALIAS).filter(([k])=>q.length>2&&k.startsWith(q)).map(([,z])=>z);
   const hits=E.filter(e=>al.includes(e.z)||norm(e.s)===q||String(e.z)===q||norm(e.n).startsWith(q)||(q.length>2&&norm(e.n).includes(q))).slice(0,8);
-  res.innerHTML=hits.length?hits.map(e=>`<button class="chip k-${e.c}" data-z="${e.z}"><span class="sw" style="background:var(--cat)"></span><b>${e.s}</b> ${e.n}</button>`).join(""):`<span class="muted" style="font-size:13px">Ningún elemento coincide con «${query}».</span>`;
+  res.innerHTML=hits.length?hits.map(e=>`<button class="sitem k-${e.c}" data-sz="${e.z}"><b>${e.s}</b><span>${e.n}</span><small>Z ${e.z} · ${CATS[e.c].toLowerCase()}</small></button>`).join(""):`<span class="muted" style="font-size:13px">Ningún elemento coincide con «${query}».</span>`;
 }
 
 /* ===================== ZOOM DE LA TABLA ===================== */
@@ -783,7 +811,7 @@ function setZoom(z,cx,cy){
 (function(){
   let d0=0,z0=1;
   const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
-  main.addEventListener("touchstart",ev=>{if(ev.touches.length===2&&ev.target.closest("#ptz")){d0=dist(ev.touches);z0=ZOOM}},{passive:true});
+  main.addEventListener("touchstart",ev=>{if(false&&ev.touches.length===2&&ev.target.closest("#ptz")){d0=dist(ev.touches);z0=ZOOM}},{passive:true});
   main.addEventListener("touchmove",ev=>{
     if(ev.touches.length!==2||!d0)return;
     ev.preventDefault();
@@ -791,7 +819,7 @@ function setZoom(z,cx,cy){
   },{passive:false});
   main.addEventListener("touchend",ev=>{if(ev.touches.length<2)d0=0});
   // En ordenador: Ctrl + rueda
-  main.addEventListener("wheel",ev=>{if(ev.ctrlKey&&ev.target.closest("#ptz")){ev.preventDefault();setZoom(ZOOM*(ev.deltaY<0?1.15:1/1.15),ev.clientX,ev.clientY)}},{passive:false});
+  main.addEventListener("wheel",ev=>{if(false&&ev.ctrlKey&&ev.target.closest("#ptz")){ev.preventDefault();setZoom(ZOOM*(ev.deltaY<0?1.15:1/1.15),ev.clientX,ev.clientY)}},{passive:false});
 })();
 
 function openTableOpts(){
@@ -1182,7 +1210,6 @@ function renderJuego(){
     <div class="bar"><i style="width:${G.placed.size/G.items.length*100}%"></i></div>
     ${G.done?"":`<div class="gtools"><button class="btn ghost" id="g-restart">↺ Reiniciar</button><button class="btn ghost" id="g-hint">💡 Pista</button><button class="btn ghost" id="g-time-t" aria-pressed="${PREF.gtime!==false}">⏱ ${PREF.gtime!==false?"Ocultar tiempo":"Ver tiempo"}</button><button class="btn ghost" id="g-conf-t" aria-pressed="${PREF.gconfirm!==false}">${PREF.gconfirm!==false?"✓ Confirmar al colocar":"Colocar sin confirmar"}</button></div>`}
     <div class="zoom-box game">
-      ${zoomSeg()}
       <div class="pt-scroll" id="ptz"><div class="pt-wrap full gwrap" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
     </div>
     ${G.done?`<div class="feedback ${nerr?"ko":"ok"}" role="status"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${fmtT(gameTime())}${G.hints?` con ${G.hints} pista${G.hints===1?"":"s"}`:""}.</div>
@@ -1195,7 +1222,7 @@ function renderJuego(){
       <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].s}: ${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
       <button class="ver" id="g-list" style="align-self:center">← Elegir otra familia</button></div>`}
   </section>`;
-  G.bad=null;
+  G.bad=null;G.badZ=null;G.good=null;
 }
 function gameTable(G,inG){
   // Solo las columnas (y filas f) donde está la familia, con una de margen: casillas más grandes y fáciles de acertar
@@ -1210,11 +1237,11 @@ function gameTable(G,inG){
   if(needF)h+=`<div class="gap-row" style="grid-column:1/-1;grid-row:9"></div><div class="lbl" style="grid-column:1;grid-row:10">Lan</div><div class="lbl" style="grid-column:1;grid-row:11">Act</div>`;
   for(const e of E){const p=gridPos(e);if(p.col<c0||p.col>c1||p.row>rows)continue;
     const tgt=inG.has(e.z),ok=G.placed.has(e.z);let c=tgt?(ok?" gok":" gt"):"";
-    if(G.bad===e.z)c+=" gbad";if(G.hint===e.z)c+=" ghint";
+    if(G.bad===e.z)c+=" gbad";if(G.hint===e.z)c+=" ghint";if(G.good===e.z)c+=" ggood";
     const pend=G.pending&&G.pending.target===e.z;if(pend)c+=" gpend";
     const lab=`${e.f?(e.c==="lan"?"Lantánidos":"Actínidos"):"Grupo "+e.g}, periodo ${e.p}`;
-    h+=tgt&&!ok?`<button class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" aria-label="Casilla vacía: ${lab}"><span class="s">${pend?BYZ[G.pending.z].s:""}</span></button>`
-      :`<div class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" ${ok?`aria-label="${e.n}, colocado"`:'aria-hidden="true"'}><span class="s">${ok?e.s:pend?BYZ[G.pending.z].s:""}</span></div>`;
+    h+=tgt&&!ok?`<button class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" aria-label="Casilla vacía: ${lab}"><span class="s">${pend?BYZ[G.pending.z].s:G.bad===e.z&&G.badZ?BYZ[G.badZ].s:""}</span></button>`
+      :`<div class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" ${ok?`aria-label="${e.n}, colocado"`:'aria-hidden="true"'}><span class="s">${ok?e.s:pend?BYZ[G.pending.z].s:G.bad===e.z&&G.badZ?BYZ[G.badZ].s:""}</span></div>`;
   }
   return h+"</div>";
 }
@@ -1260,11 +1287,11 @@ function gamePropose(z,target){
 function gameDrop(z,target){
   const G=GAME;if(!G||G.done||target==null)return;
   G.hint=null;
-  if(target===z){G.placed.add(z);G.sel=null;G.msg=`✓ ${BYZ[z].n}: ¡bien colocado!`;
+  if(target===z){G.placed.add(z);G.sel=null;G.good=z;G.msg=`✓ ${BYZ[z].n}: ¡bien colocado!`;
     if(G.placed.size===G.items.length){pauseGame();G.done=true;G.items.forEach(x=>record(x,!G.errs[x]));
       const n=G.items.filter(x=>G.errs[x]).length;const prev=GAMEBEST[G.cat];if(prev===undefined||n<prev){GAMEBEST[G.cat]=n;store.set("tp-game-v1",GAMEBEST)}
       if(!n)confetti(60);}
-  }else{G.errs[z]=(G.errs[z]||0)+1;G.bad=target;vibrar(60);
+  }else{G.errs[z]=(G.errs[z]||0)+1;G.bad=target;G.badZ=z;vibrar(60);
     G.msg=`✗ Esa no es la casilla del <b>${BYZ[z].n.toLowerCase()}</b>${BYZ[target]?` (ahí va el ${BYZ[target].n.toLowerCase()})`:""}. Prueba otra vez.`}
   renderJuego();
 }
@@ -1396,6 +1423,8 @@ main.addEventListener("click",ev=>{
   if(t.closest("#ib-how")){openInstall();return}
   if(t.closest("#ib-x")){store.set("tp-install-hide",1);renderTabla();return}
 });
+$("#sheet").addEventListener("input",ev=>{if(ev.target.id==="q"){query=ev.target.value;updateResults()}});
+$("#sheet").addEventListener("keydown",ev=>{if(ev.target.id==="q"&&ev.key==="Enter"){const f=document.querySelector("#res [data-sz]");if(f){ev.preventDefault();openSheet(+f.dataset.sz)}}});
 $("#sheet").addEventListener("click",ev=>{
   const t=ev.target;
   const go=t.closest("[data-go]");if(go&&!go.disabled){openSheet(+go.dataset.go);return}
@@ -1451,6 +1480,7 @@ function openSettings(){
   s.hidden=false;sheetShown();
 }
 $("#gear").addEventListener("click",openSettings);
+$("#find").addEventListener("click",openSearch);
 $("#sheet").addEventListener("click",ev=>{
   const t=ev.target;let b;
   if(b=t.closest("[data-fsz]")){PREF.fs=b.dataset.fsz;savePref();applyLook();document.querySelectorAll("[data-fsz]").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
@@ -1458,6 +1488,7 @@ $("#sheet").addEventListener("click",ev=>{
   if(b=t.closest("[data-color]")){PREF.color=b.dataset.color;savePref();renderTabla();openTableOpts();return}
   if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();openTableOpts();return}
   if(b=t.closest("[data-print]")){printTable(b.dataset.print);return}
+  if(b=t.closest("[data-sz]")){openSheet(+b.dataset.sz);return}
   if(t.closest("#set-nov")){verNovedades(null);return}
   if(t.closest("#set-install")||t.closest("#inst-again")){openInstall();return}
   if(t.closest("#inst-now")){installNow();return}
