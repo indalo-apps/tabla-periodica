@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.2">
+<meta name="app-version" content="3.3">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -473,6 +473,49 @@ main:focus{outline:none}
 #barra-act{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));z-index:60;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px;box-shadow:0 6px 20px -8px rgb(0 0 0 / .5)}
 @media (max-width:420px){ .stats{grid-template-columns:repeat(2,1fr)} }
 @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+
+/* v3.3 · Mejora visual: la tabla como lámina de aula
+   Colores de familia más vivos y distintos entre sí, casillas con relieve de ficha impresa
+   y etiquetas en minúscula normal (sin MAYÚSCULAS espaciadas). */
+:root{
+  --c-am:#ff9f8a; --c-at:#ffc56b; --c-mt:#bcaaf2; --c-lan:#f3a9d7; --c-act:#dcb79c;
+  --c-mp:#a3cbe2; --c-sm:#8edcbf; --c-nm:#c4e68c; --c-hal:#f6e46c; --c-gn:#abc6ff;
+  --tile-edge:rgb(19 32 48 / .16);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --c-am:#8c3b2d; --c-at:#7f5b1b; --c-mt:#4d418c; --c-lan:#7b3567; --c-act:#6b4d3b;
+  --c-mp:#2b5b73; --c-sm:#21674f; --c-nm:#4e6b20; --c-hal:#6f6414; --c-gn:#2d4b88;
+  --tile-edge:rgb(0 0 0 / .35);
+}}
+:root[data-theme="dark"]{
+  --c-am:#8c3b2d; --c-at:#7f5b1b; --c-mt:#4d418c; --c-lan:#7b3567; --c-act:#6b4d3b;
+  --c-mp:#2b5b73; --c-sm:#21674f; --c-nm:#4e6b20; --c-hal:#6f6414; --c-gn:#2d4b88;
+  --tile-edge:rgb(0 0 0 / .35);
+}
+/* Casillas con borde inferior, como fichas recortadas de una lámina */
+.cell[class*="k-"],.bigtile,#scrubbub,.gtile,.qbig[class*="k-"],.miss button,.fam .els button,.box.done{box-shadow:inset 0 -3px 0 var(--tile-edge)}
+.pt.fit .cell[class*="k-"]{box-shadow:inset 0 -2px 0 var(--tile-edge)}
+.pt.mastery .cell,.gwrap .cell,.placeq .cell,.mini .cell{box-shadow:none}
+.gwrap .cell.gok{box-shadow:inset 0 -2px 0 var(--tile-edge)}
+.cell .s{font-weight:700}
+.bigtile{width:104px;height:112px;border-radius:14px;padding:8px 10px}
+.bigtile .s{font-size:46px}
+/* Muestras de color de la leyenda: más grandes, se distinguen de un vistazo */
+.chip .sw{width:16px;height:16px;border-radius:5px;border:0;box-shadow:inset 0 -2px 0 var(--tile-edge)}
+.chip.rect[aria-pressed="true"]{background:var(--cat);border-color:var(--ink);box-shadow:none}
+.gbtn .t .sw{width:16px!important;height:16px!important;border:0!important;border-radius:5px!important;box-shadow:inset 0 -2px 0 var(--tile-edge)}
+.gbtn{border-left:6px solid var(--cat,var(--line))}
+/* Tipos de pregunta: lo elegido se ve marcado */
+.chip.t{padding-left:12px}
+.chip.t[aria-pressed="true"]::before{content:"✓";font-weight:700;color:var(--accent);margin-right:-1px}
+.chip.t[aria-pressed="false"]{color:var(--muted)}
+/* Etiquetas en minúscula normal */
+.eyebrow,.ctl-l,.facts dt,.qtype{text-transform:none;letter-spacing:0;font-size:12.5px}
+.eyebrow,.ctl-l,.facts dt{font-weight:600;color:var(--muted)}
+.qtype{font-weight:700}
+h2{font-size:22px;letter-spacing:-.02em}
+/* Tarjetas: franja de color más presente */
+.face .stripe{height:14px}
 </style>
 </head>
 <body>
@@ -566,6 +609,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["3.3",["🎨 Colores de las familias más vivos y fáciles de distinguir en la tabla","🧱 Las casillas tienen relieve, como fichas de una lámina de clase","✓ En el Test se ve con una marca qué tipos de pregunta están elegidos","🔤 Títulos y etiquetas más limpios, sin mayúsculas"]],
   ["3.2",["👆 En la tabla, desliza el dedo: verás el elemento en grande y, al soltar, se abre su ficha","✋ Jugar: antes de colocar un elemento se pide confirmación (se puede desactivar)","🗂️ La pestaña de repaso pasa a llamarse «Tarjetas»","🧩 Los tipos de pregunta del Test van agrupados por temas","🎉 Celebración al acabar sin fallos"]],
   ["3.1",["⚡ Test: nuevas preguntas de iones («¿Qué ion forma el magnesio?» → Mg²⁺) y de propiedades periódicas (radio, electronegatividad, energía de ionización y carácter metálico), con la regla explicada","🧪 La ficha de cada elemento indica su ion más común","🖨 Tabla muda para imprimir o guardar en PDF (vacía, con números o con la solución), en «Opciones de la tabla»","🎯 Jugar: al arrastrar una ficha, la tabla se acerca sola y vuelve al soltarla","♿ Mejoras de accesibilidad (WCAG 2.2): lectores de pantalla, teclado y foco"]],
   ["3.0",["🎯 El zoom (− 100 % +) queda centrado en el hueco que dejan las columnas de la tabla"]],
