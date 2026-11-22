@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.4">
+<meta name="app-version" content="4.5">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -182,7 +182,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .fam .meta{font-size:12.5px;color:var(--muted);font-family:var(--f-mono)}
 
 /* Hoja de detalle */
-.sheet-bg{position:fixed;inset:0;background:rgb(5 10 18 / .5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet-bg{position:fixed;inset:0;overscroll-behavior:contain;touch-action:none;background:rgb(5 10 18 / .5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--surface);width:100%;max-width:560px;max-height:88%;overflow-y:auto;border-radius:20px 20px 0 0;padding:10px max(18px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:.4}}
 .grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
@@ -560,6 +560,10 @@ main:focus{outline:none}
 .elnav .tx small{display:block;font-size:12px;color:var(--muted);font-weight:500}
 .elnav .ar{flex:none;font-size:22px;color:var(--muted);line-height:1}
 .elnav .nb:active{transform:scale(.97)}
+
+/* Con una hoja abierta, solo se desplaza la hoja (no la pantalla de detrás) */
+#sheet .sheet{overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 </style>
 </head>
 <body>
@@ -654,6 +658,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.5",["🐞 Arreglado: al desplazar una ficha o una ventana se movía también la pantalla de detrás"]],
   ["4.4",["✕ La ficha se cierra con la ✕ de arriba, que está siempre a la vista","‹ › Abajo, botones fijos con el elemento anterior y el siguiente (su casilla de color y su nombre)"]],
   ["4.3",["🎨 Colores de familia más vivos y fáciles de distinguir (también con daltonismo), en modo claro y oscuro","🟪 Leyenda con muestras de color más grandes y, en Jugar, una franja de color en cada familia","✓ En el test, los tipos elegidos llevan una marca","🔤 Etiquetas en minúscula normal y títulos algo más grandes; la ficha tiene un ligero relieve"]],
   ["4.2",["🃏 Tarjetas: ahora puedes elegir el mazo (todos o una familia, por ejemplo solo halógenos)","❓ Test: al responder, la pregunta se encoge y sigue a la vista junto a la solución","🏷️ En la ficha, «Sin ver» pasa a ser «Aún no lo has practicado»"]],
@@ -995,6 +1000,11 @@ function openSheet(z){
   s.hidden=false;sheetShown();
 }
 let skipPop=false;
+// Bloquear el desplazamiento de la página mientras hay una hoja abierta (iPhone incluido)
+(function(){let y=0,on=false;const sh=document.getElementById("sheet"),b=document.body;
+  const apply=()=>{const open=!sh.hidden;if(open&&!on){y=SC.scrollTop;b.style.top=-y+"px";b.classList.add("locked");on=true}
+    else if(!open&&on){b.classList.remove("locked");b.style.top="";SC.scrollTop=y;on=false}};
+  new MutationObserver(apply).observe(sh,{attributes:true,attributeFilter:["hidden"]});})();
 function closeSheet(fromPop){const s=$("#sheet");if(s.hidden)return;s.hidden=true;s.innerHTML="";if(sheetOpener&&document.body.contains(sheetOpener))sheetOpener.focus({preventScroll:true});sheetOpener=null;if(!fromPop&&history.state&&history.state.sheet){skipPop=true;history.back()}}
 let sheetOpener=null;
 function sheetShown(){if(!sheetOpener||!document.body.contains(sheetOpener))sheetOpener=document.activeElement;if(!(history.state&&history.state.sheet))history.pushState({sheet:1},"");const sh=document.querySelector("#sheet .sheet");if(sh){sh.tabIndex=-1;sh.focus({preventScroll:true})}}
