@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.9">
+<meta name="app-version" content="4.0">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -507,9 +507,20 @@ main:focus{outline:none}
 .sitem{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 10px;min-height:52px;text-align:left}
 .sitem b{flex:none;width:40px;height:40px;border-radius:9px;background:var(--cat);display:grid;place-items:center;font:700 17px var(--f-display)}
 .sitem span{font-weight:600}.sitem small{margin-left:auto;color:var(--muted);font-size:12px;text-align:right}
-#lens{position:fixed;z-index:95;pointer-events:none;width:124px;height:124px;border-radius:50%;overflow:hidden;transform:translate(-50%,-50%);background:var(--bg);border:3px solid var(--ink);box-shadow:0 12px 26px -8px rgb(0 0 0 / .55),inset 0 0 0 2px rgb(255 255 255 / .6)}
-#lens .lens-in{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none}
-#lens .lens-in .zseg{display:none}
+/* Tamaño de la tabla: reducida (cabe entera) / ampliada (casillas grandes, se desliza a los lados) */
+.tbl-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.sizeseg{display:inline-flex;border:1px solid var(--line);border-radius:12px;padding:3px;background:var(--surface-2);gap:2px}
+.sizeseg button{min-height:40px;padding:0 14px;border:0;border-radius:9px;background:transparent;font:600 14px var(--f-body);color:var(--muted)}
+.sizeseg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px -1px rgb(0 0 0 / .25)}
+#ptw.big{width:1000px}
+#ptz.isbig{scroll-snap-type:none;overscroll-behavior-x:contain}
+.pt-wrap.big .pt.fit{gap:2px}
+.pt-wrap.big .pt.fit .cell{border-radius:5px;aspect-ratio:1/1.12}
+.pt-wrap.big .pt.fit .cell .z{display:block;font-size:10px;top:3px;left:4px}
+.pt-wrap.big .pt.fit .cell .s{font-size:20px;margin-top:4px;letter-spacing:-.02em}
+.pt-wrap.big .pt.fit .cell .n{display:block;font-size:8.5px;max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px;opacity:.85}
+.pt-wrap.big .pt.fit .lbl{font-size:11px}
+.bighint{margin:6px 0 0;font-size:13px;color:var(--muted)}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -612,6 +623,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.0",["🔍 Vuelven los botones «Reducida» y «Ampliada» debajo de la tabla: en Ampliada las casillas son grandes, con número y nombre","🧹 Quitada la lupa al deslizar; se mantiene la tarjeta con el nombre"]],
   ["3.9",["🔄 La app busca actualizaciones nada más abrirla, y en Ajustes hay un botón «Buscar actualizaciones»"]],
   ["3.8",["🔎 La lupa ya no tapa la tarjeta con el nombre: se coloca encima, a un lado o debajo del dedo, donde haya sitio"]],
   ["3.7",["©️ Autoría reforzada: licencia «Todos los derechos reservados» y autores en el código","🖼️ Al compartir el enlace por WhatsApp o redes sale una vista previa con el icono, el nombre y una descripción"]],
@@ -740,6 +752,7 @@ function tableHTML({fit=true,cls="",cellFn}){
 function footerHTML(){return `<footer class="foot"><p>${DISCLAIMER}</p><p>© ${new Date().getFullYear()} <b>Adela Moreno Vega</b> y <b>Carlos Moreno Otto</b> · v${VERSION}</p></footer>`}
 function renderTabla(){
   ZOOM=1;
+  const big=PREF.size==="a";
   const inScope=new Set(pool().map(e=>e.z));
   const show=PREF.show||"s";
   const tbl=tableHTML({fit:true,cls:PREF.color==="lv"?"mastery":"",cellFn:(e,p)=>{
@@ -755,11 +768,12 @@ function renderTabla(){
     : [["Metales",["am","at","mt","mp","lan","act"]],["Semimetales",["sm"]],["No metales",["nm","hal","gn"]]].map(([t,ks])=>`<div class="leg-g"><span class="ctl-l">${t}</span><div class="legend">${ks.map(k=>`<button class="chip rect k-${k}" data-cat="${k}" aria-pressed="${filterCat===k}"><span class="sw" style="background:var(--cat)"></span>${CATS[k]}</button>`).join("")}</div></div>`).join("");
   main.innerHTML=`<section class="view gut">
     ${installBannerHTML()}
-    ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo por la tabla para verlos en grande.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
+    ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo por la tabla para verlos en grande.<br>🔍 Pulsa «Ampliada» si prefieres casillas más grandes.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
     ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
     <div class="zoom-box">
-      <div class="pt-scroll${ZOOM<=1.01?" scrub":""}" id="ptz"><div class="pt-wrap full" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
-      <div class="tbl-bar"><button class="btn ghost" id="tbl-opts">⚙︎ Opciones de la tabla</button></div>
+      <div class="pt-scroll${big?" isbig":" scrub"}" id="ptz"><div class="pt-wrap full${big?" big":""}" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
+      ${big?`<p class="bighint">↔︎ Desliza la tabla a los lados para ver el resto.</p>`:""}
+      <div class="tbl-bar"><div class="sizeseg" role="group" aria-label="Tamaño de la tabla"><button data-size="r" aria-pressed="${!big}">Reducida</button><button data-size="a" aria-pressed="${big}">Ampliada</button></div><button class="btn ghost" id="tbl-opts">⚙︎ Opciones</button></div>
     </div>
     ${legend}
     <p class="muted" style="margin:0;font-size:13px">${PREF.color==="lv"?"Cada color indica cuánto te sabes ese elemento.":show==="n"?"Tabla muda: intenta recordar cada casilla antes de tocarla.":show==="z"?"Solo números: ¿sabes qué símbolo va en cada casilla? Tócala para comprobarlo.":"Toca una familia de la leyenda para resaltarla en la tabla."}</p>
@@ -877,29 +891,11 @@ function openTableOpts(){
 /* ===================== DESLIZAR SOBRE LA TABLA ===================== */
 // Al deslizar el dedo por la tabla aparece el elemento en grande; al soltar se abre su ficha
 (function(){
-  let sc=null,bub=null,hl=null,skipClick=false,lens=null,lensIn=null;
-  const LR=62,LS=2.5; // radio de la lupa (px) y aumento
-  function lensShow(x,y,c){
-    const w=$("#ptw");if(!w)return;
-    if(!lens){lens=document.createElement("div");lens.id="lens";lens.setAttribute("aria-hidden","true");document.body.appendChild(lens)}
-    if(!lensIn){lensIn=w.cloneNode(true);lensIn.removeAttribute("id");lensIn.style.width=w.getBoundingClientRect().width+"px";lensIn.classList.add("lens-in");lens.innerHTML="";lens.appendChild(lensIn)}
-    const r=w.getBoundingClientRect();
-    lensIn.style.transform=`translate(${LR-(x-r.left)*LS}px,${LR-(y-r.top)*LS}px) scale(${LS})`;
-    lensIn.querySelectorAll(".scrubhl").forEach(n=>n.classList.remove("scrubhl"));
-    if(c){const m=lensIn.querySelector(`.cell[data-z="${c.dataset.z}"]`);if(m)m.classList.add("scrubhl")}
-    // Encima del dedo; si ahí tapa la tarjeta del nombre o se sale, a un lado o debajo
-    const D=LR+44, card=bub&&!bub.hidden?bub.getBoundingClientRect():null;
-    const cl=v=>Math.min(innerWidth-LR-6,Math.max(LR+6,v));
-    const opts=[[cl(x),y-LR-58],[cl(x),y-LR-110],[x<innerWidth/2?x+D:x-D,y],[x<innerWidth/2?x-D:x+D,y],[cl(x),y+LR+58],[cl(x),y+LR+110]];
-    const fits=([cx,cy])=>cx-LR>=4&&cx+LR<=innerWidth-4&&cy-LR>=4&&cy+LR<=innerHeight-4;
-    const clash=([cx,cy])=>card&&cx+LR>card.left&&cx-LR<card.right&&cy+LR>card.top&&cy-LR<card.bottom;
-    const pos=opts.find(o=>fits(o)&&!clash(o))||opts.find(fits)||opts[0];
-    lens.style.left=pos[0]+"px";lens.style.top=pos[1]+"px";lens.hidden=false;
-  }
+  let sc=null,bub=null,hl=null,skipClick=false;
   const bubble=()=>{if(!bub){bub=document.createElement("div");bub.id="scrubbub";bub.setAttribute("aria-hidden","true");document.body.appendChild(bub)}return bub};
-  const clear=()=>{if(bub)bub.hidden=true;if(hl)hl.classList.remove("scrubhl");hl=null;if(lens)lens.hidden=true;lensIn=null};
+  const clear=()=>{if(bub)bub.hidden=true;if(hl)hl.classList.remove("scrubhl");hl=null};
   main.addEventListener("pointerdown",ev=>{
-    if(ev.pointerType!=="touch"||PREF.tab!=="tabla"||ZOOM>1.01)return;
+    if(ev.pointerType!=="touch"||PREF.tab!=="tabla"||ZOOM>1.01||PREF.size==="a")return;
     const c=ev.target.closest("#ptz .cell[data-z]");if(!c)return;
     sc={id:ev.pointerId,x0:ev.clientX,y0:ev.clientY,moved:false};
   });
@@ -909,7 +905,7 @@ function openTableOpts(){
     sc.moved=true;
     const el=document.elementFromPoint(ev.clientX,ev.clientY),c=el&&el.closest("#ptz .cell[data-z]");
     if(hl&&hl!==c)hl.classList.remove("scrubhl");
-    if(!c){if(bub)bub.hidden=true;hl=null;lensShow(ev.clientX,ev.clientY,null);return}
+    if(!c){if(bub)bub.hidden=true;hl=null;return}
     c.classList.add("scrubhl");hl=c;
     const e=BYZ[+c.dataset.z],b=bubble();
     b.className="k-"+e.c;
@@ -920,7 +916,6 @@ function openTableOpts(){
     if(cS&&cZ&&cH&&cN){const a=cS.getBoundingClientRect(),z=cZ.getBoundingClientRect(),t=cH.getBoundingClientRect(),d=cN.getBoundingClientRect();
       const w=z.right-a.left-6,hh=d.bottom-t.top-4;
       b.style.left=(a.left+3)+"px";b.style.top=(t.top+2)+"px";b.style.width=w+"px";b.style.height=hh+"px";}
-    lensShow(ev.clientX,ev.clientY,c);
   });
   const end=ev=>{
     if(!sc||ev.pointerId!==sc.id)return;const moved=sc.moved,c=hl;sc=null;clear();
@@ -1442,6 +1437,7 @@ main.addEventListener("click",ev=>{
   let b;
   if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();return}
   if(t.closest("#tbl-opts")){openTableOpts();return}
+  {const sz=t.closest("[data-size]");if(sz){PREF.size=sz.dataset.size;savePref();const y=SC.scrollTop;renderTabla();SC.scrollTop=y;return}}
   if(t.closest("#tip-x")){store.set("tp-tip-hide",1);renderTabla();return}
   if(t.closest("#mode-reset")){PREF.show="s";PREF.color="cat";savePref();renderTabla();return}
   if(t.closest("#z-in")){zoomStep(1);return}
