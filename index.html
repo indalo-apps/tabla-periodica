@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.4">
+<meta name="app-version" content="1.5">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -24,7 +24,7 @@ img{max-width:100%}
 :root{
   --bg:#eaf0f5; --surface:#ffffff; --surface-2:#f4f7fa; --ink:#132030; --muted:#5a6b7e; --line:#d3dce6;
   --accent:#1f56d6; --accent-ink:#ffffff; --accent-soft:#dfe8fd;
-  --good:#1d8549; --good-soft:#d9f2e3; --bad:#c0352d; --bad-soft:#fbe0de; --warn:#b26b00;
+  --good:#17703d; --good-soft:#d9f2e3; --bad:#a82a23; --bad-soft:#fbe0de; --warn:#b26b00;
   --c-am:#ffd3c7; --c-at:#ffe3b0; --c-mt:#e0d9f6; --c-lan:#f6d2ec; --c-act:#ead6c8;
   --c-mp:#d0e3ee; --c-sm:#cdeee2; --c-nm:#e0f2c2; --c-hal:#f9f0ad; --c-gn:#cddfff;
   --lv0:#dfe5ec; --lv1:#f6c2bd; --lv2:#ffe08a; --lv3:#8fd9ab;
@@ -69,7 +69,7 @@ header{flex:none;background:var(--surface);border-bottom:1px solid var(--line);p
 .hd h1 small{display:block;font:500 12px var(--f-body);color:var(--muted);letter-spacing:0}
 .hd .sp{flex:1}
 .scope{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.scope label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.scope label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .scope select{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:13px;font-weight:600;max-width:150px}
 @media (pointer:coarse){.scope select,.search input{font-size:16px}}
 
@@ -86,11 +86,11 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 .tab{background:none;border:0;padding:8px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--muted)}
 .tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab[aria-current="page"]{color:var(--accent)}
-.tab[aria-current="page"] svg{stroke-width:2.3}
+.tab[aria-current="page"] svg{stroke-width:2.3;fill:color-mix(in srgb,currentColor 18%,transparent)}
 
 /* Controles */
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.seg{display:inline-grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
 .seg button{border:0;background:none;padding:6px 11px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 8px;font-size:12.5px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
@@ -113,26 +113,27 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 /* Tabla periódica */
 .pt-scroll{overflow-x:auto;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));padding-bottom:6px;scrollbar-width:thin}
 .pt-wrap{container-type:inline-size}
-.pt{display:grid;grid-template-columns:22px repeat(18,46px);grid-template-rows:20px repeat(7,52px) 12px repeat(2,52px);gap:2px;width:max-content}
+.pt{display:grid;grid-template-columns:24px repeat(18,48px);grid-template-rows:22px repeat(7,52px) 12px repeat(2,52px);gap:2px;width:max-content}
 .pt.fit{grid-template-columns:.5fr repeat(18,minmax(0,1fr));grid-template-rows:auto;grid-auto-rows:auto;width:100%;gap:1.5px}
 .pt.fit .cell,.pt.fit .ph{aspect-ratio:1/1.12}
 .pt.fit .gap-row{height:6px}
-.lbl{font:600 10px var(--f-mono);color:var(--muted);display:flex;align-items:center;justify-content:center}
+.lbl{font:600 11px var(--f-mono);color:var(--muted);display:flex;align-items:center;justify-content:center}
 .pt.fit .lbl{font-size:max(6px,2.1cqi)}
 .cell{position:relative;border:0;border-radius:5px;background:var(--cat,var(--lv0));padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;min-width:0;transition:opacity .15s,transform .1s}
-.cell .z{position:absolute;top:3px;left:4px;font:500 8.5px var(--f-mono);opacity:.75}
-.cell .s{font:700 17px var(--f-display);letter-spacing:-.02em}
-.cell .n{font-size:7.5px;margin-top:3px;max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85}
+.cell .z{position:absolute;top:3px;left:4px;font:500 11px var(--f-mono);opacity:.8}
+.cell .s{font:700 19px var(--f-display);letter-spacing:-.02em;margin-top:8px}
+.cell .n{display:none}
 .pt.fit .cell{border-radius:3px}
 .pt.fit .cell .z,.pt.fit .cell .n{display:none}
+.pt.fit .cell .s{margin-top:0}
 .pt.fit .cell .s{font-size:max(8px,2.9cqi);letter-spacing:-.04em}
 .cell:active{transform:scale(.94)}
 .cell.dim{opacity:.18}
 .cell.hide-s .s,.cell.hide-s .n{visibility:hidden}
 .pt.mastery .cell{background:var(--lvc,var(--lv0))}
-.ph{border:1px dashed var(--line);border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 8px var(--f-mono);color:var(--muted);text-align:center;line-height:1.1}
+.ph{border:1px dashed var(--line);border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px var(--f-mono);color:var(--muted);text-align:center;line-height:1.1}
 .pt.fit .ph{font-size:max(5px,1.5cqi)}
-.frow-l{grid-column:1/4;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:600;color:var(--muted)}
+.frow-l{grid-column:1/4;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:11px;font-weight:600;color:var(--muted)}
 .pt.fit .frow-l{font-size:max(6px,1.8cqi)}
 .legend{display:flex;flex-wrap:wrap;gap:6px}
 .lvleg{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px}
@@ -163,7 +164,7 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 .el-head h2{font-size:24px}
 .facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
 .facts div{background:var(--surface);padding:9px 11px;min-width:0}
-.facts dt{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.facts dt{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .facts dd{margin:2px 0 0;font-weight:600}
 .facts .wide{grid-column:1/-1}
 .mono{font-family:var(--f-mono);font-weight:500;font-size:13.5px;word-break:break-word}
@@ -282,13 +283,13 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 .fill-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
 .slot{display:flex;align-items:center;gap:8px}
 .slot .pl{width:24px;text-align:right;font:600 11px var(--f-mono);color:var(--muted)}
-.box{width:58px;height:52px;border-radius:10px;border:2px dashed var(--line);background:var(--surface);display:grid;place-items:center;font:700 20px var(--f-display);position:relative}
+.box{width:60px;height:56px;border-radius:10px;border:2px dashed var(--line);background:var(--surface);display:grid;place-items:center;font:700 20px var(--f-display);position:relative}
 .fill-row .box{width:clamp(34px,10.5vw,58px)}
 .box.cur{border-color:var(--accent);border-style:solid;box-shadow:0 0 0 3px var(--accent-soft)}
 .box.done{border-style:solid;border-color:transparent;background:var(--cat)}
 .box.bad{border-color:var(--bad);border-style:solid;background:var(--bad-soft);color:var(--bad)}
-.box small{position:absolute;top:2px;left:4px;font:500 9px var(--f-mono);opacity:.7}
-.bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.box small{position:absolute;top:2px;left:4px;font:500 11px var(--f-mono);opacity:.75}
+.bank{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .bank button{min-width:56px;height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font:700 19px var(--f-display)}
 .bank button.used{visibility:hidden}
 .bank button.shake{animation:shake .35s;border-color:var(--bad);background:var(--bad-soft)}
@@ -310,12 +311,14 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 .gear{flex:none;width:44px;height:44px;border:0;background:none;border-radius:12px;display:grid;place-items:center;color:var(--muted);margin-right:-8px}
 .gear svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .gear:active{background:var(--surface-2)}
+.sheet:focus{outline:none}
 .hd h1 small span{font-family:var(--f-mono);font-size:11px}
 :root[data-fs="s"] main,:root[data-fs="s"] .sheet{zoom:.9}
 :root[data-fs="l"] main,:root[data-fs="l"] .sheet{zoom:1.15}
 :root[data-fs="xl"] main,:root[data-fs="xl"] .sheet{zoom:1.3}
+:root[data-fs="xxl"] main,:root[data-fs="xxl"] .sheet{zoom:1.6}
 .set-group{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-.set-group .seg{align-self:flex-start;flex-wrap:wrap}
+.set-group .seg{align-self:stretch;grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
 .preview{font-size:15px;color:var(--muted)}
 .install-banner{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 6px 8px 12px}
 .install-banner .ic{flex:none;width:36px;height:36px;border-radius:9px;overflow:hidden}
@@ -427,6 +430,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["1.5",["🍏 Revisada con las guías de diseño de Apple: textos de al menos 11 puntos, más contraste, ✓ y ✗ en las respuestas (no solo colores) y tamaño de letra «Enorme»","🔲 Vista «Grande» de la tabla más legible","🎨 Icono más limpio"]],
   ["1.4",["⚙️ Nuevo botón de ajustes (arriba a la derecha): tamaño de letra y modo claro u oscuro","🔢 La versión se ve siempre en la cabecera","📲 Instrucciones paso a paso para añadir la app a la pantalla de inicio del iPhone o del Android"]],
   ["1.3",["📍 Nueva pregunta en el test: «Colocar en la tabla». Te dicen un elemento y tocas su casilla en la tabla vacía","🧩 Nuevo modo «Rellenar familias» (en Test): coloca en orden los elementos de cada grupo o periodo, con su truco para memorizar"]],
   ["1.2",["📱 Mejor en el móvil: la tabla entera aprovecha todo el ancho y se lee mejor","👉 En las fichas, desliza la tarjeta: a la derecha si te la sabías, a la izquierda si no","➡️ En el test, el botón «Siguiente» queda siempre a mano, sin tener que bajar","⬇️ La ficha de un elemento se cierra deslizándola hacia abajo o con el botón «atrás» del móvil","🔍 Al buscar ya no se amplía la pantalla en el iPhone"]],
@@ -564,7 +568,7 @@ function openSheet(z){
   s.hidden=false;sheetShown();
 }
 function closeSheet(fromPop){const s=$("#sheet");if(s.hidden)return;s.hidden=true;s.innerHTML="";if(!fromPop&&history.state&&history.state.sheet)history.back()}
-function sheetShown(){if(!(history.state&&history.state.sheet))history.pushState({sheet:1},"")}
+function sheetShown(){if(!(history.state&&history.state.sheet))history.pushState({sheet:1},"");const sh=document.querySelector("#sheet .sheet");if(sh){sh.tabIndex=-1;sh.focus({preventScroll:true})}}
 addEventListener("popstate",()=>closeSheet(true));
 const vibrar=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
 
@@ -707,7 +711,7 @@ function renderTest(){
     <div class="bar"><i style="width:${(QZ.i+(answered?1:0))/ROUND*100}%"></i></div>
     <div class="qcard"><span class="qtype">${QTYPES[q.t]}</span>${q.show}<div class="qprompt">${q.prompt}</div></div>
     ${q.t==="place"?placeTable(q,answered):""}
-    <div class="opts">${q.opts.map((o,i)=>{let c="";if(answered){if(o===q.correct)c=" ok";else if(o===q.picked)c=" ko"}return `<button class="opt${c}" data-opt="${i}" ${answered?"disabled":""}><span class="k">${"ABCD"[i]}</span><span>${optLabel(q,o)}</span></button>`}).join("")}</div>
+    <div class="opts">${q.opts.map((o,i)=>{let c="";if(answered){if(o===q.correct)c=" ok";else if(o===q.picked)c=" ko"}return `<button class="opt${c}" data-opt="${i}" ${answered?"disabled":""}><span class="k" ${c?`aria-label="${c===" ok"?"Correcta":"Incorrecta"}"`:""}>${c===" ok"?"✓":c===" ko"?"✗":"ABCD"[i]}</span><span>${optLabel(q,o)}</span></button>`}).join("")}</div>
     ${answered?`<div class="feedback ${q.picked===q.correct?"ok":"ko"}"><strong>${q.picked===q.correct?"¡Correcto!":(q.t==="place"?"No es esa casilla. Has tocado el "+BYZ[q.picked].n.toLowerCase()+" ("+BYZ[q.picked].s+")":"No es esa")}</strong>${q.expl}${ORIGIN[q.z]&&(q.t==="n2s"||q.t==="s2n")?" "+ORIGIN[q.z]:""}</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" data-z="${q.z}">Ver ficha</button><button class="btn" style="flex:2" id="qz-next">${QZ.i+1<ROUND?"Siguiente":"Ver resultado"}</button></div>`:""}
   </div></section>`;
@@ -885,7 +889,7 @@ function applyLook(){
 }
 applyLook();
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyLook);
-const FS=[["s","Pequeña"],["m","Normal"],["l","Grande"],["xl","Muy grande"]];
+const FS=[["s","Pequeña"],["m","Normal"],["l","Grande"],["xl","Muy grande"],["xxl","Enorme"]];
 const THEMES=[["auto","Automático"],["light","Claro"],["dark","Oscuro"]];
 function openSettings(){
   const s=$("#sheet");
@@ -903,7 +907,7 @@ function openSettings(){
       <p style="margin:0">Tabla periódica 4º ESO · <b>versión ${VERSION}</b></p>
       <p class="muted" style="margin:0;font-size:13px">Se actualiza sola cuando hay una versión nueva.</p>
       <button class="btn ghost" id="set-nov" style="align-self:flex-start">Ver novedades</button></div>
-    <div class="sheet-nav"><button class="btn block" data-close="1">Hecho</button></div>
+    <div class="sheet-nav"><button class="btn block" data-close="1">Cerrar</button></div>
   </div></div>`;
   s.hidden=false;sheetShown();
 }
