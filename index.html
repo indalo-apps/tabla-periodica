@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="app-version" content="1.1">
 <meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tabla periódica">
 <title>Tabla Periódica 4º ESO</title>
@@ -225,6 +229,12 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
 .stack i{display:block;height:100%}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:12px}
 .confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--bad-soft);border-radius:12px;padding:10px 12px}
+/* Versión y actualización */
+.ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
+.nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
+.nov ul{margin:0;padding-left:20px}
+.nov li{margin:3px 0}
+#barra-act{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));z-index:60;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px;box-shadow:0 6px 20px -8px rgb(0 0 0 / .5)}
 @media (max-width:420px){ .stats{grid-template-columns:repeat(2,1fr)} }
 @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
@@ -255,6 +265,7 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
 </nav>
 
 <div id="sheet" hidden></div>
+<div id="barra-act" hidden>Actualizando a la versión nueva…</div>
 
 <script>
 /* ===================== DATOS ===================== */
@@ -310,6 +321,15 @@ const SCOPES={
   repres:{label:"Representativos",f:e=>(!e.f&&(e.g<=2||e.g>=13)&&e.z<=86)||BASIC_EXTRA.includes(e.z)},
   todos:{label:"Todos",f:()=>true}
 };
+
+/* ===================== VERSIÓN ===================== */
+const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
+// Lo que trae cada versión (lo más nuevo, arriba)
+const NOVEDADES=[
+  ["1.1",["🔄 La app se actualiza sola cuando hay una versión nueva, sin cortar un test ni las fichas a medias","📲 Se puede añadir a la pantalla de inicio del móvil, con su propio icono","✈️ Funciona también sin conexión"]],
+  ["1.0",["Primera versión: tabla interactiva, fichas, test con 7 tipos de pregunta y progreso"]]
+];
+const verCmp=(a,b)=>{const x=a.split(".").map(Number),y=b.split(".").map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 
 /* ===================== ESTADO ===================== */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -603,6 +623,7 @@ function renderProgreso(){
     ${review.length?`<div class="panel"><h3>A repasar</h3><div class="miss" style="justify-content:flex-start">${review.map(e=>`<button class="k-${e.c}" data-z="${e.z}">${e.s}</button>`).join("")}</div></div>`:""}
     <div class="panel"><h3>Por familias</h3>${cats}</div>
     ${confirmReset?`<div class="confirm"><span style="flex:1;min-width:180px">¿Borrar todo tu progreso? No se puede deshacer.</span><button class="btn ghost" id="rs-no">Cancelar</button><button class="btn" style="background:var(--bad);color:#fff" id="rs-yes">Borrar</button></div>`:`<button class="btn ghost" id="rs" style="align-self:flex-start">Reiniciar progreso</button>`}
+    <button class="ver" id="ver">Versión ${VERSION} · Novedades</button>
   </section>`;
 }
 
@@ -640,6 +661,7 @@ main.addEventListener("click",ev=>{
   if(t.closest("#rs")){confirmReset=true;renderProgreso();return}
   if(t.closest("#rs-no")){confirmReset=false;renderProgreso();return}
   if(t.closest("#rs-yes")){PROG={};saveProg();confirmReset=false;renderProgreso();return}
+  if(t.closest("#ver")){verNovedades(null);return}
 });
 $("#sheet").addEventListener("click",ev=>{
   const t=ev.target;
@@ -655,6 +677,58 @@ document.addEventListener("keydown",ev=>{
   }
 });
 buildScope();render();
+
+/* ===================== ACTUALIZACIÓN AUTOMÁTICA ===================== */
+function verNovedades(desde){
+  const todas=NOVEDADES.filter(([v])=>!desde||verCmp(v,desde)>0);
+  if(!todas.length)return;
+  const s=$("#sheet");
+  s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Novedades">
+    <div class="grab"></div><h2>${desde?"¡La app se ha actualizado!":"Novedades"}</h2>
+    <div class="nov">${todas.slice(0,4).map(([v,items])=>`<h4>Versión ${v}</h4><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul>`).join("")}</div>
+    <div class="sheet-nav"><button class="btn block" data-close="1">Entendido</button></div>
+  </div></div>`;
+  s.hidden=false;
+}
+(function(){
+  const vista=store.get("tp-version",null);
+  store.set("tp-version",VERSION);
+  if(vista&&verCmp(VERSION,vista)>0)setTimeout(()=>verNovedades(vista),600);
+})();
+
+// Solo en la web publicada (GitHub Pages) o en pruebas locales
+const EN_WEB=/\.github\.io$/.test(location.hostname)||location.hostname==="localhost";
+let actPendiente=false;
+// Nunca se recarga en mitad de un test ni de un mazo de fichas, ni con una ficha abierta
+function seguroRecargar(){
+  if(!$("#sheet").hidden)return false;
+  if(PREF.tab==="test"&&QZ&&!QZ.done)return false;
+  if(PREF.tab==="fichas"&&FL&&FL.i>0&&FL.i<FL.deck.length)return false;
+  return true;
+}
+function actualizar(){
+  if(!seguroRecargar()){actPendiente=true;return}
+  $("#barra-act").hidden=false;
+  setTimeout(()=>location.reload(),1200);
+}
+async function buscarVersion(){
+  if(!EN_WEB)return;
+  try{
+    const txt=await (await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"})).text();
+    const m=txt.match(/name="app-version" content="([^"]+)"/);
+    if(m&&verCmp(m[1],VERSION)>0)actualizar();
+  }catch(e){}
+}
+// Si había una versión esperando, se aplica en cuanto se puede (al cambiar de pestaña, cerrar una ficha, acabar un test…)
+new MutationObserver(()=>{if(actPendiente&&seguroRecargar()){actPendiente=false;actualizar()}})
+  .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","aria-current"]});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")buscarVersion()});
+setInterval(buscarVersion,5*60*1000);
+setTimeout(buscarVersion,3000);
+// Sin internet: el service worker guarda la app para que funcione sin conexión
+if(EN_WEB&&"serviceWorker" in navigator){
+  addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}));
+}
 </script>
 </body>
 </html>
