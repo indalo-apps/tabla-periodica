@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.7">
+<meta name="app-version" content="3.8">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -612,6 +612,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["3.8",["🔎 La lupa ya no tapa la tarjeta con el nombre: se coloca encima, a un lado o debajo del dedo, donde haya sitio"]],
   ["3.7",["©️ Autoría reforzada: licencia «Todos los derechos reservados» y autores en el código","🖼️ Al compartir el enlace por WhatsApp o redes sale una vista previa con el icono, el nombre y una descripción"]],
   ["3.6",["🔎 Efecto lupa: al deslizar el dedo por la tabla, una lupa redonda encima del dedo amplía esa zona","© El pie de página muestra el símbolo de copyright de los autores"]],
   ["3.5",["👆 Al deslizar el dedo por la tabla, la vista previa sale siempre en el hueco de arriba de la tabla, donde el dedo no la tapa, con nombre, familia, grupo y periodo"]],
@@ -885,9 +886,14 @@ function openTableOpts(){
     lensIn.style.transform=`translate(${LR-(x-r.left)*LS}px,${LR-(y-r.top)*LS}px) scale(${LS})`;
     lensIn.querySelectorAll(".scrubhl").forEach(n=>n.classList.remove("scrubhl"));
     if(c){const m=lensIn.querySelector(`.cell[data-z="${c.dataset.z}"]`);if(m)m.classList.add("scrubhl")}
-    // por encima del dedo; si no cabe, a un lado
-    let ly=y-LR-58,lx=x;if(ly<LR+8){ly=y;lx=x<innerWidth/2?x+LR+44:x-LR-44}
-    lens.style.left=lx+"px";lens.style.top=ly+"px";lens.hidden=false;
+    // Encima del dedo; si ahí tapa la tarjeta del nombre o se sale, a un lado o debajo
+    const D=LR+44, card=bub&&!bub.hidden?bub.getBoundingClientRect():null;
+    const cl=v=>Math.min(innerWidth-LR-6,Math.max(LR+6,v));
+    const opts=[[cl(x),y-LR-58],[cl(x),y-LR-110],[x<innerWidth/2?x+D:x-D,y],[x<innerWidth/2?x-D:x+D,y],[cl(x),y+LR+58],[cl(x),y+LR+110]];
+    const fits=([cx,cy])=>cx-LR>=4&&cx+LR<=innerWidth-4&&cy-LR>=4&&cy+LR<=innerHeight-4;
+    const clash=([cx,cy])=>card&&cx+LR>card.left&&cx-LR<card.right&&cy+LR>card.top&&cy-LR<card.bottom;
+    const pos=opts.find(o=>fits(o)&&!clash(o))||opts.find(fits)||opts[0];
+    lens.style.left=pos[0]+"px";lens.style.top=pos[1]+"px";lens.hidden=false;
   }
   const bubble=()=>{if(!bub){bub=document.createElement("div");bub.id="scrubbub";bub.setAttribute("aria-hidden","true");document.body.appendChild(bub)}return bub};
   const clear=()=>{if(bub)bub.hidden=true;if(hl)hl.classList.remove("scrubhl");hl=null;if(lens)lens.hidden=true;lensIn=null};
@@ -902,8 +908,7 @@ function openTableOpts(){
     sc.moved=true;
     const el=document.elementFromPoint(ev.clientX,ev.clientY),c=el&&el.closest("#ptz .cell[data-z]");
     if(hl&&hl!==c)hl.classList.remove("scrubhl");
-    lensShow(ev.clientX,ev.clientY,c);
-    if(!c){if(bub)bub.hidden=true;hl=null;return}
+    if(!c){if(bub)bub.hidden=true;hl=null;lensShow(ev.clientX,ev.clientY,null);return}
     c.classList.add("scrubhl");hl=c;
     const e=BYZ[+c.dataset.z],b=bubble();
     b.className="k-"+e.c;
@@ -914,6 +919,7 @@ function openTableOpts(){
     if(cS&&cZ&&cH&&cN){const a=cS.getBoundingClientRect(),z=cZ.getBoundingClientRect(),t=cH.getBoundingClientRect(),d=cN.getBoundingClientRect();
       const w=z.right-a.left-6,hh=d.bottom-t.top-4;
       b.style.left=(a.left+3)+"px";b.style.top=(t.top+2)+"px";b.style.width=w+"px";b.style.height=hh+"px";}
+    lensShow(ev.clientX,ev.clientY,c);
   });
   const end=ev=>{
     if(!sc||ev.pointerId!==sc.id)return;const moved=sc.moved,c=hl;sc=null;clear();
