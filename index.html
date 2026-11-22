@@ -1,9 +1,15 @@
 <!doctype html>
+<!--
+  Tabla periódica 4º ESO
+  © 2026 Adela Moreno Vega y Carlos Moreno Otto. Todos los derechos reservados.
+  Prohibida la copia, modificación o distribución total o parcial sin autorización de los autores.
+  https://indalo-apps.github.io/tabla-periodica/
+-->
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.6">
+<meta name="app-version" content="3.7">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -19,6 +25,18 @@
 <title>Tabla Periódica 4º ESO</title>
 <meta name="author" content="Adela Moreno Vega y Carlos Moreno Otto">
 <meta name="description" content="App para repasar la tabla periódica de 4º ESO. Autores: Adela Moreno Vega y Carlos Moreno Otto.">
+<meta name="copyright" content="© 2026 Adela Moreno Vega y Carlos Moreno Otto. Todos los derechos reservados.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="Tabla periódica 4º ESO">
+<meta property="og:title" content="Tabla periódica 4º ESO">
+<meta property="og:description" content="Repasa la tabla periódica en el móvil: tabla interactiva, tarjetas, juego de colocar y test. Gratis y sin registrarse.">
+<meta property="og:url" content="https://indalo-apps.github.io/tabla-periodica/">
+<meta property="og:image" content="https://indalo-apps.github.io/tabla-periodica/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tabla periódica 4º ESO: icono de la app y casillas de elementos">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
@@ -594,6 +612,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["3.7",["©️ Autoría reforzada: licencia «Todos los derechos reservados» y autores en el código","🖼️ Al compartir el enlace por WhatsApp o redes sale una vista previa con el icono, el nombre y una descripción"]],
   ["3.6",["🔎 Efecto lupa: al deslizar el dedo por la tabla, una lupa redonda encima del dedo amplía esa zona","© El pie de página muestra el símbolo de copyright de los autores"]],
   ["3.5",["👆 Al deslizar el dedo por la tabla, la vista previa sale siempre en el hueco de arriba de la tabla, donde el dedo no la tapa, con nombre, familia, grupo y periodo"]],
   ["3.4",["📏 Las pantallas se ajustan al alto del móvil: Tarjetas, las preguntas y el juego caben sin tener que mover la app","🧷 La app ya no rebota al tocarla cuando no hace falta desplazarse","⚙️ Jugar: «Confirmar antes de colocar» y «Mostrar el tiempo» pasan a la pantalla de elegir familia"]],
@@ -1500,7 +1519,7 @@ function openSettings(){
     <div class="set-group"><h3>Acerca de</h3>
       <div class="about"><img src="icon-192.png" alt="" width="48" height="48"><div><b>Tabla periódica 4º ESO</b><br><span class="muted">Versión ${VERSION}</span></div></div>
       <p style="margin:0">Creada por <b>Adela Moreno Vega</b> y <b>Carlos Moreno Otto</b>.</p>
-      <p class="muted" style="margin:0;font-size:13px">© ${new Date().getFullYear()} Adela Moreno Vega y Carlos Moreno Otto. Uso educativo y gratuito.</p></div>
+      <p class="muted" style="margin:0;font-size:13px">© ${new Date().getFullYear()} Adela Moreno Vega y Carlos Moreno Otto. Todos los derechos reservados. Uso personal y educativo gratuito.</p></div>
     <div class="set-group"><h3>Aviso</h3>
       <div class="disclaimer">${DISCLAIMER}</div></div>
     <div class="set-group"><h3>Versión</h3>
