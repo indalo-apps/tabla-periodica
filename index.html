@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="5.0">
+<meta name="app-version" content="5.1">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -599,6 +599,18 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .lnk{align-self:center;color:var(--accent);font-weight:600;font-size:14.5px;background:none;border:0;min-height:44px;padding:0 10px}
 .tmhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .tmhead > div{display:flex;flex-direction:column;gap:4px}
+
+/* Formular */
+.labres{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--cat);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.lab-f{font:700 46px/1 var(--f-display);letter-spacing:-.02em}
+.lab-n{font:600 17px var(--f-display)}
+.lab-toks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px}
+.tok{background:var(--cat);border-radius:8px;padding:4px 8px;font:700 15px var(--f-display);box-shadow:inset 0 -2px 0 rgb(0 0 0 / .14)}
+.lab-e{margin:2px 0 0;font-size:14.5px}
+.ionrow{display:flex;flex-wrap:wrap;gap:8px}
+.ionchip{min-width:56px;min-height:44px;border-radius:10px;border:1.5px solid transparent;background:var(--cat);font:700 16px var(--f-display);color:var(--ink);padding:0 10px;box-shadow:inset 0 -2px 0 rgb(0 0 0 / .12)}
+.ionchip[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.topics .topic:last-child:nth-child(even){grid-column:1/-1;flex-direction:row;align-items:center;min-height:0;gap:12px}
 </style>
 </head>
 <body>
@@ -693,6 +705,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["5.1",["⚗️ Nuevo: «Formular» en Ponte a prueba. Elige un catión y un anión y verás la fórmula, el nombre y cómo se compensan las cargas (Ca²⁺ + 2 Cl⁻ → CaCl₂)","❓ Preguntas de formulación: fórmula a partir del nombre, compuesto que forman dos iones y nombre a partir de la fórmula"]],
   ["5.0",["🎯 «Ponte a prueba» más fácil: toca un tema y empieza (Todo mezclado, Nombres y símbolos, Posición, Familias, El átomo, Propiedades o Rellenar familias)","⚙︎ Para combinar tipos de pregunta, «Hacer una ronda a mi medida»"]],
   ["4.9",["✕ La franja de la familia resaltada se quita con la misma ✕ redonda que el resto de la app"]],
   ["4.8",["✂️ La franja de la familia resaltada muestra solo su nombre"]],
@@ -1006,6 +1019,62 @@ function openTableOpts(){
   main.addEventListener("click",ev=>{if(skipClick&&ev.target.closest("#ptz")){skipClick=false;ev.stopImmediatePropagation();ev.preventDefault()}},true);
 })();
 
+
+/* ===================== FORMULACIÓN (compuestos iónicos binarios) ===================== */
+const SUBS="₀₁₂₃₄₅₆₇₈₉",subn=n=>n>1?String(n).split("").map(d=>SUBS[d]).join(""):"";
+// [Z, carga] de los cationes y aniones más habituales en 4º ESO
+const CATIONS=[[3,1],[11,1],[19,1],[4,2],[12,2],[20,2],[38,2],[56,2],[13,3],[30,2],[47,1],[26,2],[26,3],[29,1],[29,2],[82,2]];
+const ANIONS=[[9,-1],[17,-1],[35,-1],[53,-1],[8,-2],[16,-2],[7,-3],[15,-3]];
+const VARIA=new Set([26,29,82]),ROM=["","I","II","III","IV"];
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const catLabel=(z,q)=>BYZ[z].s+ionSup(q),catName=(z,q)=>BYZ[z].n.toLowerCase()+(VARIA.has(z)?"("+ROM[q]+")":"");
+function compound(cz,cq,az,aq){const A=-aq,g=gcd(cq,A),nc=A/g,na=cq/g;
+  return {cz,cq,az,aq,nc,na,formula:BYZ[cz].s+subn(nc)+BYZ[az].s+subn(na),name:ANION[az]+" de "+catName(cz,cq)}}
+const fNum=n=>n>1?n+" ":"";
+function compExpl(k){const c=catLabel(k.cz,k.cq),a=catLabel(k.az,k.aq);
+  return `${c} tiene carga +${k.cq} y ${a} tiene carga −${-k.aq}. Para que el total sea 0 hacen falta ${k.nc} ${k.nc>1?"cationes":"catión"} y ${k.na} ${k.na>1?"aniones":"anión"}: ${k.nc}·(+${k.cq}) + ${k.na}·(−${-k.aq}) = 0 → <b>${k.formula}</b>, ${k.name}.`}
+function buildForm(){
+  const [cz,cq]=CATIONS[Math.floor(Math.random()*CATIONS.length)],[az,aq]=ANIONS[Math.floor(Math.random()*ANIONS.length)];
+  const k=compound(cz,cq,az,aq),v=Math.floor(Math.random()*3);
+  const fm=(a,b)=>BYZ[cz].s+subn(a)+BYZ[az].s+subn(b);
+  const wrongF=[fm(1,1),fm(k.na,k.nc),fm(-aq,cq),fm(cq,-aq),fm(k.nc+1,k.na),fm(k.nc,k.na+1),fm(k.nc*2,k.na),fm(k.nc,k.na*2),fm(1,2),fm(2,1),fm(1,3),fm(3,1),fm(2,3),fm(3,2)].filter(x=>x!==k.formula);
+  const tile=(z,q)=>`<div class="qbig k-${BYZ[z].c}" style="font-size:40px;padding:6px 14px">${catLabel(z,q)}</div>`;
+  let prompt,show,opts,correct;
+  if(v===2){
+    correct=k.name;show=`<div class="qbig" style="font-size:44px;padding:6px 18px;background:var(--surface-2)">${k.formula}</div>`;prompt="¿Cómo se llama este compuesto?";
+    const alt=[...CATIONS.filter(([z,q])=>z===cz&&q!==cq).map(([z,q])=>compound(z,q,az,aq).name),
+      ...ANIONS.filter(([z])=>z!==az).map(([z,q])=>ANION[z]+" de "+catName(cz,cq)),
+      ...CATIONS.filter(([z])=>z!==cz).map(([z,q])=>ANION[az]+" de "+catName(z,q))];
+    opts=[correct,...pickOthers(correct,alt,3,alt.slice(0,4))];
+  }else{
+    correct=k.formula;
+    if(v===0){show=`<div class="qname" style="font-size:24px">${k.name[0].toUpperCase()+k.name.slice(1)}</div>`;prompt="¿Cuál es su fórmula?"}
+    else{show=`<div style="display:flex;gap:12px;align-items:center">${tile(cz,cq)}<span class="muted" style="font-weight:700">+</span>${tile(az,aq)}</div>`;prompt="¿Qué compuesto forman estos iones?"}
+    opts=[correct,...pickOthers(correct,[...new Set(wrongF)],3)];
+  }
+  return {t:"form",z:cz,prompt,show,opts:shuffle(opts.slice(0,4)),correct,expl:compExpl(k),picked:null,mono:false,noRec:true};
+}
+function renderLab(){
+  const ci=Math.min(PREF.fc??5,CATIONS.length-1),ai=Math.min(PREF.fa??1,ANIONS.length-1);
+  const [cz,cq]=CATIONS[ci],[az,aq]=ANIONS[ai],k=compound(cz,cq,az,aq);
+  const chip=(z,q,i,kind,on)=>`<button class="ionchip k-${BYZ[z].c}" data-${kind}="${i}" aria-pressed="${on}" aria-label="${kind==="fc"?"Catión "+catName(z,q):"Anión "+ANION[z]}">${catLabel(z,q)}</button>`;
+  const tok=(n,z,q)=>Array.from({length:n},()=>`<span class="tok k-${BYZ[z].c}">${catLabel(z,q)}</span>`).join("");
+  main.innerHTML=`<section class="view gut"><div class="quiz">
+    <div class="tmhead"><div><span class="eyebrow">Compuestos iónicos</span><h2>Formular</h2></div><button class="xexit" id="tm-home" aria-label="Volver a los temas">✕</button></div>
+    <p class="muted" style="margin:0">Elige un catión (metal) y un anión (no metal). Se unen en la proporción justa para que las cargas sumen 0.</p>
+    <div class="labres k-${BYZ[cz].c}" role="status" aria-live="polite">
+      <div class="lab-f">${k.formula}</div>
+      <div class="lab-n">${k.name[0].toUpperCase()+k.name.slice(1)}</div>
+      <div class="lab-toks">${tok(k.nc,cz,cq)}${tok(k.na,az,aq)}</div>
+      <p class="lab-e">${fNum(k.nc)}${catLabel(cz,cq)} + ${fNum(k.na)}${catLabel(az,aq)} → ${k.formula}<br><span class="muted">Cargas: ${k.nc}·(+${cq}) + ${k.na}·(−${-aq}) = 0</span></p>
+    </div>
+    <div class="qgroup"><span class="ctl-l">1. Catión (metal)</span><div class="ionrow">${CATIONS.map(([z,q],i)=>chip(z,q,i,"fc",i===ci)).join("")}</div></div>
+    <div class="qgroup"><span class="ctl-l">2. Anión (no metal)</span><div class="ionrow">${ANIONS.map(([z,q],i)=>chip(z,q,i,"fa",i===ai)).join("")}</div></div>
+    <p class="muted" style="margin:0;font-size:13px">Los números romanos, como en hierro(III), indican la carga del metal cuando puede tener más de una.</p>
+    <button class="btn block" id="lab-quiz">Ponerme a prueba: 10 fórmulas</button>
+  </div></section>`;
+}
+
 /* ===================== FICHA DE DETALLE ===================== */
 function factsHTML(e){
   const v=valence(e);
@@ -1102,10 +1171,10 @@ function renderFichas(){
 function flashAnswer(ok){record(FL.deck[FL.i],ok);if(ok)FL.known++;else if(FL.deck.length-FL.i>4){FL.deck.splice(FL.i+4+Math.floor(Math.random()*4),0,FL.deck[FL.i])}FL.i++;FL.flipped=false;renderFichas()}
 
 /* ===================== TEST ===================== */
-const QTYPES={place:"Colocar en la tabla",ion:"Iones",trend:"Propiedades periódicas",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
+const QTYPES={form:"Formulación",place:"Colocar en la tabla",ion:"Iones",trend:"Propiedades periódicas",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
 const ROUND=10;
 const TOPICS=[["names","🔤","Nombres y símbolos","Fe → hierro",["s2n","n2s"]],["pos","📍","Posición","Grupo y periodo",["place","pos","gp"]],["fam","🎨","Familias","¿Halógeno?",["fam","kind"]],["atom","⚛️","El átomo","1s² 2s² 2p⁶…",["conf","ion"]],["props","📈","Propiedades","¿Cuál es mayor?",["trend"]]];
-const QGROUPS=[["Nombres y símbolos",["s2n","n2s"]],["Posición en la tabla",["place","pos","gp"]],["Familias y tipos",["fam","kind"]],["Estructura del átomo",["conf","ion"]],["Propiedades",["trend"]]];
+const QGROUPS=[["Nombres y símbolos",["s2n","n2s"]],["Posición en la tabla",["place","pos","gp"]],["Familias y tipos",["fam","kind"]],["Estructura del átomo",["conf","ion"]],["Propiedades",["trend"]],["Formulación",["form"]]];
 let QZ=null;
 function pickOthers(answer,cands,n,prefer){
   const out=[],seen=new Set([answer]);
@@ -1123,6 +1192,7 @@ function makeQuestion(){
     if(t==="conf")cands=P.filter(e=>e.z<=56&&!EXC[e.z]);
     if(t==="ion")cands=P.filter(e=>ionOf(e)!=null);
     if(t==="trend"){const tp=trendPair();if(tp)return buildTrend(tp);continue}
+    if(t==="form")return buildForm();
     if(!cands.length)continue;
     const e=weightedPick(cands);
     if(QZ&&QZ.recent.includes(e.z)&&cands.length>4)continue;
@@ -1203,6 +1273,7 @@ function startQuiz(types,title){subShown();QZ={i:0,score:0,miss:[],recent:[],q:n
 function optLabel(q,o){if(q.t==="trend"){return `<b>${o}</b>&nbsp;<span class="muted" style="font-weight:500">${q.names[o]}</span>`}if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
 function renderTest(){
   if(!QZ&&PREF.tmode==="fill"){renderFill();return}
+  if(!QZ&&PREF.tmode==="lab"){renderLab();return}
   if(!QZ&&PREF.tmode!=="custom"){
     main.innerHTML=`<section class="view gut"><div class="quiz">
       <div style="display:flex;flex-direction:column;gap:4px"><h2>Ponte a prueba</h2>
@@ -1210,6 +1281,7 @@ function renderTest(){
       <div class="topics">
         <button class="topic mix" data-topic="mix"><span class="ic" aria-hidden="true">🎯</span><span><b>Todo mezclado</b><small>Más preguntas de lo que fallas</small></span></button>
         ${TOPICS.map(([k,ic,t,ex])=>`<button class="topic" data-topic="${k}"><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span class="ex">${ex}</span></button>`).join("")}
+        <button class="topic" data-topic="lab"><span class="ic" aria-hidden="true">⚗️</span><b>Formular</b><span class="ex">Ca²⁺ + Cl⁻ → CaCl₂</span></button>
         <button class="topic" data-topic="fill"><span class="ic" aria-hidden="true">🧩</span><b>Rellenar familias</b><span class="ex">Tabla muda</span></button>
       </div>
       <button class="lnk" id="tm-custom">⚙︎ Hacer una ronda a mi medida</button>
@@ -1257,7 +1329,7 @@ function answer(i){answerVal(QZ.q.opts[i])}
 function answerVal(v){
   const q=QZ.q;if(q.picked!==null)return;
   q.picked=v;const ok=q.picked===q.correct;
-  record(q.z,ok);if(ok)QZ.score++;else{QZ.miss.push(q.z);vibrar(60)}
+  if(!q.noRec)record(q.z,ok);if(ok)QZ.score++;else{if(!q.noRec)QZ.miss.push(q.z);vibrar(60)}
   renderTest();
   const fb=document.querySelector(".feedback");fb&&fb.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
@@ -1555,9 +1627,13 @@ main.addEventListener("click",ev=>{
   if(t.closest("#qz-start")){startQuiz(PREF.types,"A mi medida");return}
   if(t.closest("#qz-again")){startQuiz(QZ&&QZ.types,QZ&&QZ.title);return}
   if(b=t.closest("[data-topic]")){const k=b.dataset.topic;
+    if(k==="lab"){PREF.tmode="lab";savePref();renderTest();SC.scrollTop=0;return}
     if(k==="fill"){PREF.tmode="fill";savePref();FILL=null;renderTest();SC.scrollTop=0;return}
     if(k==="mix"){startQuiz(Object.keys(QTYPES),"Todo mezclado");return}
     const tp=TOPICS.find(x=>x[0]===k);startQuiz(tp[4],tp[2]);return}
+  if(b=t.closest("[data-fc]")){PREF.fc=+b.dataset.fc;savePref();renderLab();return}
+  if(b=t.closest("[data-fa]")){PREF.fa=+b.dataset.fa;savePref();renderLab();return}
+  if(t.closest("#lab-quiz")){startQuiz(["form"],"Formulación");return}
   if(t.closest("#tm-custom")){PREF.tmode="custom";savePref();renderTest();SC.scrollTop=0;return}
   if(t.closest("#tm-home")){PREF.tmode="home";savePref();FILL=null;renderTest();SC.scrollTop=0;return}
   if(t.closest("#qz-setup")||t.closest("#qz-exit")){if(history.state&&history.state.sub){history.back()}else{QZ=null;renderTest()}return}
