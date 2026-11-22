@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="2.7">
+<meta name="app-version" content="2.8">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -421,8 +421,10 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .exitbtn{border:0;background:var(--surface-2);border-radius:10px;min-height:40px;padding:0 12px;font-weight:600;font-size:13.5px;color:var(--ink)}
 /* Zoom 1× 2× 3× */
 .zoom-box{margin-bottom:0}
-.zseg{position:absolute;z-index:4;top:14px;left:calc(13.6% + 4px);background:color-mix(in srgb,var(--surface-2) 92%,transparent);box-shadow:0 2px 8px -4px rgb(0 0 0 / .3)}
-.zseg button{min-width:44px;min-height:40px;padding:0 8px;font-variant-numeric:tabular-nums}
+.zseg{position:absolute;z-index:4;top:12px;left:calc(13.6% + 4px);display:flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--surface) 90%,transparent);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:0 2px 8px -4px rgb(0 0 0 / .3)}
+.zseg button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font:600 22px/1 var(--f-body);color:var(--ink)}
+.zseg button:disabled{opacity:.35}
+.zseg output{min-width:52px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
 .gwrap ~ .zseg,.zoom-box.game .zseg{position:static;margin-bottom:8px;display:inline-grid}
 .tbl-bar{position:static;transform:none;margin-top:8px}
 /* Versión y actualización */
@@ -525,6 +527,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.8",["🔍 Zoom con botones − y + y el porcentaje (100 %, 150 %, 200 %, 300 %), arriba a la izquierda de la tabla y en Jugar"]],
   ["2.7",["🗂️ Pestañas de arriba más visibles, como botones con borde","📱 La app se desplaza como una página normal con la cabecera fija arriba (para que el iPhone no difumine la parte superior)","🔍 Quitada la lupa del juego"]],
   ["2.6",["🔍 Zoom con botones 1× · 2× · 3× en la esquina superior izquierda de la tabla (y sigue el pellizco)","🎯 Jugar: al arrastrar una ficha aparece una lupa con la casilla de destino en grande y su grupo y periodo"]],
   ["2.5",["🧩 Jugar: zoom (pellizco o − +), casillas más grandes mostrando solo la zona de la familia, y las fichas en una fila que se desliza","↺ Botones de Reiniciar y 💡 Pista, reloj que se puede ocultar y que se para si sales","💬 Mensajes claros al acertar o fallar (también para lectores de pantalla)","✕ En el Test ya se puede salir a mitad de ronda, y el botón «atrás» del móvil vuelve al menú en Test, Rellenar y Jugar"]],
@@ -657,7 +660,9 @@ function updateResults(){
 
 /* ===================== ZOOM DE LA TABLA ===================== */
 let ZOOM=1;const ZMAX=3;
-function zoomSeg(){return `<div class="zseg seg" role="group" aria-label="Zoom de la tabla">${[1,2,3].map(z=>`<button data-zoom="${z}" aria-pressed="${Math.abs(ZOOM-z)<.05}" aria-label="Zoom ${z} aumentos">${z}×</button>`).join("")}</div>`}
+const ZSTEPS=[1,1.5,2,3];
+function zoomSeg(){return `<div class="zseg" role="group" aria-label="Zoom de la tabla"><button id="z-out" aria-label="Alejar" ${ZOOM<=1.01?"disabled":""}>−</button><output id="z-pct" aria-live="polite">${Math.round(ZOOM*100)} %</output><button id="z-in" aria-label="Acercar" ${ZOOM>=ZMAX-.01?"disabled":""}>+</button></div>`}
+function zoomStep(dir){const i=dir>0?ZSTEPS.findIndex(z=>z>ZOOM+.01):ZSTEPS.map(z=>z<ZOOM-.01).lastIndexOf(true);if(i>=0)setZoom(ZSTEPS[i])}
 function setZoom(z,cx,cy){
   const box=$("#ptz"),w=$("#ptw");if(!box||!w)return;
   z=Math.min(ZMAX,Math.max(1,z));
@@ -669,7 +674,7 @@ function setZoom(z,cx,cy){
   w.style.setProperty("--z",ZOOM);
   box.scrollLeft=ax*ZOOM-px;
   SC.scrollTop+=py*(ZOOM/old-1);
-  document.querySelectorAll("[data-zoom]").forEach(b=>b.setAttribute("aria-pressed",Math.abs(ZOOM-+b.dataset.zoom)<.05));
+  const zp=$("#z-pct"),zi=$("#z-in"),zo=$("#z-out");if(zp)zp.textContent=Math.round(ZOOM*100)+" %";if(zi)zi.disabled=ZOOM>=ZMAX-.01;if(zo)zo.disabled=ZOOM<=1.01;
 }
 (function(){
   let d0=0,z0=1;
@@ -1132,7 +1137,8 @@ main.addEventListener("click",ev=>{
   if(t.closest("#tbl-opts")){openTableOpts();return}
   if(t.closest("#tip-x")){store.set("tp-tip-hide",1);renderTabla();return}
   if(t.closest("#mode-reset")){PREF.show="s";PREF.color="cat";savePref();renderTabla();return}
-  if(b=t.closest("[data-zoom]")){setZoom(+b.dataset.zoom);return}
+  if(t.closest("#z-in")){zoomStep(1);return}
+  if(t.closest("#z-out")){zoomStep(-1);return}
   if(b=t.closest("[data-color]")){PREF.color=b.dataset.color;savePref();renderTabla();return}
   if(b=t.closest("[data-cat]")){filterCat=filterCat===b.dataset.cat?null:b.dataset.cat;renderTabla();return}
   if(b=t.closest("[data-dir]")){PREF.dir=b.dataset.dir;savePref();FL.flipped=false;renderFichas();return}
