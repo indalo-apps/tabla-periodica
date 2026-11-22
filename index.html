@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.5">
+<meta name="app-version" content="4.6">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -504,7 +504,7 @@ main:focus{outline:none}
 .gwrap .cell.gpend{outline:3px solid var(--accent)!important;outline-offset:-1px;background:var(--accent-soft)!important;color:var(--accent)!important}
 .gwrap .cell.gpend .s{opacity:.85}
 .tray.gconfirm{border-top:2px solid var(--accent)}
-#ptz.scrub{touch-action:none}
+#ptz.scrub{touch-action:pan-y}
 .cell.scrubhl{outline:2.5px solid var(--ink);outline-offset:1px;z-index:2}
 #scrubbub{position:fixed;z-index:90;pointer-events:none;border-radius:12px;background:var(--surface);border:2px solid var(--ink);box-shadow:0 10px 22px -10px rgb(0 0 0 / .45);display:flex;align-items:stretch;gap:8px;padding:4px;color:var(--ink);overflow:hidden}
 #scrubbub .bt{flex:none;aspect-ratio:1/1.05;height:100%;border-radius:8px;background:var(--cat);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1}
@@ -563,6 +563,10 @@ main:focus{outline:none}
 
 /* Con una hoja abierta, solo se desplaza la hoja (no la pantalla de detrás) */
 #sheet .sheet{overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+/* Sin selección de texto ni menú de «copiar» al mantener pulsado sobre la tabla, tarjetas y fichas del juego */
+.pt,.pt *,.gtile,.card3d,.tabs,.chip,.gbtn,.elnav{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* Con el teclado abierto (buscador), la hoja sube por encima del teclado */
+.sheet-bg{padding-bottom:var(--kb,0px);transition:padding-bottom .15s}
 body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 </style>
 </head>
@@ -658,6 +662,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.6",["👆 Ahora puedes subir y bajar la pantalla aunque pongas el dedo sobre la tabla (para ver elementos en grande, desliza hacia un lado)","🚫 Al mantener pulsada una casilla ya no sale el menú de copiar texto","⌨️ En el buscador, la ventana sube por encima del teclado","🃏 Arreglado: una tarjeta podía quedarse torcida o contestarse sola al desplazar la pantalla"]],
   ["4.5",["🐞 Arreglado: al desplazar una ficha o una ventana se movía también la pantalla de detrás"]],
   ["4.4",["✕ La ficha se cierra con la ✕ de arriba, que está siempre a la vista","‹ › Abajo, botones fijos con el elemento anterior y el siguiente (su casilla de color y su nombre)"]],
   ["4.3",["🎨 Colores de familia más vivos y fáciles de distinguir (también con daltonismo), en modo claro y oscuro","🟪 Leyenda con muestras de color más grandes y, en Jugar, una franja de color en cada familia","✓ En el test, los tipos elegidos llevan una marca","🔤 Etiquetas en minúscula normal y títulos algo más grandes; la ficha tiene un ligero relieve"]],
@@ -808,7 +813,7 @@ function renderTabla(){
     : [["Metales",["am","at","mt","mp","lan","act"]],["Semimetales",["sm"]],["No metales",["nm","hal","gn"]]].map(([t,ks])=>`<div class="leg-g"><span class="ctl-l">${t}</span><div class="legend">${ks.map(k=>`<button class="chip rect k-${k}" data-cat="${k}" aria-pressed="${filterCat===k}"><span class="sw" style="background:var(--cat)"></span>${CATS[k]}</button>`).join("")}</div></div>`).join("");
   main.innerHTML=`<section class="view gut">
     ${installBannerHTML()}
-    ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo por la tabla para verlos en grande.<br>🔍 Pulsa «Ampliada» si prefieres casillas más grandes.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
+    ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo hacia un lado por la tabla para verlos en grande.<br>🔍 Pulsa «Ampliada» si prefieres casillas más grandes.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
     ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
     <div class="zoom-box">
       ${big?`<p class="bighint">↔︎ Desliza la tabla a los lados para ver el resto.</p>`:""}
@@ -1000,6 +1005,7 @@ function openSheet(z){
   s.hidden=false;sheetShown();
 }
 let skipPop=false;
+if(window.visualViewport){const kbf=()=>{const vv=visualViewport,kb=Math.max(0,Math.round(innerHeight-vv.height-vv.offsetTop));document.documentElement.style.setProperty("--kb",(kb>60?kb:0)+"px")};visualViewport.addEventListener("resize",kbf);visualViewport.addEventListener("scroll",kbf)}
 // Bloquear el desplazamiento de la página mientras hay una hoja abierta (iPhone incluido)
 (function(){let y=0,on=false;const sh=document.getElementById("sheet"),b=document.body;
   const apply=()=>{const open=!sh.hidden;if(open&&!on){y=SC.scrollTop;b.style.top=-y+"px";b.classList.add("locked");on=true}
@@ -1703,15 +1709,17 @@ render();
 (function(){
   let y0=null,dy=0,el=null;
   $("#sheet").addEventListener("touchstart",ev=>{el=ev.target.closest(".sheet");if(!el||el.scrollTop>0){el=null;return}y0=ev.touches[0].clientY;dy=0},{passive:true});
-  $("#sheet").addEventListener("touchmove",ev=>{if(!el)return;dy=ev.touches[0].clientY-y0;if(dy>0){el.classList.add("drag");el.style.transform=`translateY(${dy}px)`}},{passive:true});
+  $("#sheet").addEventListener("touchmove",ev=>{if(!el)return;dy=ev.touches[0].clientY-y0;if(dy>0){el.classList.add("drag");el.style.transform=`translateY(${dy}px)`}else{el.style.transform=""}},{passive:true});
   $("#sheet").addEventListener("touchend",()=>{if(!el)return;el.classList.remove("drag");if(dy>90)closeSheet();else el.style.transform="";el=null});
+  $("#sheet").addEventListener("touchcancel",()=>{if(!el)return;el.classList.remove("drag");el.style.transform="";el=null});
 })();
 // Fichas: con la tarjeta girada, deslizar a la derecha = me la sabía, a la izquierda = no
 (function(){
   let x0=null,y0=0,dx=0,inner=null,swiped=false;
   main.addEventListener("touchstart",ev=>{const c=ev.target.closest("#card");if(!c||!FL||!FL.flipped){inner=null;return}inner=c.querySelector(".inner");x0=ev.touches[0].clientX;y0=ev.touches[0].clientY;dx=0},{passive:true});
-  main.addEventListener("touchmove",ev=>{if(!inner)return;dx=ev.touches[0].clientX-x0;const dy=ev.touches[0].clientY-y0;if(Math.abs(dx)<Math.abs(dy))return;inner.classList.add("drag");inner.style.transform=`rotateY(180deg) translateX(${-dx}px) rotate(${-dx/25}deg)`},{passive:true});
+  main.addEventListener("touchmove",ev=>{if(!inner)return;dx=ev.touches[0].clientX-x0;const dy=ev.touches[0].clientY-y0;if(Math.abs(dx)<Math.abs(dy)){dx=0;inner.classList.remove("drag");inner.style.transform="";return}inner.classList.add("drag");inner.style.transform=`rotateY(180deg) translateX(${-dx}px) rotate(${-dx/25}deg)`},{passive:true});
   main.addEventListener("touchend",()=>{if(!inner)return;inner.classList.remove("drag");inner.style.transform="";if(Math.abs(dx)>80){swiped=true;setTimeout(()=>swiped=false,400);flashAnswer(dx>0);if(dx<0)vibrar(40)}inner=null});
+  main.addEventListener("touchcancel",()=>{if(!inner)return;inner.classList.remove("drag");inner.style.transform="";inner=null;dx=0});
   // Evita que el toque del deslizamiento cuente también como «dar la vuelta»
   main.addEventListener("click",ev=>{if(swiped){swiped=false;ev.stopImmediatePropagation();ev.preventDefault()}},true);
 })();
