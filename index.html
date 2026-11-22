@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.2">
+<meta name="app-version" content="4.3">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -49,8 +49,8 @@ img{max-width:100%}
   --bg:#eaf0f5; --surface:#ffffff; --surface-2:#f4f7fa; --ink:#132030; --muted:#5a6b7e; --line:#d3dce6;
   --accent:#1f56d6; --accent-ink:#ffffff; --accent-soft:#dfe8fd;
   --good:#17703d; --good-soft:#d9f2e3; --bad:#a82a23; --bad-soft:#fbe0de; --warn:#b26b00;
-  --c-am:#ffd3c7; --c-at:#ffe3b0; --c-mt:#e0d9f6; --c-lan:#f6d2ec; --c-act:#ead6c8;
-  --c-mp:#d0e3ee; --c-sm:#cdeee2; --c-nm:#e0f2c2; --c-hal:#f9f0ad; --c-gn:#cddfff;
+  --c-am:#ff9a85; --c-at:#ffb347; --c-mt:#a597f0; --c-lan:#f08fcd; --c-act:#c49a7c;
+  --c-mp:#bccad4; --c-sm:#5fd4ad; --c-nm:#b4de6e; --c-hal:#f8ee86; --c-gn:#8cc4ff;
   --lv0:#dfe5ec; --lv1:#f6c2bd; --lv2:#ffe08a; --lv3:#8fd9ab;
   --f-display:"Sora",system-ui,sans-serif; --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
   --r:14px;
@@ -60,8 +60,8 @@ img{max-width:100%}
   --bg:#0e151e; --surface:#17212d; --surface-2:#1d2938; --ink:#e5ecf4; --muted:#90a1b4; --line:#2a3748;
   --accent:#6e9bff; --accent-ink:#0b1424; --accent-soft:#1f2f52;
   --good:#4cc47f; --good-soft:#16362a; --bad:#ff6d63; --bad-soft:#41201e; --warn:#ffb648;
-  --c-am:#5b2b22; --c-at:#56401a; --c-mt:#383160; --c-lan:#55284a; --c-act:#4b392e;
-  --c-mp:#223f4f; --c-sm:#1d4a3d; --c-nm:#384c1b; --c-hal:#4d4714; --c-gn:#21355e;
+  --c-am:#9a3326; --c-at:#8f520a; --c-mt:#4a3a9e; --c-lan:#8c2f72; --c-act:#5a3c2a;
+  --c-mp:#36586c; --c-sm:#146a50; --c-nm:#2f5a24; --c-hal:#6a6420; --c-gn:#2858b0;
   --lv0:#263241; --lv1:#6b2c28; --lv2:#6b5714; --lv3:#1f6a40;
   color-scheme:dark;
 }}
@@ -69,8 +69,8 @@ img{max-width:100%}
   --bg:#0e151e; --surface:#17212d; --surface-2:#1d2938; --ink:#e5ecf4; --muted:#90a1b4; --line:#2a3748;
   --accent:#6e9bff; --accent-ink:#0b1424; --accent-soft:#1f2f52;
   --good:#4cc47f; --good-soft:#16362a; --bad:#ff6d63; --bad-soft:#41201e; --warn:#ffb648;
-  --c-am:#5b2b22; --c-at:#56401a; --c-mt:#383160; --c-lan:#55284a; --c-act:#4b392e;
-  --c-mp:#223f4f; --c-sm:#1d4a3d; --c-nm:#384c1b; --c-hal:#4d4714; --c-gn:#21355e;
+  --c-am:#9a3326; --c-at:#8f520a; --c-mt:#4a3a9e; --c-lan:#8c2f72; --c-act:#5a3c2a;
+  --c-mp:#36586c; --c-sm:#146a50; --c-nm:#2f5a24; --c-hal:#6a6420; --c-gn:#2858b0;
   --lv0:#263241; --lv1:#6b2c28; --lv2:#6b5714; --lv3:#1f6a40;
   color-scheme:dark;
 }
@@ -101,10 +101,10 @@ header{flex:none;background:var(--surface);padding-top:calc(env(safe-area-inset-
 
 main{background:var(--bg);overflow-x:clip}
 .view{max-width:980px;margin:0 auto;padding-block:16px 28px;display:flex;flex-direction:column;gap:18px}
-h2{font:700 20px/1.2 var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font:700 22px/1.2 var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
 h3{font:600 15px/1.3 var(--f-display);margin:0}
 .muted{color:var(--muted)}
-.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.eyebrow{font-size:13.5px;letter-spacing:0;color:var(--muted);font-weight:600}
 
 /* Pestañas inferiores */
 nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -122,7 +122,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .seg button{border:0;background:none;padding:6px 11px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 8px;font-size:12.5px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
-.chip .sw{width:12px;height:12px;border-radius:4px;border:1px solid rgb(0 0 0 / .15)}
+.chip .sw{width:18px;height:18px;border-radius:5px;border:1px solid rgb(0 0 0 / .15)}
 .chip[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 .chip.t[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);box-shadow:none;color:var(--ink)}
 .btn{border:0;border-radius:12px;padding:12px 18px;font-weight:600;font-size:15px;background:var(--accent);color:var(--accent-ink)}
@@ -194,7 +194,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .el-head h2{font-size:24px}
 .facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
 .facts div{background:var(--surface);padding:9px 11px;min-width:0}
-.facts dt{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.facts dt{font-size:13px;letter-spacing:0;color:var(--muted);font-weight:600}
 .facts dd{margin:2px 0 0;font-weight:600}
 .facts .wide{grid-column:1/-1}
 .mono{font-family:var(--f-mono);font-weight:500;font-size:13.5px;word-break:break-word}
@@ -226,7 +226,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 /* Test */
 .quiz{max-width:520px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:14px}
 .qcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
-.qtype{font-size:11px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--accent)}
+.qtype{font-size:13.5px;letter-spacing:0;font-weight:700;color:var(--accent)}
 .qprompt{font:600 19px/1.3 var(--f-display);text-wrap:balance}
 .qbig{font:700 64px/1 var(--f-display);letter-spacing:-.03em;padding:8px 22px;border-radius:16px;background:var(--cat,var(--surface-2))}
 .qname{font:700 30px/1.1 var(--f-display)}
@@ -387,7 +387,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 /* Tabla: controles con etiqueta y pista */
 .ctrls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
 .ctl{display:flex;flex-direction:column;gap:3px}
-.ctl-l{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding-left:2px}
+.ctl-l{font-size:13.5px;letter-spacing:0;color:var(--muted);font-weight:600;padding-left:2px}
 .tip{margin:0;font-size:13.5px;color:var(--muted)}
 .cell.out{opacity:.42}
 /* Zoom con pellizco */
@@ -539,6 +539,14 @@ main:focus{outline:none}
 #barra-act{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));z-index:60;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px;box-shadow:0 6px 20px -8px rgb(0 0 0 / .5)}
 @media (max-width:420px){ .stats{grid-template-columns:repeat(2,1fr)} }
 @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+
+/* v4.3 — aspecto */
+.gbtn.k-am,.gbtn.k-at,.gbtn.k-mt,.gbtn.k-lan,.gbtn.k-act,.gbtn.k-mp,.gbtn.k-sm,.gbtn.k-nm,.gbtn.k-hal,.gbtn.k-gn{border-left:6px solid var(--cat);padding-left:10px}
+.gbtn .t .sw{display:none}
+.chip.t[aria-pressed="true"]::before{content:"✓";font-weight:800;color:var(--accent);margin-right:-1px}
+.chip.t[aria-pressed="true"]{font-weight:600}
+.bigtile{box-shadow:inset 0 -3px 0 rgb(0 0 0 / .14),0 2px 6px -3px rgb(0 0 0 / .3)}
+.pt-wrap.big .pt.fit .cell{box-shadow:inset 0 -2px 0 rgb(0 0 0 / .13)}
 </style>
 </head>
 <body>
@@ -633,6 +641,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.3",["🎨 Colores de familia más vivos y fáciles de distinguir (también con daltonismo), en modo claro y oscuro","🟪 Leyenda con muestras de color más grandes y, en Jugar, una franja de color en cada familia","✓ En el test, los tipos elegidos llevan una marca","🔤 Etiquetas en minúscula normal y títulos algo más grandes; la ficha tiene un ligero relieve"]],
   ["4.2",["🃏 Tarjetas: ahora puedes elegir el mazo (todos o una familia, por ejemplo solo halógenos)","❓ Test: al responder, la pregunta se encoge y sigue a la vista junto a la solución","🏷️ En la ficha, «Sin ver» pasa a ser «Aún no lo has practicado»"]],
   ["4.1",["🎮 Jugar se ve mejor en móviles pequeños: casillas más grandes y las fichas caben en una fila","📏 Botones más fáciles de tocar y etiquetas algo más grandes","🔍 Al pulsar «Ampliada» la tabla se coloca arriba, con el aviso de deslizar encima"]],
   ["4.0",["🔍 Vuelven los botones «Reducida» y «Ampliada» debajo de la tabla: en Ampliada las casillas son grandes, con número y nombre","🧹 Quitada la lupa al deslizar; se mantiene la tarjeta con el nombre"]],
@@ -1124,7 +1133,7 @@ function confetti(n){
     p.style.animationDelay=Math.random()*.5+"s";p.style.animationDuration=1.6+Math.random()*1.2+"s";p.style.setProperty("--dx",(Math.random()*120-60)+"px");p.style.transform=`rotate(${Math.random()*360}deg)`;box.appendChild(p)}
   document.body.appendChild(box);setTimeout(()=>box.remove(),3500);
 }
-function startQuiz(){subShown();QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest()}
+function startQuiz(){subShown();QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest();SC.scrollTop=0}
 function optLabel(q,o){if(q.t==="trend"){return `<b>${o}</b>&nbsp;<span class="muted" style="font-weight:500">${q.names[o]}</span>`}if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
 function renderTest(){
   if(!QZ&&PREF.tmode==="fill"){renderFill();return}
@@ -1254,7 +1263,7 @@ function startGame(cat){subShown();ZOOM=1;
   startTicker();
   renderJuego();SC.scrollTop=0;
 }
-function gbtn(k,label,n){const b=GAMEBEST[k];return `<button class="gbtn k-${k}" data-game="${k}"><span class="t">${k==="mix"?"🎲":`<span class="sw" style="background:var(--cat);width:12px;height:12px;border-radius:4px;border:1px solid rgb(0 0 0 / .15)"></span>`}${label}</span><span class="sub ${b===0?"ok":""}">${n} elementos${b===undefined?"":b===0?" · ✓ sin fallos":` · mejor: ${b} fallo${b===1?"":"s"}`}</span></button>`}
+function gbtn(k,label,n){const b=GAMEBEST[k];return `<button class="gbtn k-${k}" data-game="${k}"><span class="t">${k==="mix"?"🎲":`<span class="sw" style="background:var(--cat);width:16px;height:16px;border-radius:5px;border:1px solid rgb(0 0 0 / .15)"></span>`}${label}</span><span class="sub ${b===0?"ok":""}">${n} elementos${b===undefined?"":b===0?" · ✓ sin fallos":` · mejor: ${b} fallo${b===1?"":"s"}`}</span></button>`}
 function renderJuego(){
   if(!GAME){
     main.innerHTML=`<section class="view gut"><div class="quiz">
