@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="4.0">
+<meta name="app-version" content="4.1">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -104,7 +104,7 @@ main{background:var(--bg);overflow-x:clip}
 h2{font:700 20px/1.2 var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
 h3{font:600 15px/1.3 var(--f-display);margin:0}
 .muted{color:var(--muted)}
-.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
 
 /* Pestañas inferiores */
 nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -338,6 +338,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
   .fam .els button{min-width:44px;min-height:44px}
   .miss button{min-width:44px;min-height:44px}
   .ver{min-height:44px}
+  .exitbtn,.sizeseg button,#ib-how{min-height:44px}
   .scope select{min-height:44px}
   .sheet-nav .btn{min-height:46px}
 }
@@ -377,7 +378,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 /* Tabla: controles con etiqueta y pista */
 .ctrls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
 .ctl{display:flex;flex-direction:column;gap:3px}
-.ctl-l{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding-left:2px}
+.ctl-l{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding-left:2px}
 .tip{margin:0;font-size:13.5px;color:var(--muted)}
 .cell.out{opacity:.42}
 /* Zoom con pellizco */
@@ -433,7 +434,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 @media (prefers-reduced-motion:reduce){.gwrap .cell.ggood::after,.gwrap .cell.gbad::after{animation:none;opacity:0}.gwrap .cell.ggood{box-shadow:inset 0 0 0 3px var(--good)}.gwrap .cell.gbad{box-shadow:inset 0 0 0 3px var(--bad)}}
 .tray{position:sticky;bottom:0;z-index:6;background:var(--bg);box-shadow:0 -10px 12px -6px var(--bg);padding:8px 0 4px;display:flex;flex-direction:column;gap:4px;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
 .tray .tiles{display:flex;flex-wrap:nowrap;gap:8px;justify-content:safe center;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
-.tray .tiles .gtile{flex:none}
+.tray .tiles .gtile{flex:0 1 52px;min-width:44px}
 .gtile{min-width:52px;height:52px;border-radius:12px;border:1.5px solid rgb(0 0 0 / .12);background:var(--cat);font:700 21px var(--f-display);color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 3px 8px -4px rgb(0 0 0 / .35)}
 .gtile.sel{outline:3px solid var(--accent);outline-offset:2px}
 .gtile.dragging{opacity:.25}
@@ -520,7 +521,7 @@ main:focus{outline:none}
 .pt-wrap.big .pt.fit .cell .s{font-size:20px;margin-top:4px;letter-spacing:-.02em}
 .pt-wrap.big .pt.fit .cell .n{display:block;font-size:8.5px;max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px;opacity:.85}
 .pt-wrap.big .pt.fit .lbl{font-size:11px}
-.bighint{margin:6px 0 0;font-size:13px;color:var(--muted)}
+.bighint{margin:0 0 6px;font-size:13px;color:var(--muted)}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -623,6 +624,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["4.1",["🎮 Jugar se ve mejor en móviles pequeños: casillas más grandes y las fichas caben en una fila","📏 Botones más fáciles de tocar y etiquetas algo más grandes","🔍 Al pulsar «Ampliada» la tabla se coloca arriba, con el aviso de deslizar encima"]],
   ["4.0",["🔍 Vuelven los botones «Reducida» y «Ampliada» debajo de la tabla: en Ampliada las casillas son grandes, con número y nombre","🧹 Quitada la lupa al deslizar; se mantiene la tarjeta con el nombre"]],
   ["3.9",["🔄 La app busca actualizaciones nada más abrirla, y en Ajustes hay un botón «Buscar actualizaciones»"]],
   ["3.8",["🔎 La lupa ya no tapa la tarjeta con el nombre: se coloca encima, a un lado o debajo del dedo, donde haya sitio"]],
@@ -771,8 +773,8 @@ function renderTabla(){
     ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>☝️ Desliza el dedo por la tabla para verlos en grande.<br>🔍 Pulsa «Ampliada» si prefieres casillas más grandes.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
     ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
     <div class="zoom-box">
-      <div class="pt-scroll${big?" isbig":" scrub"}" id="ptz"><div class="pt-wrap full${big?" big":""}" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
       ${big?`<p class="bighint">↔︎ Desliza la tabla a los lados para ver el resto.</p>`:""}
+      <div class="pt-scroll${big?" isbig":" scrub"}" id="ptz"><div class="pt-wrap full${big?" big":""}" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
       <div class="tbl-bar"><div class="sizeseg" role="group" aria-label="Tamaño de la tabla"><button data-size="r" aria-pressed="${!big}">Reducida</button><button data-size="a" aria-pressed="${big}">Ampliada</button></div><button class="btn ghost" id="tbl-opts">⚙︎ Opciones</button></div>
     </div>
     ${legend}
@@ -1271,10 +1273,11 @@ function renderJuego(){
       return `<div class="tray gconfirm" role="dialog" aria-label="Confirmar"><p class="gmsg" role="status" aria-live="polite">¿Colocar el <b>${el.n.toLowerCase()} (${el.s})</b> en la casilla marcada (${where})?</p>
       <div class="next-bar" style="position:static;margin:0;padding:0;background:none"><button class="btn ghost" style="flex:1" id="g-no">Cancelar</button><button class="btn" style="flex:2" id="g-yes">Sí, colocar</button></div></div>`})()
     :`<div class="tray"><p class="gmsg" role="status" aria-live="polite">${G.msg||(G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada elemento a su casilla (o tócalo y luego toca la casilla)")}</p>
-      ${left.length>6?`<span class="muted" style="font-size:12px;text-align:center">Quedan ${left.length} elementos · desliza la fila →</span>`:""}
+      <span class="muted" id="g-more" hidden style="font-size:12px;text-align:center">Quedan ${left.length} elementos · desliza la fila →</span>
       <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].s}: ${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
       <button class="ver" id="g-list" style="align-self:center">← Elegir otra familia</button></div>`}
   </section>`;
+  requestAnimationFrame(()=>{const t=document.querySelector('.tray .tiles'),m=$('#g-more');if(t&&m)m.hidden=t.scrollWidth<=t.clientWidth+2});
   G.bad=null;G.badZ=null;G.good=null;
 }
 function gameTable(G,inG){
@@ -1284,7 +1287,7 @@ function gameTable(G,inG){
   if(c1-c0<3){const m=3-(c1-c0);c0=Math.max(2,c0-Math.ceil(m/2));c1=Math.min(19,c0+3)}
   const needF=pos.some(p=>p.row>=10), n=c1-c0+1, full=n>=17;
   const rows=needF?11:8;
-  let h=`<div class="pt fit ggrid" style="grid-template-columns:${full?".5fr":"28px"} repeat(${n},minmax(0,${full?"1fr":"calc(min(46px, (100dvh - 470px) / 8.6) * var(--z,1))"}))">`;
+  let h=`<div class="pt fit ggrid" style="grid-template-columns:${full?".5fr":"28px"} repeat(${n},minmax(0,${full?"1fr":"calc(max(30px, min(46px, (100dvh - 405px) / 8.6)) * var(--z,1))"}))">`;
   for(let c=c0;c<=c1;c++)h+=`<div class="lbl" style="grid-column:${c-c0+2};grid-row:1">${c-1}</div>`;
   for(let r=1;r<=7;r++)h+=`<div class="lbl" style="grid-column:1;grid-row:${r+1}">${r}</div>`;
   if(needF)h+=`<div class="gap-row" style="grid-column:1/-1;grid-row:9"></div><div class="lbl" style="grid-column:1;grid-row:10">Lan</div><div class="lbl" style="grid-column:1;grid-row:11">Act</div>`;
@@ -1437,7 +1440,7 @@ main.addEventListener("click",ev=>{
   let b;
   if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();return}
   if(t.closest("#tbl-opts")){openTableOpts();return}
-  {const sz=t.closest("[data-size]");if(sz){PREF.size=sz.dataset.size;savePref();const y=SC.scrollTop;renderTabla();SC.scrollTop=y;return}}
+  {const sz=t.closest("[data-size]");if(sz){PREF.size=sz.dataset.size;savePref();renderTabla();const zb=$('.zoom-box'),tb=$('#topbar');if(zb){const y=zb.getBoundingClientRect().top+SC.scrollTop-(tb?tb.getBoundingClientRect().bottom:0)-8;SC.scrollTop=Math.max(0,y)}return}}
   if(t.closest("#tip-x")){store.set("tp-tip-hide",1);renderTabla();return}
   if(t.closest("#mode-reset")){PREF.show="s";PREF.color="cat";savePref();renderTabla();return}
   if(t.closest("#z-in")){zoomStep(1);return}
