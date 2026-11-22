@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="2.0">
+<meta name="app-version" content="2.1">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -63,7 +63,7 @@ button{cursor:pointer;touch-action:manipulation}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* Cabecera */
-header{flex:none;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+header{flex:none;background:var(--surface);padding-top:env(safe-area-inset-top,0px)}
 .hd{display:flex;align-items:center;gap:12px;padding-block:10px;max-width:980px;margin:0 auto}
 .logo{flex:none;width:40px;height:40px;border-radius:10px;display:block}
 .logo i{font-style:normal;font:700 9px var(--f-mono)}
@@ -85,10 +85,12 @@ h3{font:600 15px/1.3 var(--f-display);margin:0}
 .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
 
 /* Pestañas inferiores */
-nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)}
+.view{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))!important}
 .tabs-in{display:grid;grid-template-columns:repeat(4,1fr);max-width:620px;margin:0 auto}
-.tab{background:none;border:0;padding:8px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--muted)}
-.tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:6px 4px 7px;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
+.tab[aria-current="page"]{border-bottom-color:var(--accent)}
+.tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab[aria-current="page"]{color:var(--accent)}
 .tab[aria-current="page"] svg{stroke-width:2.3;fill:color-mix(in srgb,currentColor 18%,transparent)}
 
@@ -382,9 +384,6 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
     <button class="gear" id="gear" aria-label="Ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
 </header>
-
-<main id="main"></main>
-
 <nav class="tabs gut" aria-label="Secciones">
   <div class="tabs-in">
     <button class="tab" data-tab="tabla"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="4" height="4" rx="1"/><rect x="17" y="4" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><path d="M5 18h14"/></svg>Tabla</button>
@@ -393,6 +392,9 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
     <button class="tab" data-tab="progreso"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progreso</button>
   </div>
 </nav>
+
+<main id="main"></main>
+
 
 <div id="sheet" hidden></div>
 <div id="barra-act" hidden>Actualizando a la versión nueva…</div>
@@ -458,6 +460,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.1",["⬆️ El menú (Tabla, Fichas, Test, Progreso) pasa a la parte de arriba","👩‍🎓 En Ajustes figuran los autores: Adela Moreno Vega y Carlos Moreno Otto"]],
   ["2.0",["🤏 Pellizca la tabla para ampliarla (también con los botones − y +; ⤢ vuelve a verla entera). Al ampliar aparecen el número atómico y el nombre","👁 Nuevo «Ver en cada casilla»: Símbolo, Número o Nada (tabla muda)"]],
   ["1.9",["📚 Se estudia siempre la tabla entera: se quita el selector de nivel"]],
   ["1.8",["📲 El aviso para instalar la app destaca en amarillo","🍏 En el iPhone y el iPad, los pasos para instalarla se adaptan a la versión de iOS que tengas (iOS 26, iOS 16–18 o anteriores)"]],
@@ -975,6 +978,8 @@ function openSettings(){
       <p class="muted" style="margin:0;font-size:13px">«Automático» sigue el modo claro u oscuro del móvil.</p></div>
     <div class="set-group"><h3>Instalar en el móvil</h3>
       ${isStandalone()?`<p class="muted" style="margin:0">✓ Ya la estás usando como app instalada.</p>`:`<button class="btn ghost" id="set-install" style="align-self:flex-start">📲 Cómo añadirla a la pantalla de inicio</button>`}</div>
+    <div class="set-group"><h3>Autores</h3>
+      <p style="margin:0">Adela Moreno Vega y Carlos Moreno Otto</p></div>
     <div class="set-group"><h3>Versión</h3>
       <p style="margin:0">Tabla periódica 4º ESO · <b>versión ${VERSION}</b></p>
       <p class="muted" style="margin:0;font-size:13px">Se actualiza sola cuando hay una versión nueva.</p>
