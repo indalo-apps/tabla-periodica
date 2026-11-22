@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="2.4">
+<meta name="app-version" content="2.5">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -395,8 +395,9 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .gwrap .cell.gok{background:var(--cat)!important;color:var(--ink)}
 .gwrap .cell.ghl{outline:3px solid var(--accent)!important;outline-offset:-1px;background:var(--accent-soft)!important}
 .gwrap .cell.gbad{background:var(--bad)!important;animation:shake .35s}
-.tray{position:sticky;bottom:0;z-index:6;background:linear-gradient(to top,var(--bg) 80%,transparent);padding:14px 0 6px;display:flex;flex-direction:column;gap:6px}
-.tray .tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tray{position:sticky;bottom:0;z-index:6;background:var(--bg);box-shadow:0 -10px 12px -6px var(--bg);padding:8px 0 4px;display:flex;flex-direction:column;gap:4px;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.tray .tiles{display:flex;flex-wrap:nowrap;gap:8px;justify-content:safe center;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.tray .tiles .gtile{flex:none}
 .gtile{min-width:52px;height:52px;border-radius:12px;border:1.5px solid rgb(0 0 0 / .12);background:var(--cat);font:700 21px var(--f-display);color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 3px 8px -4px rgb(0 0 0 / .35)}
 .gtile.sel{outline:3px solid var(--accent);outline-offset:2px}
 .gtile.dragging{opacity:.25}
@@ -409,6 +410,14 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .disclaimer{background:#3d3208;color:#fff0bf;border-color:#6b5713}}
 .foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:6px}
 .foot p{margin:0}.foot b{color:var(--ink);font-weight:600}
+/* Juego: herramientas y mensajes */
+.gtools{display:flex;gap:8px;flex-wrap:wrap}
+.gtools .btn{padding:0 12px;min-height:44px;font-size:14px}
+.ggrid{justify-content:center}
+.gwrap .cell.ghint{outline:3px solid var(--accent)!important;outline-offset:-1px;animation:pulse 1s ease-in-out infinite}
+.gmsg{margin:0;text-align:center;font-size:13.5px;color:var(--muted);min-height:2.6em}
+.gwrap button.cell{cursor:pointer}
+.exitbtn{border:0;background:var(--surface-2);border-radius:10px;min-height:40px;padding:0 12px;font-weight:600;font-size:13.5px;color:var(--ink)}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -507,6 +516,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.5",["🧩 Jugar: zoom (pellizco o − +), casillas más grandes mostrando solo la zona de la familia, y las fichas en una fila que se desliza","↺ Botones de Reiniciar y 💡 Pista, reloj que se puede ocultar y que se para si sales","💬 Mensajes claros al acertar o fallar (también para lectores de pantalla)","✕ En el Test ya se puede salir a mitad de ronda, y el botón «atrás» del móvil vuelve al menú en Test, Rellenar y Jugar"]],
   ["2.4",["✍️ La autoría se ve en Ajustes (Acerca de) y al pie de la pantalla","⚠️ Aviso: en caso de error o duda, la fuente fiable es el material oficial de la materia","📱 Nuevo intento para que en el iPhone no se vea borrosa la parte de arriba"]],
   ["2.3",["🧩 Nuevo juego «Jugar»: arrastra cada elemento a su casilla de la tabla, eligiendo la familia (alcalinos, halógenos…) o 10 al azar","🧭 Pantalla principal más limpia: la tabla sube, la pista se puede cerrar y los ajustes de la tabla están en «⚙︎ Opciones de la tabla»","🔔 Si la tabla está en modo «Número», «Nada» o «Mi progreso», un aviso lo indica y te deja volver a lo normal"]],
   ["2.2",["🎨 Los botones de familias se agrupan en Metales, Semimetales y No metales"]],
@@ -712,9 +722,22 @@ function openSheet(z){
   </div></div>`;
   s.hidden=false;sheetShown();
 }
-function closeSheet(fromPop){const s=$("#sheet");if(s.hidden)return;s.hidden=true;s.innerHTML="";if(!fromPop&&history.state&&history.state.sheet)history.back()}
+let skipPop=false;
+function closeSheet(fromPop){const s=$("#sheet");if(s.hidden)return;s.hidden=true;s.innerHTML="";if(!fromPop&&history.state&&history.state.sheet){skipPop=true;history.back()}}
 function sheetShown(){if(!(history.state&&history.state.sheet))history.pushState({sheet:1},"");const sh=document.querySelector("#sheet .sheet");if(sh){sh.tabIndex=-1;sh.focus({preventScroll:true})}}
-addEventListener("popstate",()=>closeSheet(true));
+// Botón/gesto «atrás» del móvil: cierra la hoja abierta o sale del test, la serie o el juego
+function subShown(){if(!(history.state&&(history.state.sub||history.state.sheet)))history.pushState({sub:1},"")}
+function exitSub(){
+  if(PREF.tab==="test"&&QZ){QZ=null;renderTest()}
+  else if(PREF.tab==="test"&&FILL){FILL=null;renderFill()}
+  else if(PREF.tab==="juego"&&GAME){GAME=null;clearInterval(ticker);renderJuego()}
+  main.scrollTop=0;
+}
+addEventListener("popstate",()=>{
+  if(skipPop){skipPop=false;return}
+  if(!$("#sheet").hidden){closeSheet(true);return}
+  exitSub();
+});
 const vibrar=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
 
 /* ===================== FICHAS ===================== */
@@ -825,7 +848,7 @@ function buildQ(t,e,P){
   if(t!=="place")opts=shuffle(opts.slice(0,4));
   return {t,z:e.z,prompt,show,opts,correct,expl,picked:null,mono:t==="conf"};
 }
-function startQuiz(){QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest()}
+function startQuiz(){subShown();QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest()}
 function optLabel(q,o){if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
 function renderTest(){
   if(!QZ&&PREF.tmode==="fill"){renderFill();return}
@@ -852,7 +875,7 @@ function renderTest(){
   }
   const q=QZ.q;const e=BYZ[q.z];const answered=q.picked!==null;
   main.innerHTML=`<section class="view gut"><div class="quiz">
-    <div class="counter"><span>Pregunta ${QZ.i+1} de ${ROUND}</span><span>${QZ.score} aciertos</span></div>
+    <div class="counter"><button class="exitbtn" id="qz-exit" aria-label="Salir del test">✕ Salir</button><span>Pregunta ${QZ.i+1} de ${ROUND} · ${QZ.score} aciertos</span></div>
     <div class="bar"><i style="width:${(QZ.i+(answered?1:0))/ROUND*100}%"></i></div>
     <div class="qcard"><span class="qtype">${QTYPES[q.t]}</span>${q.show}<div class="qprompt">${q.prompt}</div></div>
     ${q.t==="place"?placeTable(q,answered):""}
@@ -885,7 +908,7 @@ const FILLSETS=[
 ];
 let FILL=null;
 let FILLBEST=store.get("tp-fill-v1",{});
-function startFill(key){
+function startFill(key){subShown();
   const set=FILLSETS.find(x=>x.key===key);
   const items=set.items, inSet=new Set(items);
   // Distractores: elementos cercanos (mismo periodo o grupos vecinos) que no están en la serie
@@ -947,9 +970,10 @@ function setBtn(x){const b=FILLBEST[x.key];return `<button class="set" data-set=
 let GAME=null;
 let GAMEBEST=store.get("tp-game-v1",{});
 const GGROUPS=[["Metales",["am","at","mt","mp","lan","act"]],["Semimetales",["sm"]],["No metales",["nm","hal","gn"]]];
-function startGame(cat){
+function startGame(cat){subShown();ZOOM=1;
   const items=cat==="mix"?shuffle(E.filter(e=>!e.f&&e.z<=86)).slice(0,10).map(e=>e.z):E.filter(e=>e.c===cat).map(e=>e.z);
-  GAME={cat,items,tray:shuffle(items),placed:new Set(),errs:{},sel:null,bad:null,t0:Date.now(),done:false};
+  GAME={cat,items,tray:shuffle(items),placed:new Set(),errs:{},hints:0,sel:null,bad:null,hint:null,msg:"",elapsed:0,tStart:Date.now(),done:false};
+  startTicker();
   renderJuego();main.scrollTop=0;
 }
 function gbtn(k,label,n){const b=GAMEBEST[k];return `<button class="gbtn k-${k}" data-game="${k}"><span class="t">${k==="mix"?"🎲":`<span class="sw" style="background:var(--cat);width:12px;height:12px;border-radius:4px;border:1px solid rgb(0 0 0 / .15)"></span>`}${label}</span><span class="sub ${b===0?"ok":""}">${n} elementos${b===undefined?"":b===0?" · ✓ sin fallos":` · mejor: ${b} fallo${b===1?"":"s"}`}</span></button>`}
@@ -966,31 +990,73 @@ function renderJuego(){
   }
   const G=GAME,inG=new Set(G.items);
   const name=G.cat==="mix"?"10 al azar":CATS[G.cat];
-  const nerr=Object.values(G.errs).reduce((a,b)=>a+b,0);
-  const tbl=tableHTML({fit:true,cellFn:(e,p)=>{
-    let c="";if(inG.has(e.z))c=G.placed.has(e.z)?" gok":" gt";
-    if(G.bad===e.z)c+=" gbad";
-    return `<div class="cell k-${e.c}${c}" style="grid-column:${p.col};grid-row:${p.row}" data-gz="${e.z}"><span class="s">${G.placed.has(e.z)?e.s:""}</span></div>`;
-  }});
+  const nerr=Object.values(G.errs).filter(x=>x>=1).reduce((a,b)=>a+Math.floor(b),0);
+  const tbl=gameTable(G,inG);
   const left=G.tray.filter(z=>!G.placed.has(z));
   main.innerHTML=`<section class="view gut">
-    <div class="counter"><span><b style="color:var(--ink)">${name}</b> · ${G.placed.size}/${G.items.length}</span><span>${nerr} fallo${nerr===1?"":"s"}</span></div>
+    <div class="counter"><span><b style="color:var(--ink)">${name}</b> · ${G.placed.size}/${G.items.length}</span><span>${nerr} fallo${nerr===1?"":"s"}${PREF.gtime!==false?` · ⏱ <span id="g-time">${fmtT(gameTime())}</span>`:""}</span></div>
     <div class="bar"><i style="width:${G.placed.size/G.items.length*100}%"></i></div>
-    <div class="pt-wrap full gwrap">${tbl}</div>
-    ${G.done?`<div class="feedback ${nerr?"ko":"ok"}"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${Math.round((Date.now()-G.t0)/1000)} segundos.</div>
+    ${G.done?"":`<div class="gtools"><button class="btn ghost" id="g-restart">↺ Reiniciar</button><button class="btn ghost" id="g-hint">💡 Pista</button><button class="btn ghost" id="g-time-t" aria-pressed="${PREF.gtime!==false}">⏱ ${PREF.gtime!==false?"Ocultar tiempo":"Ver tiempo"}</button></div>`}
+    <div class="zoom-box">
+      <div class="pt-scroll" id="ptz"><div class="pt-wrap full gwrap" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
+      <div class="zoom-ctl" role="group" aria-label="Zoom de la tabla">
+        <button id="z-out" aria-label="Alejar" ${ZOOM<=1?"disabled":""}>−</button>
+        <button id="z-fit" aria-label="Ver la tabla entera" ${ZOOM<=1?"hidden":""}>⤢</button>
+        <button id="z-in" aria-label="Acercar" ${ZOOM>=ZMAX?"disabled":""}>+</button>
+      </div>
+    </div>
+    ${G.done?`<div class="feedback ${nerr?"ko":"ok"}"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${fmtT(gameTime())}${G.hints?` con ${G.hints} pista${G.hints===1?"":"s"}`:""}.</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" id="g-list">Otra familia</button><button class="btn" style="flex:1" id="g-again">Repetir</button></div>`
-    :`<div class="tray"><p class="muted" style="margin:0;text-align:center;font-size:13px">${G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada ficha a su casilla (o tócala y luego toca la casilla)"}</p>
+    :`<div class="tray"><p class="gmsg" role="status" aria-live="polite">${G.msg||(G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada ficha a su casilla (o tócala y luego toca la casilla)")}</p>
+      ${left.length>6?`<span class="muted" style="font-size:12px;text-align:center">Quedan ${left.length} fichas · desliza la fila →</span>`:""}
       <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
       <button class="ver" id="g-list" style="align-self:center">← Elegir otra familia</button></div>`}
   </section>`;
   G.bad=null;
 }
+function gameTable(G,inG){
+  // Solo las columnas (y filas f) donde está la familia, con una de margen: casillas más grandes y fáciles de acertar
+  const pos=G.items.map(z=>gridPos(BYZ[z]));
+  let c0=Math.max(2,Math.min(...pos.map(p=>p.col))-1),c1=Math.min(19,Math.max(...pos.map(p=>p.col))+1);
+  if(c1-c0<3){const m=3-(c1-c0);c0=Math.max(2,c0-Math.ceil(m/2));c1=Math.min(19,c0+3)}
+  const needF=pos.some(p=>p.row>=10), n=c1-c0+1, full=n>=17;
+  const rows=needF?11:8;
+  let h=`<div class="pt fit ggrid" style="grid-template-columns:${full?".5fr":"28px"} repeat(${n},minmax(0,${full?"1fr":"calc(46px * var(--z,1))"}))">`;
+  for(let c=c0;c<=c1;c++)h+=`<div class="lbl" style="grid-column:${c-c0+2};grid-row:1">${c-1}</div>`;
+  for(let r=1;r<=7;r++)h+=`<div class="lbl" style="grid-column:1;grid-row:${r+1}">${r}</div>`;
+  if(needF)h+=`<div class="gap-row" style="grid-column:1/-1;grid-row:9"></div><div class="lbl" style="grid-column:1;grid-row:10">Lan</div><div class="lbl" style="grid-column:1;grid-row:11">Act</div>`;
+  for(const e of E){const p=gridPos(e);if(p.col<c0||p.col>c1||p.row>rows)continue;
+    const tgt=inG.has(e.z),ok=G.placed.has(e.z);let c=tgt?(ok?" gok":" gt"):"";
+    if(G.bad===e.z)c+=" gbad";if(G.hint===e.z)c+=" ghint";
+    const lab=`${e.f?(e.c==="lan"?"Lantánidos":"Actínidos"):"Grupo "+e.g}, periodo ${e.p}`;
+    h+=tgt&&!ok?`<button class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" aria-label="Casilla vacía: ${lab}"><span class="s"></span></button>`
+      :`<div class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" ${ok?`aria-label="${e.n}, colocado"`:'aria-hidden="true"'}><span class="s">${ok?e.s:""}</span></div>`;
+  }
+  return h+"</div>";
+}
+function gameTime(){const G=GAME;if(!G)return 0;return Math.round((G.elapsed+(G.tStart?Date.now()-G.tStart:0))/1000)}
+const fmtT=t=>`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
+let ticker=null;
+function startTicker(){clearInterval(ticker);ticker=setInterval(()=>{const el=$("#g-time");if(el&&GAME&&!GAME.done)el.textContent=fmtT(gameTime())},1000)}
+// El reloj se para si sales de la app o cambias de pestaña
+function pauseGame(){if(GAME&&GAME.tStart){GAME.elapsed+=Date.now()-GAME.tStart;GAME.tStart=0}}
+function resumeGame(){if(GAME&&!GAME.done&&!GAME.tStart&&PREF.tab==="juego"){GAME.tStart=Date.now()}}
+document.addEventListener("visibilitychange",()=>{document.hidden?pauseGame():resumeGame()});
+function gameHint(){
+  const G=GAME;if(!G||G.done)return;
+  const z=G.sel||G.tray.find(x=>!G.placed.has(x));G.sel=z;G.hint=z;G.hints++;
+  G.errs[z]=G.errs[z]||0;G.errs[z]+=0.5; // una pista cuenta como medio fallo para el progreso
+  G.msg=`Pista: la casilla del <b>${BYZ[z].n.toLowerCase()}</b> parpadea en azul. Arrastra la ficha o tócala.`;
+  renderJuego();
+}
 function gameDrop(z,target){
   const G=GAME;if(!G||G.done||target==null)return;
-  if(target===z){G.placed.add(z);G.sel=null;
-    if(G.placed.size===G.items.length){G.done=true;G.items.forEach(x=>record(x,!G.errs[x]));
+  G.hint=null;
+  if(target===z){G.placed.add(z);G.sel=null;G.msg=`✓ ${BYZ[z].n}: ¡bien colocado!`;
+    if(G.placed.size===G.items.length){pauseGame();G.done=true;G.items.forEach(x=>record(x,!G.errs[x]));
       const n=G.items.filter(x=>G.errs[x]).length;const prev=GAMEBEST[G.cat];if(prev===undefined||n<prev){GAMEBEST[G.cat]=n;store.set("tp-game-v1",GAMEBEST)}}
-  }else{G.errs[z]=(G.errs[z]||0)+1;G.bad=target;vibrar(60)}
+  }else{G.errs[z]=(G.errs[z]||0)+1;G.bad=target;vibrar(60);
+    G.msg=`✗ Esa no es la casilla del <b>${BYZ[z].n.toLowerCase()}</b>${BYZ[target]?` (ahí va el ${BYZ[target].n.toLowerCase()})`:""}. Prueba otra vez.`}
   renderJuego();
 }
 // Casilla bajo el dedo (con margen, para casillas pequeñas)
@@ -1011,7 +1077,7 @@ function cellAt(x,y){
     if(!drag.moved&&Math.hypot(ev.clientX-drag.x0,ev.clientY-drag.y0)<8)return;
     if(!drag.moved){drag.moved=true;const g=document.createElement("div");g.id="ghost";g.className="k-"+BYZ[drag.z].c;g.style.background="var(--cat)";g.textContent=BYZ[drag.z].s;document.body.appendChild(g);drag.ghost=g;drag.el.classList.add("dragging")}
     // La ficha va un poco por encima del dedo para que se vea la casilla
-    const gx=ev.clientX,gy=ev.clientY-46;drag.ghost.style.left=gx+"px";drag.ghost.style.top=gy+"px";
+    const gx=ev.clientX,gy=ev.clientY-(ev.pointerType==="touch"?46:0);drag.ghost.style.left=gx+"px";drag.ghost.style.top=gy+"px";
     const c=cellAt(gx,gy);if(drag.hl&&drag.hl!==c)drag.hl.classList.remove("ghl");if(c){c.classList.add("ghl")}drag.hl=c;
   });
   const end=ev=>{
@@ -1050,7 +1116,7 @@ function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===PREF.tab?"page":"false"));
   ({tabla:renderTabla,fichas:renderFichas,juego:renderJuego,test:renderTest,progreso:renderProgreso})[PREF.tab]();
 }
-document.querySelector("nav.tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;PREF.tab=b.dataset.tab;savePref();confirmReset=false;render();main.scrollTop=0});
+document.querySelector("nav.tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;if(PREF.tab==="juego")pauseGame();PREF.tab=b.dataset.tab;if(PREF.tab==="juego")resumeGame();savePref();confirmReset=false;render();main.scrollTop=0});
 
 main.addEventListener("toggle",ev=>{if(ev.target.classList&&ev.target.classList.contains("fold")){PREF.famOpen=ev.target.open;savePref()}},true);
 main.addEventListener("input",ev=>{if(ev.target.id==="q"){query=ev.target.value;updateResults()}});
@@ -1074,16 +1140,18 @@ main.addEventListener("click",ev=>{
   if(t.closest("#fl-new")){newDeck();renderFichas();return}
   if(b=t.closest("[data-qt]")){const k=b.dataset.qt;PREF.types=PREF.types.includes(k)?PREF.types.filter(x=>x!==k):[...PREF.types,k];savePref();renderTest();return}
   if(t.closest("#qz-start")||t.closest("#qz-again")){startQuiz();return}
-  if(t.closest("#qz-setup")){QZ=null;renderTest();return}
+  if(t.closest("#qz-setup")||t.closest("#qz-exit")){if(history.state&&history.state.sub){history.back()}else{QZ=null;renderTest()}return}
   if(b=t.closest("[data-tmode]")){PREF.tmode=b.dataset.tmode;savePref();renderTest();return}
   if(b=t.closest("[data-set]")){startFill(b.dataset.set);main.scrollTop=0;return}
   if(b=t.closest("[data-fill]")){fillTap(+b.dataset.fill);return}
   if(t.closest("#fill-hint")){FILL.hint=true;renderFill();return}
   if(t.closest("#fill-again")){startFill(FILL.key);return}
-  if(t.closest("#fill-list")){FILL=null;renderFill();main.scrollTop=0;return}
+  if(t.closest("#fill-list")){if(history.state&&history.state.sub){history.back()}else{FILL=null;renderFill();main.scrollTop=0}return}
   if(b=t.closest("[data-game]")){startGame(b.dataset.game);return}
-  if(t.closest("#g-again")){startGame(GAME.cat);return}
-  if(t.closest("#g-list")){GAME=null;renderJuego();main.scrollTop=0;return}
+  if(t.closest("#g-again")||t.closest("#g-restart")){startGame(GAME.cat);return}
+  if(t.closest("#g-hint")){gameHint();return}
+  if(t.closest("#g-time-t")){PREF.gtime=PREF.gtime===false;savePref();renderJuego();return}
+  if(t.closest("#g-list")){if(history.state&&history.state.sub){history.back()}else{GAME=null;clearInterval(ticker);renderJuego();main.scrollTop=0}return}
   if(b=t.closest(".gwrap [data-gz]")){if(GAME&&GAME.sel)gameDrop(GAME.sel,+b.dataset.gz);return}
   if(b=t.closest("[data-opt]")){answer(+b.dataset.opt);return}
   if(b=t.closest("[data-place]")){if(!b.disabled)answerVal(+b.dataset.place);return}
