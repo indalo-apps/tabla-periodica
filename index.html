@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="1.8">
+<meta name="app-version" content="1.9">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -312,7 +312,7 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
   .sheet-nav .btn{min-height:46px}
 }
 /* Ajustes, tamaño de letra e instalación */
-.gear{flex:none;width:44px;height:44px;border:0;background:none;border-radius:12px;display:grid;place-items:center;color:var(--muted);margin-right:-8px}
+.gear{flex:none;width:44px;height:44px;border:0;background:none;border-radius:12px;display:grid;place-items:center;color:var(--muted);margin-right:-10px}
 .gear svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .gear:active{background:var(--surface-2)}
 .sheet:focus{outline:none}
@@ -366,10 +366,6 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
     <h1>Tabla periódica<small>4º ESO · <span id="hd-ver"></span></small></h1>
     <div class="sp"></div>
     <button class="gear" id="gear" aria-label="Ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
-    <div class="scope">
-      <label for="scope">Estudiar</label>
-      <select id="scope" aria-label="Nivel de estudio"></select>
-    </div>
   </div>
 </header>
 
@@ -448,6 +444,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["1.9",["📚 Se estudia siempre la tabla entera: se quita el selector de nivel"]],
   ["1.8",["📲 El aviso para instalar la app destaca en amarillo","🍏 En el iPhone y el iPad, los pasos para instalarla se adaptan a la versión de iOS que tengas (iOS 26, iOS 16–18 o anteriores)"]],
   ["1.7",["🧭 Más fácil de usar: la tabla explica qué hace cada botón y atenúa los elementos que no entran en tu nivel","🏷️ Niveles con nombres más claros: básico, medio y toda la tabla","🔍 «Completa» y «Ampliada» en vez de «Entera» y «Grande»; la búsqueda entiende también «zinc» y «tungsteno»","📱 En el iPhone ya no se ve borrosa la parte de arriba","🐞 Corregidas dos preguntas que a veces salían con opciones repetidas o con solo tres opciones"]],
   ["1.6",["🖼️ El icono de la app aparece en la cabecera y en todos los tamaños de iPhone, iPad y Android"]],
@@ -464,6 +461,7 @@ const verCmp=(a,b)=>{const x=a.split(".").map(Number),y=b.split(".").map(Number)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let PROG=store.get("tp-prog-v1",{});
 let PREF=Object.assign({scope:"basicos",tab:"tabla",fit:true,color:"cat",hide:false,dir:"s2n",types:["place","s2n","n2s","fam","kind","pos","gp","conf"],tmode:"q"},store.get("tp-pref-v1",{}));
+PREF.scope="todos";
 if(!PREF.v12){PREF.v12=1;if(!PREF.types.includes("place"))PREF.types.unshift("place")}
 const savePref=()=>store.set("tp-pref-v1",PREF);
 const saveProg=()=>store.set("tp-prog-v1",PROG);
@@ -518,7 +516,7 @@ function renderTabla(){
       <div class="ctl"><span class="ctl-l">Tamaño</span><div class="seg" role="group" aria-label="Tamaño"><button data-fit="1" aria-pressed="${PREF.fit}">Completa</button><button data-fit="0" aria-pressed="${!PREF.fit}">Ampliada</button></div></div>
       <div class="ctl"><span class="ctl-l">Símbolos</span><button class="chip t" id="hide" aria-pressed="${PREF.hide}">${PREF.hide?"👁 Mostrar":"🙈 Ocultar"}</button></div>
     </div>
-    <p class="tip">👆 Toca cualquier elemento para ver su ficha.${PREF.scope!=="todos"?` Los atenuados no entran en tu <b>${SCOPES[PREF.scope].label.toLowerCase()}</b>.`:""}</p>
+    <p class="tip">👆 Toca cualquier elemento para ver su ficha.</p>
     ${PREF.fit?`<div class="pt-wrap full">${tbl}</div><div class="rotate-hint">📱↻ Gira el móvil para ver la tabla más grande, o pulsa «Ampliada».</div>`:`<div class="pt-scroll"><div class="pt-wrap">${tbl}</div></div>`}
     <div class="ctl"><span class="ctl-l">Colorear por</span><div class="seg" role="group" aria-label="Colorear por" style="align-self:flex-start"><button data-color="cat" aria-pressed="${PREF.color==="cat"}">Familias</button><button data-color="lv" aria-pressed="${PREF.color==="lv"}">Mi progreso</button></div></div>
     ${legend}
@@ -714,7 +712,7 @@ function renderTest(){
     main.innerHTML=`<section class="view gut"><div class="quiz">
       <div class="seg" role="group" aria-label="Modo" style="align-self:flex-start"><button data-tmode="q" aria-pressed="${PREF.tmode!=="fill"}">Preguntas</button><button data-tmode="fill" aria-pressed="${PREF.tmode==="fill"}">Rellenar familias</button></div>
       <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Ronda de ${ROUND} preguntas</span><h2>Ponte a prueba</h2>
-      <p class="muted" style="margin:0">Estudias el <b>${SCOPES[PREF.scope].label.toLowerCase()}</b>: ${SCOPES[PREF.scope].desc} (${n}). Lo cambias arriba a la derecha. Las preguntas salen más de los elementos que fallas o que aún no has visto.</p></div>
+      <p class="muted" style="margin:0">Preguntas sobre los ${n} elementos de la tabla. Las preguntas salen más de los elementos que fallas o que aún no has visto.</p></div>
       <div class="setup"><h3>Tipos de pregunta <span class="muted" style="font:500 13px var(--f-body)">· elige uno o varios</span></h3>
         <div class="row">${Object.entries(QTYPES).map(([k,l])=>`<button class="chip t" data-qt="${k}" aria-pressed="${PREF.types.includes(k)}">${l}</button>`).join("")}</div>
         <button class="btn block" id="qz-start" ${PREF.types.length?"":"disabled"}>${PREF.types.length?"Empezar":"Elige al menos un tipo"}</button>
@@ -831,7 +829,7 @@ function renderProgreso(){
   const review=P.filter(e=>level(e.z)===1).sort((a,b)=>(PROG[b.z].ko-PROG[b.z].ok)-(PROG[a.z].ko-PROG[a.z].ok));
   const cats=Object.keys(CATS).map(k=>{const l=P.filter(e=>e.c===k);if(!l.length)return "";const d=l.filter(e=>level(e.z)===3).length;return `<div style="display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-size:13.5px"><span>${CATS[k]}</span><span class="muted" style="font-variant-numeric:tabular-nums">${d}/${l.length}</span><div class="bar k-${k}" style="grid-column:1/-1"><i style="width:${d/l.length*100}%;background:var(--ink);opacity:.55"></i></div></div>`}).join("");
   main.innerHTML=`<section class="view gut">
-    <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">${SCOPES[PREF.scope].label} · ${P.length} elementos</span><h2>Tu progreso</h2></div>
+    <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Los ${P.length} elementos</span><h2>Tu progreso</h2></div>
     <div class="stats">${[3,2,1,0].map(i=>`<div class="stat"><span><i style="background:var(--lv${i})"></i> ${LVNAME[i]}</span><b>${cnt[i]}</b></div>`).join("")}</div>
     <div class="stack" aria-hidden="true">${[3,2,1].map(i=>`<i style="width:${cnt[i]/P.length*100}%;background:var(--lv${i})"></i>`).join("")}</div>
     <p class="muted" style="margin:0;font-size:13px">Un elemento queda <b>dominado</b> cuando aciertas 3 veces seguidas. Si fallas, vuelve a «a repasar».</p>
@@ -848,11 +846,6 @@ function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===PREF.tab?"page":"false"));
   ({tabla:renderTabla,fichas:renderFichas,test:renderTest,progreso:renderProgreso})[PREF.tab]();
 }
-function buildScope(){
-  const sel=$("#scope");
-  sel.innerHTML=Object.entries(SCOPES).map(([k,s])=>`<option value="${k}" ${PREF.scope===k?"selected":""}>${s.short}</option>`).join("");
-}
-$("#scope").addEventListener("change",ev=>{PREF.scope=ev.target.value;savePref();QZ=null;render()});
 document.querySelector("nav.tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;PREF.tab=b.dataset.tab;savePref();confirmReset=false;render();main.scrollTop=0});
 
 main.addEventListener("input",ev=>{if(ev.target.id==="q"){query=ev.target.value;updateResults()}});
@@ -901,7 +894,6 @@ document.addEventListener("keydown",ev=>{
     else if(QZ.q.picked!==null&&ev.key==="Enter"){nextQ();ev.preventDefault()}
   }
 });
-buildScope();
 
 /* ===================== AJUSTES ===================== */
 $("#hd-ver").textContent="v"+VERSION;
