@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="2.3">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="app-version" content="2.4">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -17,6 +17,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tabla periódica">
 <title>Tabla Periódica 4º ESO</title>
+<meta name="author" content="Adela Moreno Vega y Carlos Moreno Otto">
+<meta name="description" content="App para repasar la tabla periódica de 4º ESO. Autores: Adela Moreno Vega y Carlos Moreno Otto.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
@@ -63,7 +65,8 @@ button{cursor:pointer;touch-action:manipulation}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* Cabecera */
-header{flex:none;background:var(--surface);padding-top:env(safe-area-inset-top,0px)}
+header{flex:none;background:var(--surface);padding-top:calc(env(safe-area-inset-top,0px) + 4px)}
+#statusfill{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:100;pointer-events:none}
 .hd{display:flex;align-items:center;gap:12px;padding-block:10px;max-width:980px;margin:0 auto}
 .logo{flex:none;width:40px;height:40px;border-radius:10px;display:block}
 .logo i{font-style:normal;font:700 9px var(--f-mono)}
@@ -399,6 +402,13 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .gtile.dragging{opacity:.25}
 #ghost{position:fixed;z-index:80;pointer-events:none;width:64px;height:64px;border-radius:14px;display:grid;place-items:center;font:700 26px var(--f-display);color:#132030;box-shadow:0 12px 24px -8px rgb(0 0 0 / .5);transform:translate(-50%,-50%) scale(1.05)}
 @media (orientation:landscape) and (max-height:500px){ .gwrap{width:min(100%,calc((100dvh - 190px) * 1.55));margin-inline:auto} }
+/* Autoría y aviso */
+.about{display:flex;align-items:center;gap:12px}.about img{border-radius:11px}
+.disclaimer{background:#fff4d1;color:#4a3800;border:1px solid #f0d27a;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.45}
+:root[data-theme="dark"] .disclaimer{background:#3d3208;color:#fff0bf;border-color:#6b5713}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .disclaimer{background:#3d3208;color:#fff0bf;border-color:#6b5713}}
+.foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:6px}
+.foot p{margin:0}.foot b{color:var(--ink);font-weight:600}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -411,6 +421,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 </head>
 <body>
 
+<div id="statusfill" aria-hidden="true"></div>
 <header>
   <div class="hd gut">
     <img class="logo" src="icon-192.png" alt="" width="40" height="40">
@@ -496,6 +507,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.4",["✍️ La autoría se ve en Ajustes (Acerca de) y al pie de la pantalla","⚠️ Aviso: en caso de error o duda, la fuente fiable es el material oficial de la materia","📱 Nuevo intento para que en el iPhone no se vea borrosa la parte de arriba"]],
   ["2.3",["🧩 Nuevo juego «Jugar»: arrastra cada elemento a su casilla de la tabla, eligiendo la familia (alcalinos, halógenos…) o 10 al azar","🧭 Pantalla principal más limpia: la tabla sube, la pista se puede cerrar y los ajustes de la tabla están en «⚙︎ Opciones de la tabla»","🔔 Si la tabla está en modo «Número», «Nada» o «Mi progreso», un aviso lo indica y te deja volver a lo normal"]],
   ["2.2",["🎨 Los botones de familias se agrupan en Metales, Semimetales y No metales"]],
   ["2.1",["⬆️ El menú (Tabla, Fichas, Test, Progreso) pasa a la parte de arriba","👩‍🎓 En Ajustes figuran los autores: Adela Moreno Vega y Carlos Moreno Otto"]],
@@ -511,6 +523,7 @@ const NOVEDADES=[
   ["1.1",["🔄 La app se actualiza sola cuando hay una versión nueva, sin cortar un test ni las fichas a medias","📲 Se puede añadir a la pantalla de inicio del móvil, con su propio icono","✈️ Funciona también sin conexión"]],
   ["1.0",["Primera versión: tabla interactiva, fichas, test con 7 tipos de pregunta y progreso"]]
 ];
+const DISCLAIMER="Esta app es una ayuda para repasar y puede contener errores. <b>En caso de error o duda, la fuente fiable es el material oficial de la materia de Competencias Básicas</b> (libro de texto y apuntes del profesorado).";
 const verCmp=(a,b)=>{const x=a.split(".").map(Number),y=b.split(".").map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 
 /* ===================== ESTADO ===================== */
@@ -552,6 +565,7 @@ function tableHTML({fit=true,cls="",cellFn}){
   for(const e of E){const p=gridPos(e);h+=cellFn(e,p)}
   return h+"</div>";
 }
+function footerHTML(){return `<footer class="foot"><p>${DISCLAIMER}</p><p>Hecha por <b>Adela Moreno Vega</b> y <b>Carlos Moreno Otto</b> · v${VERSION}</p></footer>`}
 function renderTabla(){
   const inScope=new Set(pool().map(e=>e.z));
   const show=PREF.show||"s";
@@ -585,6 +599,7 @@ function renderTabla(){
     <p class="muted" style="margin:0;font-size:13px">${PREF.color==="lv"?"Cada color indica cuánto te sabes ese elemento.":show==="n"?"Tabla muda: intenta recordar cada casilla antes de tocarla.":show==="z"?"Solo números: ¿sabes qué símbolo va en cada casilla? Tócala para comprobarlo.":"Toca una familia de la leyenda para resaltarla en la tabla."}</p>
     <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px"><span class="eyebrow">Para memorizar</span><h2>Familias y trucos</h2></div>
     <div class="fam">${famCards()}</div>
+    ${footerHTML()}
   </section>`;
   updateResults();
 }
@@ -1026,6 +1041,7 @@ function renderProgreso(){
     <div class="panel"><h3>Por familias</h3>${cats}</div>
     ${confirmReset?`<div class="confirm"><span style="flex:1;min-width:180px">¿Borrar todo tu progreso? No se puede deshacer.</span><button class="btn ghost" id="rs-no">Cancelar</button><button class="btn" style="background:var(--bad);color:#fff" id="rs-yes">Borrar</button></div>`:`<button class="btn ghost" id="rs" style="align-self:flex-start">Reiniciar progreso</button>`}
     <button class="ver" id="ver">Ajustes · Versión ${VERSION} · Novedades</button>
+    ${footerHTML()}
   </section>`;
 }
 
@@ -1118,8 +1134,12 @@ function openSettings(){
       <p class="muted" style="margin:0;font-size:13px">«Automático» sigue el modo claro u oscuro del móvil.</p></div>
     <div class="set-group"><h3>Instalar en el móvil</h3>
       ${isStandalone()?`<p class="muted" style="margin:0">✓ Ya la estás usando como app instalada.</p>`:`<button class="btn ghost" id="set-install" style="align-self:flex-start">📲 Cómo añadirla a la pantalla de inicio</button>`}</div>
-    <div class="set-group"><h3>Autores</h3>
-      <p style="margin:0">Adela Moreno Vega y Carlos Moreno Otto</p></div>
+    <div class="set-group"><h3>Acerca de</h3>
+      <div class="about"><img src="icon-192.png" alt="" width="48" height="48"><div><b>Tabla periódica 4º ESO</b><br><span class="muted">Versión ${VERSION}</span></div></div>
+      <p style="margin:0">Creada por <b>Adela Moreno Vega</b> y <b>Carlos Moreno Otto</b>.</p>
+      <p class="muted" style="margin:0;font-size:13px">© ${new Date().getFullYear()} Adela Moreno Vega y Carlos Moreno Otto. Uso educativo y gratuito.</p></div>
+    <div class="set-group"><h3>Aviso</h3>
+      <div class="disclaimer">${DISCLAIMER}</div></div>
     <div class="set-group"><h3>Versión</h3>
       <p style="margin:0">Tabla periódica 4º ESO · <b>versión ${VERSION}</b></p>
       <p class="muted" style="margin:0;font-size:13px">Se actualiza sola cuando hay una versión nueva.</p>
