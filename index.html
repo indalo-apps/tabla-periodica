@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="2.2">
+<meta name="app-version" content="2.3">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -87,7 +87,7 @@ h3{font:600 15px/1.3 var(--f-display);margin:0}
 /* Pestañas inferiores */
 nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)}
 .view{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))!important}
-.tabs-in{display:grid;grid-template-columns:repeat(4,1fr);max-width:620px;margin:0 auto}
+.tabs-in{display:grid;grid-template-columns:repeat(5,1fr);max-width:680px;margin:0 auto}
 .tab{background:none;border:0;border-bottom:3px solid transparent;padding:6px 4px 7px;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
 .tab[aria-current="page"]{border-bottom-color:var(--accent)}
 .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -367,6 +367,38 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 /* Leyenda agrupada con botones rectangulares */
 .leg-g{display:flex;flex-direction:column;gap:6px}
 .chip.rect{border-radius:10px}
+/* Pantalla principal reorganizada */
+.tipbox{display:flex;align-items:center;gap:8px;background:var(--accent-soft);border-radius:12px;padding:8px 4px 8px 12px;font-size:13.5px;line-height:1.4}
+.tipbox span{flex:1}.tipbox .x,.install-banner .x{flex:none;width:44px;height:44px;border:0;background:none;color:var(--muted);font-size:20px}
+.modechip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:13px;font-weight:600;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 12px}
+.modechip button{border:0;background:var(--surface-2);border-radius:9px;padding:0 10px;min-height:36px;font-size:13px;font-weight:600;color:var(--accent)}
+.tbl-bar{position:absolute;left:0;bottom:-6px;transform:translateY(100%)}
+.tbl-bar .btn{min-height:44px;padding:0 14px;font-size:14px}
+.fold summary{list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:6px 0;min-height:44px}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary span{display:flex;flex-direction:column;gap:4px}
+.fold .chev{font-size:20px;color:var(--muted);transition:transform .2s}
+.fold[open] .chev{transform:rotate(90deg)}
+.fold .fam{margin-top:10px}
+/* Juego: colocar en su sitio */
+.gcats{display:flex;flex-direction:column;gap:12px}
+.gbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;min-height:56px;text-align:left}
+.gbtn .t{display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px}
+.gbtn .sub{font-size:12px;color:var(--muted)}
+.gbtn .sub.ok{color:var(--good);font-weight:600}
+.gcats .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.gwrap .cell{background:var(--surface-2)!important;color:transparent}
+.gwrap .cell.gt{background:var(--surface)!important;outline:1.5px dashed var(--muted);outline-offset:-1.5px}
+.gwrap .cell.gok{background:var(--cat)!important;color:var(--ink)}
+.gwrap .cell.ghl{outline:3px solid var(--accent)!important;outline-offset:-1px;background:var(--accent-soft)!important}
+.gwrap .cell.gbad{background:var(--bad)!important;animation:shake .35s}
+.tray{position:sticky;bottom:0;z-index:6;background:linear-gradient(to top,var(--bg) 80%,transparent);padding:14px 0 6px;display:flex;flex-direction:column;gap:6px}
+.tray .tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.gtile{min-width:52px;height:52px;border-radius:12px;border:1.5px solid rgb(0 0 0 / .12);background:var(--cat);font:700 21px var(--f-display);color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 3px 8px -4px rgb(0 0 0 / .35)}
+.gtile.sel{outline:3px solid var(--accent);outline-offset:2px}
+.gtile.dragging{opacity:.25}
+#ghost{position:fixed;z-index:80;pointer-events:none;width:64px;height:64px;border-radius:14px;display:grid;place-items:center;font:700 26px var(--f-display);color:#132030;box-shadow:0 12px 24px -8px rgb(0 0 0 / .5);transform:translate(-50%,-50%) scale(1.05)}
+@media (orientation:landscape) and (max-height:500px){ .gwrap{width:min(100%,calc((100dvh - 190px) * 1.55));margin-inline:auto} }
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -391,6 +423,7 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
   <div class="tabs-in">
     <button class="tab" data-tab="tabla"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="4" height="4" rx="1"/><rect x="17" y="4" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><path d="M5 18h14"/></svg>Tabla</button>
     <button class="tab" data-tab="fichas"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="13" height="15" rx="2"/><path d="M8 3h10a2 2 0 0 1 2 2v12"/></svg>Fichas</button>
+    <button class="tab" data-tab="juego"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke-dasharray="2.5 2"/><path d="M11 7h3a3 3 0 0 1 3 3v1"/><path d="m15 9 2 2 2-2"/></svg>Jugar</button>
     <button class="tab" data-tab="test"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Test</button>
     <button class="tab" data-tab="progreso"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progreso</button>
   </div>
@@ -463,6 +496,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.3",["🧩 Nuevo juego «Jugar»: arrastra cada elemento a su casilla de la tabla, eligiendo la familia (alcalinos, halógenos…) o 10 al azar","🧭 Pantalla principal más limpia: la tabla sube, la pista se puede cerrar y los ajustes de la tabla están en «⚙︎ Opciones de la tabla»","🔔 Si la tabla está en modo «Número», «Nada» o «Mi progreso», un aviso lo indica y te deja volver a lo normal"]],
   ["2.2",["🎨 Los botones de familias se agrupan en Metales, Semimetales y No metales"]],
   ["2.1",["⬆️ El menú (Tabla, Fichas, Test, Progreso) pasa a la parte de arriba","👩‍🎓 En Ajustes figuran los autores: Adela Moreno Vega y Carlos Moreno Otto"]],
   ["2.0",["🤏 Pellizca la tabla para ampliarla (también con los botones − y +; ⤢ vuelve a verla entera). Al ampliar aparecen el número atómico y el nombre","👁 Nuevo «Ver en cada casilla»: Símbolo, Número o Nada (tabla muda)"]],
@@ -536,19 +570,17 @@ function renderTabla(){
     ${installBannerHTML()}
     <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Busca un elemento (Fe, hierro, 26…)" autocomplete="off" value="${query}"></div>
     <div class="results" id="res"></div>
-    <div class="ctrls">
-      <div class="ctl"><span class="ctl-l">Ver en cada casilla</span><div class="seg" role="group" aria-label="Ver en cada casilla"><button data-show="s" aria-pressed="${show==="s"}">Símbolo</button><button data-show="z" aria-pressed="${show==="z"}">Número</button><button data-show="n" aria-pressed="${show==="n"}">Nada</button></div></div>
-    </div>
-    <p class="tip">👆 Toca un elemento para ver su ficha · 🤏 pellizca la tabla para ampliarla.</p>
+    ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>🤏 Pellizca la tabla para ampliarla.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
+    ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
     <div class="zoom-box">
       <div class="pt-scroll" id="ptz"><div class="pt-wrap full" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
+      <div class="tbl-bar"><button class="btn ghost" id="tbl-opts">⚙︎ Opciones de la tabla</button></div>
       <div class="zoom-ctl" role="group" aria-label="Zoom de la tabla">
         <button id="z-out" aria-label="Alejar" ${ZOOM<=1?"disabled":""}>−</button>
         <button id="z-fit" aria-label="Ver la tabla entera" ${ZOOM<=1?"hidden":""}>⤢</button>
         <button id="z-in" aria-label="Acercar" ${ZOOM>=ZMAX?"disabled":""}>+</button>
       </div>
     </div>
-    <div class="ctl"><span class="ctl-l">Colorear por</span><div class="seg" role="group" aria-label="Colorear por" style="align-self:flex-start"><button data-color="cat" aria-pressed="${PREF.color==="cat"}">Familias</button><button data-color="lv" aria-pressed="${PREF.color==="lv"}">Mi progreso</button></div></div>
     ${legend}
     <p class="muted" style="margin:0;font-size:13px">${PREF.color==="lv"?"Cada color indica cuánto te sabes ese elemento.":show==="n"?"Tabla muda: intenta recordar cada casilla antes de tocarla.":show==="z"?"Solo números: ¿sabes qué símbolo va en cada casilla? Tócala para comprobarlo.":"Toca una familia de la leyenda para resaltarla en la tabla."}</p>
     <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px"><span class="eyebrow">Para memorizar</span><h2>Familias y trucos</h2></div>
@@ -619,6 +651,21 @@ function setZoom(z,cx,cy){
   // En ordenador: Ctrl + rueda
   main.addEventListener("wheel",ev=>{if(ev.ctrlKey&&ev.target.closest("#ptz")){ev.preventDefault();setZoom(ZOOM*(ev.deltaY<0?1.15:1/1.15),ev.clientX,ev.clientY)}},{passive:false});
 })();
+
+function openTableOpts(){
+  const show=PREF.show||"s";const s=$("#sheet");
+  s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Opciones de la tabla">
+    <div class="grab"></div><h2>Opciones de la tabla</h2>
+    <div class="set-group"><h3>Colorear por</h3>
+      <div class="seg" role="group"><button data-color="cat" aria-pressed="${PREF.color==="cat"}">Familias</button><button data-color="lv" aria-pressed="${PREF.color==="lv"}">Mi progreso</button></div>
+      <p class="muted" style="margin:0;font-size:13px">«Mi progreso» pinta cada elemento según lo que te lo sabes.</p></div>
+    <div class="set-group"><h3>Ver en cada casilla</h3>
+      <div class="seg" role="group"><button data-show="s" aria-pressed="${show==="s"}">Símbolo</button><button data-show="z" aria-pressed="${show==="z"}">Número</button><button data-show="n" aria-pressed="${show==="n"}">Nada</button></div>
+      <p class="muted" style="margin:0;font-size:13px">Para repasar: con «Número» o «Nada», intenta recordar cada elemento y tócalo para comprobarlo.</p></div>
+    <div class="sheet-nav"><button class="btn block" data-close="1">Cerrar</button></div>
+  </div></div>`;
+  s.hidden=false;sheetShown();
+}
 
 /* ===================== FICHA DE DETALLE ===================== */
 function factsHTML(e){
@@ -880,6 +927,87 @@ function renderFill(){
 }
 function setBtn(x){const b=FILLBEST[x.key];return `<button class="set" data-set="${x.key}"><b>${x.title}</b><span>${x.sub}</span>${b===undefined?"":`<span class="best ${b===0?"ok":""}">${b===0?"✓ Sin fallos":"Mejor: "+b+" fallo"+(b===1?"":"s")}</span>`}</button>`}
 
+
+/* ===================== JUEGO: COLOCA CADA ELEMENTO ===================== */
+let GAME=null;
+let GAMEBEST=store.get("tp-game-v1",{});
+const GGROUPS=[["Metales",["am","at","mt","mp","lan","act"]],["Semimetales",["sm"]],["No metales",["nm","hal","gn"]]];
+function startGame(cat){
+  const items=cat==="mix"?shuffle(E.filter(e=>!e.f&&e.z<=86)).slice(0,10).map(e=>e.z):E.filter(e=>e.c===cat).map(e=>e.z);
+  GAME={cat,items,tray:shuffle(items),placed:new Set(),errs:{},sel:null,bad:null,t0:Date.now(),done:false};
+  renderJuego();main.scrollTop=0;
+}
+function gbtn(k,label,n){const b=GAMEBEST[k];return `<button class="gbtn k-${k}" data-game="${k}"><span class="t">${k==="mix"?"🎲":`<span class="sw" style="background:var(--cat);width:12px;height:12px;border-radius:4px;border:1px solid rgb(0 0 0 / .15)"></span>`}${label}</span><span class="sub ${b===0?"ok":""}">${n} elementos${b===undefined?"":b===0?" · ✓ sin fallos":` · mejor: ${b} fallo${b===1?"":"s"}`}</span></button>`}
+function renderJuego(){
+  if(!GAME){
+    main.innerHTML=`<section class="view gut"><div class="quiz">
+      <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Juego</span><h2>Coloca cada elemento en su sitio</h2>
+      <p class="muted" style="margin:0">Elige una familia y arrastra cada ficha a su casilla de la tabla. También puedes tocar la ficha y después la casilla.</p></div>
+      <div class="gcats">
+        ${GGROUPS.map(([t,ks])=>`<div class="leg-g"><span class="ctl-l">${t}</span><div class="legend">${ks.map(k=>gbtn(k,CATS[k],E.filter(e=>e.c===k).length)).join("")}</div></div>`).join("")}
+        <div class="leg-g"><span class="ctl-l">Todo mezclado</span><div class="legend">${gbtn("mix","10 al azar",10)}</div></div>
+      </div>
+    </div></section>`;return;
+  }
+  const G=GAME,inG=new Set(G.items);
+  const name=G.cat==="mix"?"10 al azar":CATS[G.cat];
+  const nerr=Object.values(G.errs).reduce((a,b)=>a+b,0);
+  const tbl=tableHTML({fit:true,cellFn:(e,p)=>{
+    let c="";if(inG.has(e.z))c=G.placed.has(e.z)?" gok":" gt";
+    if(G.bad===e.z)c+=" gbad";
+    return `<div class="cell k-${e.c}${c}" style="grid-column:${p.col};grid-row:${p.row}" data-gz="${e.z}"><span class="s">${G.placed.has(e.z)?e.s:""}</span></div>`;
+  }});
+  const left=G.tray.filter(z=>!G.placed.has(z));
+  main.innerHTML=`<section class="view gut">
+    <div class="counter"><span><b style="color:var(--ink)">${name}</b> · ${G.placed.size}/${G.items.length}</span><span>${nerr} fallo${nerr===1?"":"s"}</span></div>
+    <div class="bar"><i style="width:${G.placed.size/G.items.length*100}%"></i></div>
+    <div class="pt-wrap full gwrap">${tbl}</div>
+    ${G.done?`<div class="feedback ${nerr?"ko":"ok"}"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${Math.round((Date.now()-G.t0)/1000)} segundos.</div>
+      <div class="next-bar"><button class="btn ghost" style="flex:1" id="g-list">Otra familia</button><button class="btn" style="flex:1" id="g-again">Repetir</button></div>`
+    :`<div class="tray"><p class="muted" style="margin:0;text-align:center;font-size:13px">${G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada ficha a su casilla (o tócala y luego toca la casilla)"}</p>
+      <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
+      <button class="ver" id="g-list" style="align-self:center">← Elegir otra familia</button></div>`}
+  </section>`;
+  G.bad=null;
+}
+function gameDrop(z,target){
+  const G=GAME;if(!G||G.done||target==null)return;
+  if(target===z){G.placed.add(z);G.sel=null;
+    if(G.placed.size===G.items.length){G.done=true;G.items.forEach(x=>record(x,!G.errs[x]));
+      const n=G.items.filter(x=>G.errs[x]).length;const prev=GAMEBEST[G.cat];if(prev===undefined||n<prev){GAMEBEST[G.cat]=n;store.set("tp-game-v1",GAMEBEST)}}
+  }else{G.errs[z]=(G.errs[z]||0)+1;G.bad=target;vibrar(60)}
+  renderJuego();
+}
+// Casilla bajo el dedo (con margen, para casillas pequeñas)
+function cellAt(x,y){
+  let best=null,bd=1e9;
+  document.querySelectorAll(".gwrap .cell[data-gz]").forEach(c=>{const r=c.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const d=Math.hypot(x-cx,y-cy);if(d<bd&&d<Math.max(r.width,r.height)*.9){bd=d;best=c}});
+  return best;
+}
+(function(){
+  let drag=null;
+  main.addEventListener("pointerdown",ev=>{
+    const t=ev.target.closest(".gtile");if(!t||!GAME||GAME.done)return;
+    const z=+t.dataset.gt;drag={z,el:t,x0:ev.clientX,y0:ev.clientY,moved:false,ghost:null,hl:null,id:ev.pointerId};
+    t.setPointerCapture(ev.pointerId);
+  });
+  main.addEventListener("pointermove",ev=>{
+    if(!drag||ev.pointerId!==drag.id)return;
+    if(!drag.moved&&Math.hypot(ev.clientX-drag.x0,ev.clientY-drag.y0)<8)return;
+    if(!drag.moved){drag.moved=true;const g=document.createElement("div");g.id="ghost";g.className="k-"+BYZ[drag.z].c;g.style.background="var(--cat)";g.textContent=BYZ[drag.z].s;document.body.appendChild(g);drag.ghost=g;drag.el.classList.add("dragging")}
+    // La ficha va un poco por encima del dedo para que se vea la casilla
+    const gx=ev.clientX,gy=ev.clientY-46;drag.ghost.style.left=gx+"px";drag.ghost.style.top=gy+"px";
+    const c=cellAt(gx,gy);if(drag.hl&&drag.hl!==c)drag.hl.classList.remove("ghl");if(c){c.classList.add("ghl")}drag.hl=c;
+  });
+  const end=ev=>{
+    if(!drag||ev.pointerId!==drag.id)return;const d=drag;drag=null;
+    if(d.ghost)d.ghost.remove();d.el.classList.remove("dragging");
+    if(!d.moved){GAME.sel=GAME.sel===d.z?null:d.z;renderJuego();return}
+    gameDrop(d.z,d.hl?+d.hl.dataset.gz:null);
+  };
+  main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{if(drag){if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
+})();
+
 /* ===================== PROGRESO ===================== */
 let confirmReset=false;
 function renderProgreso(){
@@ -904,16 +1032,20 @@ function renderProgreso(){
 /* ===================== NAVEGACIÓN ===================== */
 function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===PREF.tab?"page":"false"));
-  ({tabla:renderTabla,fichas:renderFichas,test:renderTest,progreso:renderProgreso})[PREF.tab]();
+  ({tabla:renderTabla,fichas:renderFichas,juego:renderJuego,test:renderTest,progreso:renderProgreso})[PREF.tab]();
 }
 document.querySelector("nav.tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;PREF.tab=b.dataset.tab;savePref();confirmReset=false;render();main.scrollTop=0});
 
+main.addEventListener("toggle",ev=>{if(ev.target.classList&&ev.target.classList.contains("fold")){PREF.famOpen=ev.target.open;savePref()}},true);
 main.addEventListener("input",ev=>{if(ev.target.id==="q"){query=ev.target.value;updateResults()}});
 main.addEventListener("click",ev=>{
   const t=ev.target;
   const zb=t.closest("[data-z]");if(zb&&!t.closest(".mini")){openSheet(+zb.dataset.z);return}
   let b;
   if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();return}
+  if(t.closest("#tbl-opts")){openTableOpts();return}
+  if(t.closest("#tip-x")){store.set("tp-tip-hide",1);renderTabla();return}
+  if(t.closest("#mode-reset")){PREF.show="s";PREF.color="cat";savePref();renderTabla();return}
   if(t.closest("#z-in")){setZoom(ZOOM*1.5);return}
   if(t.closest("#z-out")){setZoom(ZOOM/1.5);return}
   if(t.closest("#z-fit")){setZoom(1);return}
@@ -933,6 +1065,10 @@ main.addEventListener("click",ev=>{
   if(t.closest("#fill-hint")){FILL.hint=true;renderFill();return}
   if(t.closest("#fill-again")){startFill(FILL.key);return}
   if(t.closest("#fill-list")){FILL=null;renderFill();main.scrollTop=0;return}
+  if(b=t.closest("[data-game]")){startGame(b.dataset.game);return}
+  if(t.closest("#g-again")){startGame(GAME.cat);return}
+  if(t.closest("#g-list")){GAME=null;renderJuego();main.scrollTop=0;return}
+  if(b=t.closest(".gwrap [data-gz]")){if(GAME&&GAME.sel)gameDrop(GAME.sel,+b.dataset.gz);return}
   if(b=t.closest("[data-opt]")){answer(+b.dataset.opt);return}
   if(b=t.closest("[data-place]")){if(!b.disabled)answerVal(+b.dataset.place);return}
   if(t.closest("#qz-next")){nextQ();return}
@@ -997,6 +1133,8 @@ $("#sheet").addEventListener("click",ev=>{
   const t=ev.target;let b;
   if(b=t.closest("[data-fsz]")){PREF.fs=b.dataset.fsz;savePref();applyLook();document.querySelectorAll("[data-fsz]").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
   if(b=t.closest("[data-theme-set]")){PREF.theme=b.dataset.themeSet;savePref();applyLook();document.querySelectorAll("[data-theme-set]").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
+  if(b=t.closest("[data-color]")){PREF.color=b.dataset.color;savePref();renderTabla();openTableOpts();return}
+  if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();openTableOpts();return}
   if(t.closest("#set-nov")){verNovedades(null);return}
   if(t.closest("#set-install")||t.closest("#inst-again")){openInstall();return}
   if(t.closest("#inst-now")){installNow();return}
@@ -1138,6 +1276,7 @@ function seguroRecargar(){
   if(!$("#sheet").hidden)return false;
   if(PREF.tab==="test"&&QZ&&!QZ.done)return false;
   if(PREF.tab==="test"&&FILL&&!FILL.done&&FILL.pos>0)return false;
+  if(PREF.tab==="juego"&&GAME&&!GAME.done&&GAME.placed.size>0)return false;
   if(PREF.tab==="fichas"&&FL&&FL.i>0&&FL.i<FL.deck.length)return false;
   return true;
 }
