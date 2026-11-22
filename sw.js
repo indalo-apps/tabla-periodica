@@ -1,6 +1,6 @@
 // Service worker de la Tabla periódica: permite usarla sin conexión.
 // Al subir una versión nueva, cambia el nombre de la caché y se borra la anterior.
-const CACHE = "tabla-periodica-2.8";
+const CACHE = "tabla-periodica-2.9";
 const PRECACHE = ["./", "index.html", "manifest.webmanifest", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-152.png", "icon-167.png", "icon-maskable-512.png", "favicon-32.png",
   "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap"];
 
@@ -20,7 +20,8 @@ self.addEventListener("fetch", e => {
   if (url.origin === location.origin && url.searchParams.has("v")) return;
   // La página: primero la red (lo último) y, sin conexión, la copia guardada
   if (req.mode === "navigate") {
-    e.respondWith(fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put("index.html", cp)); return r; })
+    // Siempre la versión más reciente: sin pasar por la caché del navegador
+    e.respondWith(fetch(req.url, { cache: "no-store", credentials: "same-origin" }).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put("index.html", cp)); return r; })
       .catch(() => caches.match("index.html").then(r => r || caches.match("./"))));
     return;
   }

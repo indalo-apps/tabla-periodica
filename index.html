@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="2.8">
+<meta name="app-version" content="2.9">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -527,6 +527,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.9",["⚡ Las actualizaciones llegan antes: la app comprueba si hay versión nueva al abrirla, al volver a ella y cada minuto y medio, y siempre descarga la última"]],
   ["2.8",["🔍 Zoom con botones − y + y el porcentaje (100 %, 150 %, 200 %, 300 %), arriba a la izquierda de la tabla y en Jugar"]],
   ["2.7",["🗂️ Pestañas de arriba más visibles, como botones con borde","📱 La app se desplaza como una página normal con la cabecera fija arriba (para que el iPhone no difumine la parte superior)","🔍 Quitada la lupa del juego"]],
   ["2.6",["🔍 Zoom con botones 1× · 2× · 3× en la esquina superior izquierda de la tabla (y sigue el pellizco)","🎯 Jugar: al arrastrar una ficha aparece una lupa con la casilla de destino en grande y su grupo y periodo"]],
@@ -1379,7 +1380,7 @@ function seguroRecargar(){
 function actualizar(){
   if(!seguroRecargar()){actPendiente=true;return}
   $("#barra-act").hidden=false;
-  setTimeout(()=>location.reload(),1200);
+  setTimeout(()=>location.replace(location.pathname+"?u="+Date.now()),900);
 }
 async function buscarVersion(){
   if(!EN_WEB)return;
@@ -1393,8 +1394,12 @@ async function buscarVersion(){
 new MutationObserver(()=>{if(actPendiente&&seguroRecargar()){actPendiente=false;actualizar()}})
   .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","aria-current"]});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")buscarVersion()});
-setInterval(buscarVersion,5*60*1000);
-setTimeout(buscarVersion,3000);
+setInterval(buscarVersion,90*1000);
+setTimeout(buscarVersion,1500);
+addEventListener("focus",buscarVersion);
+addEventListener("pageshow",buscarVersion);
+// Limpia la marca ?u= de la dirección tras actualizar
+if(/[?&]u=/.test(location.search))history.replaceState(history.state,"",location.pathname);
 // Sin internet: el service worker guarda la app para que funcione sin conexión
 if(EN_WEB&&"serviceWorker" in navigator){
   addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}));
