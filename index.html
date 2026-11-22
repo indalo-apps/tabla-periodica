@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="1.9">
+<meta name="app-version" content="2.0">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -129,11 +129,13 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 .cell .n{display:none}
 .pt.fit .cell{border-radius:3px}
 .pt.fit .cell .z,.pt.fit .cell .n{display:none}
+.pt.fit .cell.only-z .z{display:none!important}
 .pt.fit .cell .s{margin-top:0}
 .pt.fit .cell .s{font-size:max(8px,2.9cqi);letter-spacing:-.04em}
 .cell:active{transform:scale(.94)}
 .cell.dim{opacity:.18}
 .cell.hide-s .s,.cell.hide-s .n{visibility:hidden}
+.cell.only-z .s{font-family:var(--f-mono);font-weight:700;letter-spacing:-.03em}
 .pt.mastery .cell{background:var(--lvc,var(--lv0))}
 .ph{border:1px dashed var(--line);border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px var(--f-mono);color:var(--muted);text-align:center;line-height:1.1}
 .pt.fit .ph{font-size:max(5px,1.5cqi)}
@@ -267,7 +269,8 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
   .hd{padding-block:5px}.logo{width:32px;height:32px}.logo b{font-size:13px}.hd h1 small{display:none}
   .tab{flex-direction:row;justify-content:center;gap:6px;padding:6px 4px}.tab svg{width:20px;height:20px}
   .view{padding-block:8px 16px;gap:12px}
-  .pt-wrap.full{order:-1;width:min(100%,calc((100dvh - 100px) * 1.55));margin-inline:auto}
+  .zoom-box{order:-1}
+  #ptw{width:calc(min(100%,calc((100dvh - 100px) * 1.55)) * var(--z,1));margin-inline:auto}
 }
 /* Colocar en la tabla */
 .placeq{width:100%}
@@ -348,6 +351,17 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 .ctl-l{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding-left:2px}
 .tip{margin:0;font-size:13.5px;color:var(--muted)}
 .cell.out{opacity:.42}
+/* Zoom con pellizco */
+.zoom-box{position:relative}
+#ptz{touch-action:pan-x pan-y;overflow:auto;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));padding-bottom:4px}
+#ptw{width:calc(100% * var(--z,1));max-width:none}
+.zoom-ctl{position:absolute;right:0;bottom:-6px;transform:translateY(100%);display:flex;gap:6px}
+.zoom-ctl button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font:600 22px/1 var(--f-body);color:var(--ink);box-shadow:0 2px 6px -3px rgb(0 0 0 / .3)}
+.zoom-ctl button:disabled{opacity:.35}
+.zoom-box{margin-bottom:46px}
+/* Con zoom: aparecen el número atómico y el nombre */
+@container (min-width:640px){.pt.fit .cell .z{display:block;font-size:max(9px,.85cqi)}.pt.fit .cell .s{margin-top:.6cqi}}
+@container (min-width:1100px){.pt.fit .cell .z{font-size:max(11px,.75cqi)}.pt.fit .cell .n{display:block;font-size:max(11px,.55cqi);max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;opacity:.85}}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -444,6 +458,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["2.0",["🤏 Pellizca la tabla para ampliarla (también con los botones − y +; ⤢ vuelve a verla entera). Al ampliar aparecen el número atómico y el nombre","👁 Nuevo «Ver en cada casilla»: Símbolo, Número o Nada (tabla muda)"]],
   ["1.9",["📚 Se estudia siempre la tabla entera: se quita el selector de nivel"]],
   ["1.8",["📲 El aviso para instalar la app destaca en amarillo","🍏 En el iPhone y el iPad, los pasos para instalarla se adaptan a la versión de iOS que tengas (iOS 26, iOS 16–18 o anteriores)"]],
   ["1.7",["🧭 Más fácil de usar: la tabla explica qué hace cada botón y atenúa los elementos que no entran en tu nivel","🏷️ Niveles con nombres más claros: básico, medio y toda la tabla","🔍 «Completa» y «Ampliada» en vez de «Entera» y «Grande»; la búsqueda entiende también «zinc» y «tungsteno»","📱 En el iPhone ya no se ve borrosa la parte de arriba","🐞 Corregidas dos preguntas que a veces salían con opciones repetidas o con solo tres opciones"]],
@@ -498,12 +513,14 @@ function tableHTML({fit=true,cls="",cellFn}){
 }
 function renderTabla(){
   const inScope=new Set(pool().map(e=>e.z));
-  const tbl=tableHTML({fit:PREF.fit,cls:PREF.color==="lv"?"mastery":"",cellFn:(e,p)=>{
+  const show=PREF.show||"s";
+  const tbl=tableHTML({fit:true,cls:PREF.color==="lv"?"mastery":"",cellFn:(e,p)=>{
     let cls="";
     if(filterCat&&e.c!==filterCat)cls+=" dim";
     else if(!inScope.has(e.z))cls+=" out";
-    if(PREF.hide)cls+=" hide-s";
-    return cellHTML(e,{...p,cls});
+    if(show==="n")cls+=" hide-s";
+    if(show==="z")cls+=" only-z";
+    return cellHTML(e,{...p,cls,label:show==="z"?e.z:undefined});
   }});
   const legend=PREF.color==="lv"
     ? `<div class="lvleg">${LVNAME.map((n,i)=>`<span><i style="background:var(--lv${i})"></i>${n}</span>`).join("")}</div>`
@@ -513,14 +530,20 @@ function renderTabla(){
     <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Busca un elemento (Fe, hierro, 26…)" autocomplete="off" value="${query}"></div>
     <div class="results" id="res"></div>
     <div class="ctrls">
-      <div class="ctl"><span class="ctl-l">Tamaño</span><div class="seg" role="group" aria-label="Tamaño"><button data-fit="1" aria-pressed="${PREF.fit}">Completa</button><button data-fit="0" aria-pressed="${!PREF.fit}">Ampliada</button></div></div>
-      <div class="ctl"><span class="ctl-l">Símbolos</span><button class="chip t" id="hide" aria-pressed="${PREF.hide}">${PREF.hide?"👁 Mostrar":"🙈 Ocultar"}</button></div>
+      <div class="ctl"><span class="ctl-l">Ver en cada casilla</span><div class="seg" role="group" aria-label="Ver en cada casilla"><button data-show="s" aria-pressed="${show==="s"}">Símbolo</button><button data-show="z" aria-pressed="${show==="z"}">Número</button><button data-show="n" aria-pressed="${show==="n"}">Nada</button></div></div>
     </div>
-    <p class="tip">👆 Toca cualquier elemento para ver su ficha.</p>
-    ${PREF.fit?`<div class="pt-wrap full">${tbl}</div><div class="rotate-hint">📱↻ Gira el móvil para ver la tabla más grande, o pulsa «Ampliada».</div>`:`<div class="pt-scroll"><div class="pt-wrap">${tbl}</div></div>`}
+    <p class="tip">👆 Toca un elemento para ver su ficha · 🤏 pellizca la tabla para ampliarla.</p>
+    <div class="zoom-box">
+      <div class="pt-scroll" id="ptz"><div class="pt-wrap full" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
+      <div class="zoom-ctl" role="group" aria-label="Zoom de la tabla">
+        <button id="z-out" aria-label="Alejar" ${ZOOM<=1?"disabled":""}>−</button>
+        <button id="z-fit" aria-label="Ver la tabla entera" ${ZOOM<=1?"hidden":""}>⤢</button>
+        <button id="z-in" aria-label="Acercar" ${ZOOM>=ZMAX?"disabled":""}>+</button>
+      </div>
+    </div>
     <div class="ctl"><span class="ctl-l">Colorear por</span><div class="seg" role="group" aria-label="Colorear por" style="align-self:flex-start"><button data-color="cat" aria-pressed="${PREF.color==="cat"}">Familias</button><button data-color="lv" aria-pressed="${PREF.color==="lv"}">Mi progreso</button></div></div>
     ${legend}
-    <p class="muted" style="margin:0;font-size:13px">${PREF.color==="lv"?"Cada color indica cuánto te sabes ese elemento.":PREF.hide?"Con los símbolos ocultos, intenta recordar cada casilla antes de tocarla.":"Toca una familia de la leyenda para resaltarla en la tabla."}</p>
+    <p class="muted" style="margin:0;font-size:13px">${PREF.color==="lv"?"Cada color indica cuánto te sabes ese elemento.":show==="n"?"Tabla muda: intenta recordar cada casilla antes de tocarla.":show==="z"?"Solo números: ¿sabes qué símbolo va en cada casilla? Tócala para comprobarlo.":"Toca una familia de la leyenda para resaltarla en la tabla."}</p>
     <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px"><span class="eyebrow">Para memorizar</span><h2>Familias y trucos</h2></div>
     <div class="fam">${famCards()}</div>
   </section>`;
@@ -559,6 +582,36 @@ function updateResults(){
   const hits=E.filter(e=>al.includes(e.z)||norm(e.s)===q||String(e.z)===q||norm(e.n).startsWith(q)||(q.length>2&&norm(e.n).includes(q))).slice(0,8);
   res.innerHTML=hits.length?hits.map(e=>`<button class="chip k-${e.c}" data-z="${e.z}"><span class="sw" style="background:var(--cat)"></span><b>${e.s}</b> ${e.n}</button>`).join(""):`<span class="muted" style="font-size:13px">Ningún elemento coincide con «${query}».</span>`;
 }
+
+/* ===================== ZOOM DE LA TABLA ===================== */
+let ZOOM=1;const ZMAX=4;
+function setZoom(z,cx,cy){
+  const box=$("#ptz"),w=$("#ptw");if(!box||!w)return;
+  z=Math.min(ZMAX,Math.max(1,z));
+  const old=ZOOM;ZOOM=Math.abs(z-1)<.04?1:z;
+  // Mantener quieto el punto bajo los dedos (o el centro)
+  const r=box.getBoundingClientRect();
+  const px=(cx??r.left+r.width/2)-r.left, py=(cy??r.top+r.height/2)-r.top;
+  const ax=(box.scrollLeft+px)/old, ay=(main.scrollTop+py+r.top-main.getBoundingClientRect().top)/old;
+  w.style.setProperty("--z",ZOOM);
+  box.scrollLeft=ax*ZOOM-px;
+  const mt=main.getBoundingClientRect().top;main.scrollTop=ay*ZOOM-py-(r.top-mt);
+  const zi=$("#z-in"),zo=$("#z-out"),zf=$("#z-fit");
+  if(zi)zi.disabled=ZOOM>=ZMAX;if(zo)zo.disabled=ZOOM<=1;if(zf)zf.hidden=ZOOM<=1;
+}
+(function(){
+  let d0=0,z0=1;
+  const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+  main.addEventListener("touchstart",ev=>{if(ev.touches.length===2&&ev.target.closest("#ptz")){d0=dist(ev.touches);z0=ZOOM}},{passive:true});
+  main.addEventListener("touchmove",ev=>{
+    if(ev.touches.length!==2||!d0)return;
+    ev.preventDefault();
+    const t=ev.touches;setZoom(z0*dist(t)/d0,(t[0].clientX+t[1].clientX)/2,(t[0].clientY+t[1].clientY)/2);
+  },{passive:false});
+  main.addEventListener("touchend",ev=>{if(ev.touches.length<2)d0=0});
+  // En ordenador: Ctrl + rueda
+  main.addEventListener("wheel",ev=>{if(ev.ctrlKey&&ev.target.closest("#ptz")){ev.preventDefault();setZoom(ZOOM*(ev.deltaY<0?1.15:1/1.15),ev.clientX,ev.clientY)}},{passive:false});
+})();
 
 /* ===================== FICHA DE DETALLE ===================== */
 function factsHTML(e){
@@ -853,10 +906,12 @@ main.addEventListener("click",ev=>{
   const t=ev.target;
   const zb=t.closest("[data-z]");if(zb&&!t.closest(".mini")){openSheet(+zb.dataset.z);return}
   let b;
-  if(b=t.closest("[data-fit]")){PREF.fit=b.dataset.fit==="1";savePref();renderTabla();return}
+  if(b=t.closest("[data-show]")){PREF.show=b.dataset.show;savePref();renderTabla();return}
+  if(t.closest("#z-in")){setZoom(ZOOM*1.5);return}
+  if(t.closest("#z-out")){setZoom(ZOOM/1.5);return}
+  if(t.closest("#z-fit")){setZoom(1);return}
   if(b=t.closest("[data-color]")){PREF.color=b.dataset.color;savePref();renderTabla();return}
   if(b=t.closest("[data-cat]")){filterCat=filterCat===b.dataset.cat?null:b.dataset.cat;renderTabla();return}
-  if(t.closest("#hide")){PREF.hide=!PREF.hide;savePref();renderTabla();return}
   if(b=t.closest("[data-dir]")){PREF.dir=b.dataset.dir;savePref();FL.flipped=false;renderFichas();return}
   if(t.closest("#card")){FL.flipped=!FL.flipped;$("#card").classList.toggle("flipped",FL.flipped);const a=document.querySelector(".flash-actions");if(a)a.style.visibility=FL.flipped?"visible":"hidden";const sh=document.querySelector(".swipe-hint");if(sh)sh.textContent=FL.flipped?"También puedes deslizar la tarjeta: ← no me la sabía · me la sabía →":"";return}
   if(t.closest("#fl-yes")){flashAnswer(true);return}
