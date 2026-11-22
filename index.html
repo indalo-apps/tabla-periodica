@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="5.1">
+<meta name="app-version" content="5.2">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -609,6 +609,7 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .lab-e{margin:2px 0 0;font-size:14.5px}
 .ionrow{display:flex;flex-wrap:wrap;gap:8px}
 .ionchip{min-width:56px;min-height:44px;border-radius:10px;border:1.5px solid transparent;background:var(--cat);font:700 16px var(--f-display);color:var(--ink);padding:0 10px;box-shadow:inset 0 -2px 0 rgb(0 0 0 / .12)}
+.ionchip:disabled{opacity:.25;box-shadow:none}
 .ionchip[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
 .topics .topic:last-child:nth-child(even){grid-column:1/-1;flex-direction:row;align-items:center;min-height:0;gap:12px}
 </style>
@@ -705,6 +706,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["5.2",["⚗️ Formular: solo compuestos habituales (sin nitruros ni fosfuros de metales de transición, ni CuF, CuI₂ o FeI₃); los aniones que no combinan aparecen apagados"]],
   ["5.1",["⚗️ Nuevo: «Formular» en Ponte a prueba. Elige un catión y un anión y verás la fórmula, el nombre y cómo se compensan las cargas (Ca²⁺ + 2 Cl⁻ → CaCl₂)","❓ Preguntas de formulación: fórmula a partir del nombre, compuesto que forman dos iones y nombre a partir de la fórmula"]],
   ["5.0",["🎯 «Ponte a prueba» más fácil: toca un tema y empieza (Todo mezclado, Nombres y símbolos, Posición, Familias, El átomo, Propiedades o Rellenar familias)","⚙︎ Para combinar tipos de pregunta, «Hacer una ronda a mi medida»"]],
   ["4.9",["✕ La franja de la familia resaltada se quita con la misma ✕ redonda que el resto de la app"]],
@@ -1027,6 +1029,10 @@ const CATIONS=[[3,1],[11,1],[19,1],[4,2],[12,2],[20,2],[38,2],[56,2],[13,3],[30,
 const ANIONS=[[9,-1],[17,-1],[35,-1],[53,-1],[8,-2],[16,-2],[7,-3],[15,-3]];
 const VARIA=new Set([26,29,82]),ROM=["","I","II","III","IV"];
 const gcd=(a,b)=>b?gcd(b,a%b):a;
+// Solo compuestos habituales: nitruros y fosfuros solo con metales de los grupos 1, 2 y aluminio; sin CuF, CuI₂ ni FeI₃ (inestables)
+const RARE=new Set(["29,1,9","29,2,53","26,3,53"]);
+function okPair(cz,cq,az){if((az===7||az===15)&&!(BYZ[cz].g<=2||cz===13))return false;return !RARE.has(cz+","+cq+","+az)}
+const PAIRS=CATIONS.flatMap(([cz,cq],ci)=>ANIONS.map(([az,aq],ai)=>[ci,ai]).filter(([ci2,ai])=>okPair(cz,cq,ANIONS[ai][0])));
 const catLabel=(z,q)=>BYZ[z].s+ionSup(q),catName=(z,q)=>BYZ[z].n.toLowerCase()+(VARIA.has(z)?"("+ROM[q]+")":"");
 function compound(cz,cq,az,aq){const A=-aq,g=gcd(cq,A),nc=A/g,na=cq/g;
   return {cz,cq,az,aq,nc,na,formula:BYZ[cz].s+subn(nc)+BYZ[az].s+subn(na),name:ANION[az]+" de "+catName(cz,cq)}}
@@ -1034,7 +1040,7 @@ const fNum=n=>n>1?n+" ":"";
 function compExpl(k){const c=catLabel(k.cz,k.cq),a=catLabel(k.az,k.aq);
   return `${c} tiene carga +${k.cq} y ${a} tiene carga −${-k.aq}. Para que el total sea 0 hacen falta ${k.nc} ${k.nc>1?"cationes":"catión"} y ${k.na} ${k.na>1?"aniones":"anión"}: ${k.nc}·(+${k.cq}) + ${k.na}·(−${-k.aq}) = 0 → <b>${k.formula}</b>, ${k.name}.`}
 function buildForm(){
-  const [cz,cq]=CATIONS[Math.floor(Math.random()*CATIONS.length)],[az,aq]=ANIONS[Math.floor(Math.random()*ANIONS.length)];
+  const [pci,pai]=PAIRS[Math.floor(Math.random()*PAIRS.length)],[cz,cq]=CATIONS[pci],[az,aq]=ANIONS[pai];
   const k=compound(cz,cq,az,aq),v=Math.floor(Math.random()*3);
   const fm=(a,b)=>BYZ[cz].s+subn(a)+BYZ[az].s+subn(b);
   const wrongF=[fm(1,1),fm(k.na,k.nc),fm(-aq,cq),fm(cq,-aq),fm(k.nc+1,k.na),fm(k.nc,k.na+1),fm(k.nc*2,k.na),fm(k.nc,k.na*2),fm(1,2),fm(2,1),fm(1,3),fm(3,1),fm(2,3),fm(3,2)].filter(x=>x!==k.formula);
@@ -1055,9 +1061,10 @@ function buildForm(){
   return {t:"form",z:cz,prompt,show,opts:shuffle(opts.slice(0,4)),correct,expl:compExpl(k),picked:null,mono:false,noRec:true};
 }
 function renderLab(){
-  const ci=Math.min(PREF.fc??5,CATIONS.length-1),ai=Math.min(PREF.fa??1,ANIONS.length-1);
+  const ci=Math.min(PREF.fc??5,CATIONS.length-1);let ai=Math.min(PREF.fa??1,ANIONS.length-1);
+  if(!okPair(CATIONS[ci][0],CATIONS[ci][1],ANIONS[ai][0])){ai=ANIONS.findIndex(([z])=>okPair(CATIONS[ci][0],CATIONS[ci][1],z));PREF.fa=ai;savePref()}
   const [cz,cq]=CATIONS[ci],[az,aq]=ANIONS[ai],k=compound(cz,cq,az,aq);
-  const chip=(z,q,i,kind,on)=>`<button class="ionchip k-${BYZ[z].c}" data-${kind}="${i}" aria-pressed="${on}" aria-label="${kind==="fc"?"Catión "+catName(z,q):"Anión "+ANION[z]}">${catLabel(z,q)}</button>`;
+  const chip=(z,q,i,kind,on,off)=>`<button class="ionchip k-${BYZ[z].c}" data-${kind}="${i}" aria-pressed="${on}" ${off?"disabled":""} aria-label="${kind==="fc"?"Catión "+catName(z,q):"Anión "+ANION[z]}">${catLabel(z,q)}</button>`;
   const tok=(n,z,q)=>Array.from({length:n},()=>`<span class="tok k-${BYZ[z].c}">${catLabel(z,q)}</span>`).join("");
   main.innerHTML=`<section class="view gut"><div class="quiz">
     <div class="tmhead"><div><span class="eyebrow">Compuestos iónicos</span><h2>Formular</h2></div><button class="xexit" id="tm-home" aria-label="Volver a los temas">✕</button></div>
@@ -1069,8 +1076,8 @@ function renderLab(){
       <p class="lab-e">${fNum(k.nc)}${catLabel(cz,cq)} + ${fNum(k.na)}${catLabel(az,aq)} → ${k.formula}<br><span class="muted">Cargas: ${k.nc}·(+${cq}) + ${k.na}·(−${-aq}) = 0</span></p>
     </div>
     <div class="qgroup"><span class="ctl-l">1. Catión (metal)</span><div class="ionrow">${CATIONS.map(([z,q],i)=>chip(z,q,i,"fc",i===ci)).join("")}</div></div>
-    <div class="qgroup"><span class="ctl-l">2. Anión (no metal)</span><div class="ionrow">${ANIONS.map(([z,q],i)=>chip(z,q,i,"fa",i===ai)).join("")}</div></div>
-    <p class="muted" style="margin:0;font-size:13px">Los números romanos, como en hierro(III), indican la carga del metal cuando puede tener más de una.</p>
+    <div class="qgroup"><span class="ctl-l">2. Anión (no metal)</span><div class="ionrow">${ANIONS.map(([z,q],i)=>chip(z,q,i,"fa",i===ai,!okPair(cz,cq,z))).join("")}</div></div>
+    <p class="muted" style="margin:0;font-size:13px">Los aniones apagados no forman un compuesto habitual con ese metal. Los números romanos, como en hierro(III), indican la carga del metal cuando puede tener más de una.</p>
     <button class="btn block" id="lab-quiz">Ponerme a prueba: 10 fórmulas</button>
   </div></section>`;
 }
