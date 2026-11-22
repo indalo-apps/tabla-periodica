@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="3.1">
+<meta name="app-version" content="3.2">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -452,6 +452,19 @@ nav.tabs{flex:none;background:var(--surface);border-bottom:1px solid var(--line)
 .skip{position:absolute;left:8px;top:-60px;z-index:200;background:var(--accent);color:var(--accent-ink);padding:10px 14px;border-radius:10px;font-weight:700}
 .skip:focus{top:8px}
 main:focus{outline:none}
+.qgroup{display:flex;flex-direction:column;gap:6px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{top:105%;margin-left:var(--dx);transform:rotate(540deg)}}
+.gwrap .cell.gpend{outline:3px solid var(--accent)!important;outline-offset:-1px;background:var(--accent-soft)!important;color:var(--accent)!important}
+.gwrap .cell.gpend .s{opacity:.85}
+.tray.gconfirm{border-top:2px solid var(--accent)}
+#ptz.scrub{touch-action:none}
+.cell.scrubhl{outline:2.5px solid var(--ink);outline-offset:1px;z-index:2}
+#scrubbub{position:fixed;z-index:90;pointer-events:none;transform:translate(-50%,-100%);width:96px;height:108px;border-radius:14px;background:var(--cat);border:2px solid var(--ink);box-shadow:0 14px 28px -10px rgb(0 0 0 / .5);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;color:var(--ink)}
+#scrubbub .z{position:absolute;top:6px;left:8px;font:700 13px var(--f-mono)}
+#scrubbub .s{font:700 40px var(--f-display);letter-spacing:-.03em;margin-top:8px}
+#scrubbub .n{font-size:12px;font-weight:600;margin-top:4px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -478,7 +491,7 @@ main:focus{outline:none}
 <nav class="tabs gut" aria-label="Secciones">
   <div class="tabs-in">
     <button class="tab" data-tab="tabla"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="4" height="4" rx="1"/><rect x="17" y="4" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/><path d="M5 18h14"/></svg>Tabla</button>
-    <button class="tab" data-tab="fichas"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="13" height="15" rx="2"/><path d="M8 3h10a2 2 0 0 1 2 2v12"/></svg>Fichas</button>
+    <button class="tab" data-tab="fichas"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="13" height="15" rx="2"/><path d="M8 3h10a2 2 0 0 1 2 2v12"/></svg>Tarjetas</button>
     <button class="tab" data-tab="juego"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke-dasharray="2.5 2"/><path d="M11 7h3a3 3 0 0 1 3 3v1"/><path d="m15 9 2 2 2-2"/></svg>Jugar</button>
     <button class="tab" data-tab="test"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Test</button>
     <button class="tab" data-tab="progreso"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progreso</button>
@@ -553,6 +566,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["3.2",["👆 En la tabla, desliza el dedo: verás el elemento en grande y, al soltar, se abre su ficha","✋ Jugar: antes de colocar un elemento se pide confirmación (se puede desactivar)","🗂️ La pestaña de repaso pasa a llamarse «Tarjetas»","🧩 Los tipos de pregunta del Test van agrupados por temas","🎉 Celebración al acabar sin fallos"]],
   ["3.1",["⚡ Test: nuevas preguntas de iones («¿Qué ion forma el magnesio?» → Mg²⁺) y de propiedades periódicas (radio, electronegatividad, energía de ionización y carácter metálico), con la regla explicada","🧪 La ficha de cada elemento indica su ion más común","🖨 Tabla muda para imprimir o guardar en PDF (vacía, con números o con la solución), en «Opciones de la tabla»","🎯 Jugar: al arrastrar una ficha, la tabla se acerca sola y vuelve al soltarla","♿ Mejoras de accesibilidad (WCAG 2.2): lectores de pantalla, teclado y foco"]],
   ["3.0",["🎯 El zoom (− 100 % +) queda centrado en el hueco que dejan las columnas de la tabla"]],
   ["2.9",["⚡ Las actualizaciones llegan antes: la app comprueba si hay versión nueva al abrirla, al volver a ella y cada minuto y medio, y siempre descarga la última"]],
@@ -692,7 +706,7 @@ function renderTabla(){
     ${store.get("tp-tip-hide",0)?"":`<div class="tipbox"><span>👆 Toca un elemento para ver su ficha.<br>🤏 Pellizca la tabla para ampliarla.</span><button class="x" id="tip-x" aria-label="Cerrar">×</button></div>`}
     ${show!=="s"||PREF.color==="lv"?`<div class="modechip">${show==="z"?"Viendo: solo números":show==="n"?"Viendo: tabla muda":""}${show!=="s"&&PREF.color==="lv"?" · ":""}${PREF.color==="lv"?"Colores: mi progreso":""} <button id="mode-reset">Volver a lo normal</button></div>`:""}
     <div class="zoom-box">
-      <div class="pt-scroll" id="ptz"><div class="pt-wrap full" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
+      <div class="pt-scroll${ZOOM<=1.01?" scrub":""}" id="ptz"><div class="pt-wrap full" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
       <div class="tbl-bar"><button class="btn ghost" id="tbl-opts">⚙︎ Opciones de la tabla</button></div>
       ${zoomSeg()}
     </div>
@@ -763,6 +777,7 @@ function setZoom(z,cx,cy){
   w.style.setProperty("--z",ZOOM);
   box.scrollLeft=ax*ZOOM-px;
   SC.scrollTop+=py*(ZOOM/old-1);
+  const zbox=$("#ptz");if(zbox&&!zbox.closest(".game"))zbox.classList.toggle("scrub",ZOOM<=1.01);
   const zp=$("#z-pct"),zi=$("#z-in"),zo=$("#z-out");if(zp)zp.textContent=Math.round(ZOOM*100)+" %";if(zi)zi.disabled=ZOOM>=ZMAX-.01;if(zo)zo.disabled=ZOOM<=1.01;
 }
 (function(){
@@ -796,6 +811,41 @@ function openTableOpts(){
   </div></div>`;
   s.hidden=false;sheetShown();
 }
+
+
+/* ===================== DESLIZAR SOBRE LA TABLA ===================== */
+// Al deslizar el dedo por la tabla aparece el elemento en grande; al soltar se abre su ficha
+(function(){
+  let sc=null,bub=null,hl=null,skipClick=false;
+  const bubble=()=>{if(!bub){bub=document.createElement("div");bub.id="scrubbub";bub.setAttribute("aria-hidden","true");document.body.appendChild(bub)}return bub};
+  const clear=()=>{if(bub)bub.hidden=true;if(hl)hl.classList.remove("scrubhl");hl=null};
+  main.addEventListener("pointerdown",ev=>{
+    if(ev.pointerType!=="touch"||PREF.tab!=="tabla"||ZOOM>1.01)return;
+    const c=ev.target.closest("#ptz .cell[data-z]");if(!c)return;
+    sc={id:ev.pointerId,x0:ev.clientX,y0:ev.clientY,moved:false};
+  });
+  main.addEventListener("pointermove",ev=>{
+    if(!sc||ev.pointerId!==sc.id)return;
+    if(!sc.moved&&Math.hypot(ev.clientX-sc.x0,ev.clientY-sc.y0)<6)return;
+    sc.moved=true;
+    const el=document.elementFromPoint(ev.clientX,ev.clientY),c=el&&el.closest("#ptz .cell[data-z]");
+    if(hl&&hl!==c)hl.classList.remove("scrubhl");
+    if(!c){if(bub)bub.hidden=true;hl=null;return}
+    c.classList.add("scrubhl");hl=c;
+    const e=BYZ[+c.dataset.z],b=bubble();
+    b.className="k-"+e.c;b.innerHTML=`<span class="z">${e.z}</span><span class="s">${e.s}</span><span class="n">${e.n}</span>`;b.hidden=false;
+    const r=c.getBoundingClientRect(),top=r.top-14;
+    b.style.left=Math.min(innerWidth-60,Math.max(60,r.left+r.width/2))+"px";b.style.top=(top<130?r.bottom+130:top)+"px";
+  });
+  const end=ev=>{
+    if(!sc||ev.pointerId!==sc.id)return;const moved=sc.moved,c=hl;sc=null;clear();
+    if(moved&&c){skipClick=true;setTimeout(()=>skipClick=false,450);openSheet(+c.dataset.z)}
+  };
+  main.addEventListener("pointerup",end);
+  main.addEventListener("pointercancel",()=>{sc=null;clear()});
+  main.addEventListener("touchstart",ev=>{if(ev.touches.length>1){sc=null;clear()}},{passive:true});
+  main.addEventListener("click",ev=>{if(skipClick&&ev.target.closest("#ptz")){skipClick=false;ev.stopImmediatePropagation();ev.preventDefault()}},true);
+})();
 
 /* ===================== FICHA DE DETALLE ===================== */
 function factsHTML(e){
@@ -856,7 +906,7 @@ function newDeck(){
 function renderFichas(){
   if(!FL||FL.scope!==PREF.scope)newDeck();
   if(FL.i>=FL.deck.length){
-    main.innerHTML=`<section class="view gut"><div class="flash-wrap"><div class="qcard"><span class="qtype">Mazo terminado</span><div class="score">${FL.known}/${FL.deck.length}</div><p style="margin:0">fichas que ya te sabías.</p><button class="btn block" id="fl-new">Barajar otra vez</button></div></div></section>`;return;
+    main.innerHTML=`<section class="view gut"><div class="flash-wrap"><div class="qcard"><span class="qtype">Mazo terminado</span><div class="score">${FL.known}/${FL.deck.length}</div><p style="margin:0">tarjetas que ya te sabías.</p><button class="btn block" id="fl-new">Barajar otra vez</button></div></div></section>`;return;
   }
   const e=BYZ[FL.deck[FL.i]];
   const front=PREF.dir==="s2n"
@@ -866,7 +916,7 @@ function renderFichas(){
     <div class="row" style="justify-content:space-between">
       <div class="seg" role="group" aria-label="Dirección"><button data-dir="s2n" aria-pressed="${PREF.dir==="s2n"}">Símbolo → nombre</button><button data-dir="n2s" aria-pressed="${PREF.dir==="n2s"}">Nombre → símbolo</button></div>
     </div>
-    <div class="counter"><span>Ficha ${FL.i+1} de ${FL.deck.length}</span><span>${FL.known} me las sé</span></div>
+    <div class="counter"><span>Tarjeta ${FL.i+1} de ${FL.deck.length}</span><span>${FL.known} me las sé</span></div>
     <div class="bar"><i style="width:${FL.i/FL.deck.length*100}%"></i></div>
     <div class="card3d${FL.flipped?" flipped":""}" id="card"><div class="inner">
       <div class="face front k-${e.c}"><div class="stripe"></div>${front}<span class="hint">Toca para darle la vuelta</span></div>
@@ -886,6 +936,7 @@ function flashAnswer(ok){record(FL.deck[FL.i],ok);if(ok)FL.known++;else if(FL.de
 /* ===================== TEST ===================== */
 const QTYPES={place:"Colocar en la tabla",ion:"Iones",trend:"Propiedades periódicas",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
 const ROUND=10;
+const QGROUPS=[["Nombres y símbolos",["s2n","n2s"]],["Posición en la tabla",["place","pos","gp"]],["Familias y tipos",["fam","kind"]],["Estructura del átomo",["conf","ion"]],["Propiedades",["trend"]]];
 let QZ=null;
 function pickOthers(answer,cands,n,prefer){
   const out=[],seen=new Set([answer]);
@@ -970,6 +1021,15 @@ function buildTrend(tp){
   return {t:"trend",z:tp.ans.z,prompt:`¿Cuál tiene ${TPROPS[prop]}?`,show:`<div style="display:flex;gap:14px;align-items:center">${tile(a)}<span class="muted" style="font-weight:700">o</span>${tile(b)}</div>`,
     opts:shuffle([a.s,b.s]),correct:tp.ans.s,expl:trendExpl(tp),picked:null,mono:false,names:{[a.s]:a.n,[b.s]:b.n}};
 }
+// Lluvia de confeti (no aparece si el móvil tiene activado «Reducir movimiento»)
+function confetti(n){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cols=["#ffd3c7","#ffe066","#8fd9ab","#cddfff","#e0d9f6","#f6c2bd","#1f56d6"];
+  const box=document.createElement("div");box.className="confetti";box.setAttribute("aria-hidden","true");
+  for(let i=0;i<n;i++){const p=document.createElement("i");p.style.left=Math.random()*100+"%";p.style.background=cols[i%cols.length];
+    p.style.animationDelay=Math.random()*.5+"s";p.style.animationDuration=1.6+Math.random()*1.2+"s";p.style.setProperty("--dx",(Math.random()*120-60)+"px");p.style.transform=`rotate(${Math.random()*360}deg)`;box.appendChild(p)}
+  document.body.appendChild(box);setTimeout(()=>box.remove(),3500);
+}
 function startQuiz(){subShown();QZ={i:0,score:0,miss:[],recent:[],q:null,done:false};QZ.q=makeQuestion();QZ.recent.push(QZ.q.z);renderTest()}
 function optLabel(q,o){if(q.t==="trend"){return `<b>${o}</b>&nbsp;<span class="muted" style="font-weight:500">${q.names[o]}</span>`}if(q.t==="pos"){const x=BYZ[o];return `<b>${x.s}</b>&nbsp;<span class="muted" style="font-weight:500">${x.n}</span>`}return q.mono?`<span class="mono">${o}</span>`:o}
 function renderTest(){
@@ -981,16 +1041,17 @@ function renderTest(){
       <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Ronda de ${ROUND} preguntas</span><h2>Ponte a prueba</h2>
       <p class="muted" style="margin:0">Preguntas sobre los ${n} elementos de la tabla. Las preguntas salen más de los elementos que fallas o que aún no has visto.</p></div>
       <div class="setup"><h3>Tipos de pregunta <span class="muted" style="font:500 13px var(--f-body)">· elige uno o varios</span></h3>
-        <div class="row">${Object.entries(QTYPES).map(([k,l])=>`<button class="chip t" data-qt="${k}" aria-pressed="${PREF.types.includes(k)}">${l}</button>`).join("")}</div>
+        ${QGROUPS.map(([g,ks])=>`<div class="qgroup"><span class="ctl-l">${g}</span><div class="row">${ks.map(k=>`<button class="chip t" data-qt="${k}" aria-pressed="${PREF.types.includes(k)}">${QTYPES[k]}</button>`).join("")}</div></div>`).join("")}
         <button class="btn block" id="qz-start" ${PREF.types.length?"":"disabled"}>${PREF.types.length?"Empezar":"Elige al menos un tipo"}</button>
       </div>
     </div></section>`;return;
   }
   if(QZ.done){
     const pct=QZ.score/ROUND;
-    const msg=pct===1?"¡Perfecto! Pleno de aciertos.":pct>=.8?"Muy bien. Ya casi lo tienes.":pct>=.5?"Vas bien. Repasa los fallos y prueba otra vez.":"Hay que repasar. Mira las fichas de los que has fallado.";
+    if(!QZ.celebrated){QZ.celebrated=true;if(pct===1)confetti(70);else if(pct>=.8)confetti(25)}
+    const msg=pct===1?"¡Perfecto! Pleno de aciertos.":pct>=.8?"Muy bien. Ya casi lo tienes.":pct>=.5?"Vas bien. Repasa los fallos y prueba otra vez.":"Hay que repasar. Toca los que has fallado para ver su ficha.";
     main.innerHTML=`<section class="view gut"><div class="quiz"><div class="qcard">
-      <span class="qtype">Resultado</span><div class="score">${QZ.score}/${ROUND}</div><p style="margin:0">${msg}</p>
+      <span class="qtype">Resultado</span><div class="score">${pct===1?"🏆 ":pct>=.8?"⭐ ":""}${QZ.score}/${ROUND}</div><p style="margin:0">${msg}</p>
       ${QZ.miss.length?`<span class="eyebrow">Para repasar · toca para ver la ficha</span><div class="miss">${[...new Set(QZ.miss)].map(z=>`<button class="k-${BYZ[z].c}" data-z="${z}">${BYZ[z].s}</button>`).join("")}</div>`:""}
       <div class="row" style="width:100%"><button class="btn ghost" style="flex:1" id="qz-setup">Cambiar tipos</button><button class="btn" style="flex:1" id="qz-again">Otra ronda</button></div>
     </div></div></section>`;return;
@@ -1052,6 +1113,7 @@ function fillTap(z){
     F.set.items.forEach(x=>record(x,!F.errs[x]));
     const nerr=F.set.items.filter(x=>F.errs[x]).length;
     const prev=FILLBEST[F.key];if(prev===undefined||nerr<prev){FILLBEST[F.key]=nerr;store.set("tp-fill-v1",FILLBEST)}
+    if(!nerr)confetti(50);
   }
   renderFill();
   if(F.shake){const b=document.querySelector(`.bank [data-fill="${F.shake}"]`);F.shake=null;b&&b.classList.add("shake")}
@@ -1103,7 +1165,7 @@ function renderJuego(){
   if(!GAME){
     main.innerHTML=`<section class="view gut"><div class="quiz">
       <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Juego</span><h2>Coloca cada elemento en su sitio</h2>
-      <p class="muted" style="margin:0">Elige una familia y arrastra cada ficha a su casilla de la tabla. También puedes tocar la ficha y después la casilla.</p></div>
+      <p class="muted" style="margin:0">Elige una familia y arrastra cada elemento a su casilla de la tabla. También puedes tocar el elemento y después la casilla.</p></div>
       <div class="gcats">
         ${GGROUPS.map(([t,ks])=>`<div class="leg-g"><span class="ctl-l">${t}</span><div class="legend">${ks.map(k=>gbtn(k,CATS[k],E.filter(e=>e.c===k).length)).join("")}</div></div>`).join("")}
         <div class="leg-g"><span class="ctl-l">Todo mezclado</span><div class="legend">${gbtn("mix","10 al azar",10)}</div></div>
@@ -1118,15 +1180,18 @@ function renderJuego(){
   main.innerHTML=`<section class="view gut">
     <div class="counter"><span><b style="color:var(--ink)">${name}</b> · ${G.placed.size}/${G.items.length}</span><span>${nerr} fallo${nerr===1?"":"s"}${PREF.gtime!==false?` · ⏱ <span id="g-time">${fmtT(gameTime())}</span>`:""}</span></div>
     <div class="bar"><i style="width:${G.placed.size/G.items.length*100}%"></i></div>
-    ${G.done?"":`<div class="gtools"><button class="btn ghost" id="g-restart">↺ Reiniciar</button><button class="btn ghost" id="g-hint">💡 Pista</button><button class="btn ghost" id="g-time-t" aria-pressed="${PREF.gtime!==false}">⏱ ${PREF.gtime!==false?"Ocultar tiempo":"Ver tiempo"}</button></div>`}
+    ${G.done?"":`<div class="gtools"><button class="btn ghost" id="g-restart">↺ Reiniciar</button><button class="btn ghost" id="g-hint">💡 Pista</button><button class="btn ghost" id="g-time-t" aria-pressed="${PREF.gtime!==false}">⏱ ${PREF.gtime!==false?"Ocultar tiempo":"Ver tiempo"}</button><button class="btn ghost" id="g-conf-t" aria-pressed="${PREF.gconfirm!==false}">${PREF.gconfirm!==false?"✓ Confirmar al colocar":"Colocar sin confirmar"}</button></div>`}
     <div class="zoom-box game">
       ${zoomSeg()}
       <div class="pt-scroll" id="ptz"><div class="pt-wrap full gwrap" id="ptw" style="--z:${ZOOM}">${tbl}</div></div>
     </div>
     ${G.done?`<div class="feedback ${nerr?"ko":"ok"}" role="status"><strong>${nerr?`¡Completado! Con ${nerr} fallo${nerr===1?"":"s"}`:"¡Perfecto, sin fallos!"}</strong>Has colocado ${G.items.length} elementos en ${fmtT(gameTime())}${G.hints?` con ${G.hints} pista${G.hints===1?"":"s"}`:""}.</div>
       <div class="next-bar"><button class="btn ghost" style="flex:1" id="g-list">Otra familia</button><button class="btn" style="flex:1" id="g-again">Repetir</button></div>`
-    :`<div class="tray"><p class="gmsg" role="status" aria-live="polite">${G.msg||(G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada ficha a su casilla (o tócala y luego toca la casilla)")}</p>
-      ${left.length>6?`<span class="muted" style="font-size:12px;text-align:center">Quedan ${left.length} fichas · desliza la fila →</span>`:""}
+    :G.pending?(()=>{const P=G.pending,el=BYZ[P.z],tg=BYZ[P.target];const where=tg.f?(tg.c==="lan"?"lantánidos":"actínidos")+", periodo "+tg.p:"grupo "+tg.g+", periodo "+tg.p;
+      return `<div class="tray gconfirm" role="dialog" aria-label="Confirmar"><p class="gmsg" role="status" aria-live="polite">¿Colocar el <b>${el.n.toLowerCase()} (${el.s})</b> en la casilla marcada (${where})?</p>
+      <div class="next-bar" style="position:static;margin:0;padding:0;background:none"><button class="btn ghost" style="flex:1" id="g-no">Cancelar</button><button class="btn" style="flex:2" id="g-yes">Sí, colocar</button></div></div>`})()
+    :`<div class="tray"><p class="gmsg" role="status" aria-live="polite">${G.msg||(G.sel?`Ahora toca la casilla del <b>${BYZ[G.sel].n.toLowerCase()}</b>`:"Arrastra cada elemento a su casilla (o tócalo y luego toca la casilla)")}</p>
+      ${left.length>6?`<span class="muted" style="font-size:12px;text-align:center">Quedan ${left.length} elementos · desliza la fila →</span>`:""}
       <div class="tiles">${left.map(z=>`<button class="gtile k-${BYZ[z].c}${G.sel===z?" sel":""}" data-gt="${z}" aria-label="${BYZ[z].s}: ${BYZ[z].n}">${BYZ[z].s}</button>`).join("")}</div>
       <button class="ver" id="g-list" style="align-self:center">← Elegir otra familia</button></div>`}
   </section>`;
@@ -1146,9 +1211,10 @@ function gameTable(G,inG){
   for(const e of E){const p=gridPos(e);if(p.col<c0||p.col>c1||p.row>rows)continue;
     const tgt=inG.has(e.z),ok=G.placed.has(e.z);let c=tgt?(ok?" gok":" gt"):"";
     if(G.bad===e.z)c+=" gbad";if(G.hint===e.z)c+=" ghint";
+    const pend=G.pending&&G.pending.target===e.z;if(pend)c+=" gpend";
     const lab=`${e.f?(e.c==="lan"?"Lantánidos":"Actínidos"):"Grupo "+e.g}, periodo ${e.p}`;
-    h+=tgt&&!ok?`<button class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" aria-label="Casilla vacía: ${lab}"><span class="s"></span></button>`
-      :`<div class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" ${ok?`aria-label="${e.n}, colocado"`:'aria-hidden="true"'}><span class="s">${ok?e.s:""}</span></div>`;
+    h+=tgt&&!ok?`<button class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" aria-label="Casilla vacía: ${lab}"><span class="s">${pend?BYZ[G.pending.z].s:""}</span></button>`
+      :`<div class="cell k-${e.c}${c}" style="grid-column:${p.col-c0+2};grid-row:${p.row}" data-gz="${e.z}" ${ok?`aria-label="${e.n}, colocado"`:'aria-hidden="true"'}><span class="s">${ok?e.s:pend?BYZ[G.pending.z].s:""}</span></div>`;
   }
   return h+"</div>";
 }
@@ -1178,17 +1244,26 @@ function resumeGame(){if(GAME&&!GAME.done&&!GAME.tStart&&PREF.tab==="juego"){GAM
 document.addEventListener("visibilitychange",()=>{document.hidden?pauseGame():resumeGame()});
 function gameHint(){
   const G=GAME;if(!G||G.done)return;
-  const z=G.sel||G.tray.find(x=>!G.placed.has(x));G.sel=z;G.hint=z;G.hints++;
+  G.pending=null;const z=G.sel||G.tray.find(x=>!G.placed.has(x));G.sel=z;G.hint=z;G.hints++;
   G.errs[z]=G.errs[z]||0;G.errs[z]+=0.5; // una pista cuenta como medio fallo para el progreso
-  G.msg=`Pista: la casilla del <b>${BYZ[z].n.toLowerCase()}</b> parpadea en azul. Arrastra la ficha o tócala.`;
+  G.msg=`Pista: la casilla del <b>${BYZ[z].n.toLowerCase()}</b> parpadea en azul. Arrastra el elemento o tócalo.`;
   renderJuego();
+}
+// Antes de colocar, se pide confirmación (se puede desactivar en el juego)
+function gamePropose(z,target){
+  const G=GAME;if(!G||G.done)return;
+  if(target==null){G.msg="Suelta el elemento encima de una casilla.";renderJuego();return}
+  if(PREF.gconfirm===false){gameDrop(z,target);return}
+  G.pending={z,target};G.sel=z;renderJuego();
+  const y=$("#g-yes");y&&y.focus({preventScroll:true});
 }
 function gameDrop(z,target){
   const G=GAME;if(!G||G.done||target==null)return;
   G.hint=null;
   if(target===z){G.placed.add(z);G.sel=null;G.msg=`✓ ${BYZ[z].n}: ¡bien colocado!`;
     if(G.placed.size===G.items.length){pauseGame();G.done=true;G.items.forEach(x=>record(x,!G.errs[x]));
-      const n=G.items.filter(x=>G.errs[x]).length;const prev=GAMEBEST[G.cat];if(prev===undefined||n<prev){GAMEBEST[G.cat]=n;store.set("tp-game-v1",GAMEBEST)}}
+      const n=G.items.filter(x=>G.errs[x]).length;const prev=GAMEBEST[G.cat];if(prev===undefined||n<prev){GAMEBEST[G.cat]=n;store.set("tp-game-v1",GAMEBEST)}
+      if(!n)confetti(60);}
   }else{G.errs[z]=(G.errs[z]||0)+1;G.bad=target;vibrar(60);
     G.msg=`✗ Esa no es la casilla del <b>${BYZ[z].n.toLowerCase()}</b>${BYZ[target]?` (ahí va el ${BYZ[target].n.toLowerCase()})`:""}. Prueba otra vez.`}
   renderJuego();
@@ -1221,7 +1296,7 @@ function cellAt(x,y){
     if(!d.moved){GAME.sel=GAME.sel===d.z?null:d.z;renderJuego();return}
     const target=d.hl?+d.hl.dataset.gz:null;
     stopAutoZoom(d);
-    gameDrop(d.z,target);
+    gamePropose(d.z,target);
   };
   main.addEventListener("pointerup",end);main.addEventListener("pointercancel",ev=>{if(drag){stopAutoZoom(drag);if(drag.ghost)drag.ghost.remove();drag.el.classList.remove("dragging");drag=null}});
 })();
@@ -1307,7 +1382,10 @@ main.addEventListener("click",ev=>{
   if(t.closest("#g-hint")){gameHint();return}
   if(t.closest("#g-time-t")){PREF.gtime=PREF.gtime===false;savePref();renderJuego();return}
   if(t.closest("#g-list")){if(history.state&&history.state.sub){history.back()}else{GAME=null;clearInterval(ticker);renderJuego();SC.scrollTop=0}return}
-  if(b=t.closest(".gwrap [data-gz]")){if(GAME&&GAME.sel)gameDrop(GAME.sel,+b.dataset.gz);return}
+  if(b=t.closest(".gwrap [data-gz]")){if(GAME&&GAME.sel&&!GAME.pending)gamePropose(GAME.sel,+b.dataset.gz);return}
+  if(t.closest("#g-yes")){const p=GAME.pending;GAME.pending=null;gameDrop(p.z,p.target);return}
+  if(t.closest("#g-no")){GAME.pending=null;GAME.sel=null;GAME.msg="Cancelado. Elige otra casilla.";renderJuego();return}
+  if(t.closest("#g-conf-t")){PREF.gconfirm=PREF.gconfirm===false;savePref();renderJuego();return}
   if(b=t.closest("[data-opt]")){answer(+b.dataset.opt);return}
   if(b=t.closest("[data-place]")){if(!b.disabled)answerVal(+b.dataset.place);return}
   if(t.closest("#qz-next")){nextQ();return}
