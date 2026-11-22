@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.1">
+<meta name="app-version" content="1.2">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
@@ -50,9 +50,9 @@ img{max-width:100%}
 }
 html{height:100%;box-sizing:border-box}
 *,*::before,*::after{box-sizing:border-box}
-body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent}
+body{height:100%;height:100dvh;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent}
 button,select,input{font:inherit;color:inherit}
-button{cursor:pointer}
+button{cursor:pointer;touch-action:manipulation}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
@@ -62,12 +62,14 @@ header{flex:none;background:var(--surface);border-bottom:1px solid var(--line)}
 .logo{flex:none;width:40px;height:40px;border-radius:8px;background:var(--c-gn);border:1.5px solid var(--ink);display:grid;grid-template-rows:auto 1fr;padding:2px 4px;line-height:1}
 .logo i{font-style:normal;font:700 9px var(--f-mono)}
 .logo b{font:700 17px var(--f-display);align-self:center;text-align:center}
-.hd h1{font:700 17px/1.15 var(--f-display);margin:0;letter-spacing:-.01em;white-space:nowrap}
+.hd h1{font:700 17px/1.15 var(--f-display);margin:0;letter-spacing:-.01em;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.scope{flex:none}
 .hd h1 small{display:block;font:500 12px var(--f-body);color:var(--muted);letter-spacing:0}
 .hd .sp{flex:1}
 .scope{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .scope label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
-.scope select{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:13px;font-weight:600;max-width:140px}
+.scope select{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:13px;font-weight:600;max-width:150px}
+@media (pointer:coarse){.scope select,.search input{font-size:16px}}
 
 main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .view{max-width:980px;margin:0 auto;padding-block:16px 28px;display:flex;flex-direction:column;gap:18px}
@@ -110,7 +112,7 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
 .pt-scroll{overflow-x:auto;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));padding-bottom:6px;scrollbar-width:thin}
 .pt-wrap{container-type:inline-size}
 .pt{display:grid;grid-template-columns:22px repeat(18,46px);grid-template-rows:20px repeat(7,52px) 12px repeat(2,52px);gap:2px;width:max-content}
-.pt.fit{grid-template-columns:.6fr repeat(18,minmax(0,1fr));grid-template-rows:auto;grid-auto-rows:auto;width:100%;gap:1.5px}
+.pt.fit{grid-template-columns:.5fr repeat(18,minmax(0,1fr));grid-template-rows:auto;grid-auto-rows:auto;width:100%;gap:1.5px}
 .pt.fit .cell,.pt.fit .ph{aspect-ratio:1/1.12}
 .pt.fit .gap-row{height:6px}
 .lbl{font:600 10px var(--f-mono);color:var(--muted);display:flex;align-items:center;justify-content:center}
@@ -121,7 +123,7 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
 .cell .n{font-size:7.5px;margin-top:3px;max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85}
 .pt.fit .cell{border-radius:3px}
 .pt.fit .cell .z,.pt.fit .cell .n{display:none}
-.pt.fit .cell .s{font-size:max(7px,2.5cqi)}
+.pt.fit .cell .s{font-size:max(8px,2.9cqi);letter-spacing:-.04em}
 .cell:active{transform:scale(.94)}
 .cell.dim{opacity:.18}
 .cell.hide-s .s,.cell.hide-s .n{visibility:hidden}
@@ -170,7 +172,8 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
 
 /* Fichas */
 .flash-wrap{display:flex;flex-direction:column;gap:14px;align-items:stretch;max-width:440px;margin:0 auto;width:100%}
-.card3d{perspective:1200px;height:min(56vh,400px);min-height:300px}
+.card3d{perspective:1200px;height:clamp(240px,calc(100dvh - 380px),400px);touch-action:pan-y}
+.card3d .inner.drag{transition:none}
 .card3d .inner{position:relative;width:100%;height:100%;transition:transform .45s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d;cursor:pointer}
 .card3d.flipped .inner{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 10px 30px -18px rgb(10 20 40 / .5);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;gap:8px}
@@ -203,7 +206,7 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
 .opt.ko{border-color:var(--bad);background:var(--bad-soft)}
 .opt.ko .k{background:var(--bad);color:#fff}
 .opt:disabled{cursor:default}
-.feedback{border-radius:14px;padding:12px 14px;font-size:14.5px}
+.feedback{border-radius:14px;padding:12px 14px;font-size:14.5px;scroll-margin-bottom:90px}
 .feedback.ok{background:var(--good-soft)}
 .feedback.ko{background:var(--bad-soft)}
 .feedback strong{display:block;font-family:var(--f-display);font-size:16px;margin-bottom:2px}
@@ -229,6 +232,36 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line)}
 .stack i{display:block;height:100%}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:12px}
 .confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--bad-soft);border-radius:12px;padding:10px 12px}
+
+/* Móvil: más compacto en pantallas pequeñas o bajas */
+@media (max-width:420px){
+  .hd{gap:10px}.hd h1{font-size:16px}.scope select{max-width:122px;padding-inline:6px}
+  .view{gap:14px;padding-block:12px 20px}
+  .hd{padding-block:8px}
+  .pt-wrap.full{margin-inline:-8px}
+  .pt.fit{gap:1px}
+}
+@media (max-height:760px){
+  .qcard{padding:14px 14px;gap:8px}
+  .qbig{font-size:48px;padding:6px 18px}
+  .qname{font-size:26px}
+  .qprompt{font-size:17px}
+  .opt{min-height:48px;padding:10px 12px}
+  .opts{gap:7px}
+}
+/* Barra fija con «Siguiente», siempre a mano */
+.next-bar{position:sticky;bottom:0;z-index:5;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px));background:linear-gradient(to top,var(--bg) 70%,transparent);display:flex;gap:10px}
+.rotate-hint{display:none;font-size:12.5px;color:var(--muted);align-items:center;gap:6px}
+@media (orientation:portrait) and (max-width:500px){.rotate-hint{display:flex}}
+.swipe-hint{font-size:12px;color:var(--muted);text-align:center;margin:-6px 0 0}
+.sheet.drag{transition:none;animation:none}
+/* Móvil en horizontal: cabecera y pestañas compactas y la tabla entera arriba, ajustada al alto */
+@media (orientation:landscape) and (max-height:500px){
+  .hd{padding-block:5px}.logo{width:32px;height:32px}.logo b{font-size:13px}.hd h1 small{display:none}
+  .tab{flex-direction:row;justify-content:center;gap:6px;padding:6px 4px}.tab svg{width:20px;height:20px}
+  .view{padding-block:8px 16px;gap:12px}
+  .pt-wrap.full{order:-1;width:min(100%,calc((100dvh - 100px) * 1.55));margin-inline:auto}
+}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -326,6 +359,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["1.2",["📱 Mejor en el móvil: la tabla entera aprovecha todo el ancho y se lee mejor","👉 En las fichas, desliza la tarjeta: a la derecha si te la sabías, a la izquierda si no","➡️ En el test, el botón «Siguiente» queda siempre a mano, sin tener que bajar","⬇️ La ficha de un elemento se cierra deslizándola hacia abajo o con el botón «atrás» del móvil","🔍 Al buscar ya no se amplía la pantalla en el iPhone"]],
   ["1.1",["🔄 La app se actualiza sola cuando hay una versión nueva, sin cortar un test ni las fichas a medias","📲 Se puede añadir a la pantalla de inicio del móvil, con su propio icono","✈️ Funciona también sin conexión"]],
   ["1.0",["Primera versión: tabla interactiva, fichas, test con 7 tipos de pregunta y progreso"]]
 ];
@@ -380,14 +414,14 @@ function renderTabla(){
     ? `<div class="lvleg">${LVNAME.map((n,i)=>`<span><i style="background:var(--lv${i})"></i>${n}</span>`).join("")}</div>`
     : `<div class="legend">${Object.entries(CATS).map(([k,n])=>`<button class="chip k-${k}" data-cat="${k}" aria-pressed="${filterCat===k}"><span class="sw" style="background:var(--cat)"></span>${n}</button>`).join("")}</div>`;
   main.innerHTML=`<section class="view gut">
-    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Busca por nombre, símbolo o número" autocomplete="off" value="${query}"></div>
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Busca un elemento (Fe, hierro, 26…)" autocomplete="off" value="${query}"></div>
     <div class="results" id="res"></div>
     <div class="row" style="justify-content:space-between">
       <div class="seg" role="group" aria-label="Tamaño"><button data-fit="1" aria-pressed="${PREF.fit}">Entera</button><button data-fit="0" aria-pressed="${!PREF.fit}">Grande</button></div>
       <div class="seg" role="group" aria-label="Color"><button data-color="cat" aria-pressed="${PREF.color==="cat"}">Familias</button><button data-color="lv" aria-pressed="${PREF.color==="lv"}">Mi progreso</button></div>
       <button class="chip t" id="hide" aria-pressed="${PREF.hide}">${PREF.hide?"Mostrar símbolos":"Ocultar símbolos"}</button>
     </div>
-    <div class="pt-scroll"><div class="pt-wrap">${tbl}</div></div>
+    ${PREF.fit?`<div class="pt-wrap full">${tbl}</div><div class="rotate-hint">📱↻ Gira el móvil para ver la tabla más grande, o pulsa «Grande».</div>`:`<div class="pt-scroll"><div class="pt-wrap">${tbl}</div></div>`}
     ${legend}
     <p class="muted" style="margin:0;font-size:13px">Toca un elemento para ver su ficha. ${PREF.hide?"Con los símbolos ocultos, intenta recordar cada casilla antes de tocarla.":"Toca una familia para resaltarla."}</p>
     <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px"><span class="eyebrow">Para memorizar</span><h2>Familias y trucos</h2></div>
@@ -455,9 +489,12 @@ function openSheet(z){
     ${notes.map(n=>`<div class="note">${n}</div>`).join("")}
     <div class="sheet-nav"><button class="btn ghost" data-go="${z-1}" ${z===1?"disabled":""}>← ${z>1?BYZ[z-1].s:""}</button><button class="btn ghost" data-close="1">Cerrar</button><button class="btn ghost" data-go="${z+1}" ${z===118?"disabled":""}>${z<118?BYZ[z+1].s:""} →</button></div>
   </div></div>`;
-  s.hidden=false;
+  s.hidden=false;sheetShown();
 }
-function closeSheet(){const s=$("#sheet");s.hidden=true;s.innerHTML=""}
+function closeSheet(fromPop){const s=$("#sheet");if(s.hidden)return;s.hidden=true;s.innerHTML="";if(!fromPop&&history.state&&history.state.sheet)history.back()}
+function sheetShown(){if(!(history.state&&history.state.sheet))history.pushState({sheet:1},"")}
+addEventListener("popstate",()=>closeSheet(true));
+const vibrar=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
 
 /* ===================== FICHAS ===================== */
 let FL=null;
@@ -489,6 +526,7 @@ function renderFichas(){
       </div>
     </div></div>
     <div class="flash-actions" ${FL.flipped?"":"style=\"visibility:hidden\""}><button class="btn no" id="fl-no">No me la sabía</button><button class="btn yes" id="fl-yes">Me la sabía</button></div>
+    <p class="swipe-hint">${FL.flipped?"También puedes deslizar la tarjeta: ← no me la sabía · me la sabía →":""}</p>
     <p class="muted" style="margin:0;font-size:13px;text-align:center">Sé sincero: las que fallas vuelven a salir más a menudo.</p>
   </div></section>`;
 }
@@ -593,14 +631,14 @@ function renderTest(){
     <div class="qcard"><span class="qtype">${QTYPES[q.t]}</span>${q.show}<div class="qprompt">${q.prompt}</div></div>
     <div class="opts">${q.opts.map((o,i)=>{let c="";if(answered){if(o===q.correct)c=" ok";else if(o===q.picked)c=" ko"}return `<button class="opt${c}" data-opt="${i}" ${answered?"disabled":""}><span class="k">${"ABCD"[i]}</span><span>${optLabel(q,o)}</span></button>`}).join("")}</div>
     ${answered?`<div class="feedback ${q.picked===q.correct?"ok":"ko"}"><strong>${q.picked===q.correct?"¡Correcto!":"No es esa"}</strong>${q.expl}${ORIGIN[q.z]&&(q.t==="n2s"||q.t==="s2n")?" "+ORIGIN[q.z]:""}</div>
-      <div class="row"><button class="btn ghost" style="flex:1" data-z="${q.z}">Ver ficha</button><button class="btn" style="flex:2" id="qz-next">${QZ.i+1<ROUND?"Siguiente":"Ver resultado"}</button></div>`:""}
+      <div class="next-bar"><button class="btn ghost" style="flex:1" data-z="${q.z}">Ver ficha</button><button class="btn" style="flex:2" id="qz-next">${QZ.i+1<ROUND?"Siguiente":"Ver resultado"}</button></div>`:""}
   </div></section>`;
   if(answered){const n=$("#qz-next");n&&n.focus({preventScroll:true})}
 }
 function answer(i){
   const q=QZ.q;if(q.picked!==null)return;
   q.picked=q.opts[i];const ok=q.picked===q.correct;
-  record(q.z,ok);if(ok)QZ.score++;else QZ.miss.push(q.z);
+  record(q.z,ok);if(ok)QZ.score++;else{QZ.miss.push(q.z);vibrar(60)}
   renderTest();
   const fb=document.querySelector(".feedback");fb&&fb.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
@@ -634,7 +672,7 @@ function render(){
 }
 function buildScope(){
   const sel=$("#scope");
-  sel.innerHTML=Object.entries(SCOPES).map(([k,s])=>`<option value="${k}" ${PREF.scope===k?"selected":""}>${s.label} (${E.filter(s.f).length})</option>`).join("");
+  sel.innerHTML=Object.entries(SCOPES).map(([k,s])=>`<option value="${k}" ${PREF.scope===k?"selected":""}>${s.label}</option>`).join("");
 }
 $("#scope").addEventListener("change",ev=>{PREF.scope=ev.target.value;savePref();QZ=null;render()});
 document.querySelector("nav.tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;PREF.tab=b.dataset.tab;savePref();confirmReset=false;render();main.scrollTop=0});
@@ -649,7 +687,7 @@ main.addEventListener("click",ev=>{
   if(b=t.closest("[data-cat]")){filterCat=filterCat===b.dataset.cat?null:b.dataset.cat;renderTabla();return}
   if(t.closest("#hide")){PREF.hide=!PREF.hide;savePref();renderTabla();return}
   if(b=t.closest("[data-dir]")){PREF.dir=b.dataset.dir;savePref();FL.flipped=false;renderFichas();return}
-  if(t.closest("#card")){FL.flipped=!FL.flipped;$("#card").classList.toggle("flipped",FL.flipped);const a=document.querySelector(".flash-actions");if(a)a.style.visibility=FL.flipped?"visible":"hidden";return}
+  if(t.closest("#card")){FL.flipped=!FL.flipped;$("#card").classList.toggle("flipped",FL.flipped);const a=document.querySelector(".flash-actions");if(a)a.style.visibility=FL.flipped?"visible":"hidden";const sh=document.querySelector(".swipe-hint");if(sh)sh.textContent=FL.flipped?"También puedes deslizar la tarjeta: ← no me la sabía · me la sabía →":"";return}
   if(t.closest("#fl-yes")){flashAnswer(true);return}
   if(t.closest("#fl-no")){flashAnswer(false);return}
   if(t.closest("#fl-new")){newDeck();renderFichas();return}
@@ -678,6 +716,24 @@ document.addEventListener("keydown",ev=>{
 });
 buildScope();render();
 
+/* ===================== GESTOS TÁCTILES ===================== */
+// Hoja de detalle: arrastrar hacia abajo para cerrar
+(function(){
+  let y0=null,dy=0,el=null;
+  $("#sheet").addEventListener("touchstart",ev=>{el=ev.target.closest(".sheet");if(!el||el.scrollTop>0){el=null;return}y0=ev.touches[0].clientY;dy=0},{passive:true});
+  $("#sheet").addEventListener("touchmove",ev=>{if(!el)return;dy=ev.touches[0].clientY-y0;if(dy>0){el.classList.add("drag");el.style.transform=`translateY(${dy}px)`}},{passive:true});
+  $("#sheet").addEventListener("touchend",()=>{if(!el)return;el.classList.remove("drag");if(dy>90)closeSheet();else el.style.transform="";el=null});
+})();
+// Fichas: con la tarjeta girada, deslizar a la derecha = me la sabía, a la izquierda = no
+(function(){
+  let x0=null,y0=0,dx=0,inner=null,swiped=false;
+  main.addEventListener("touchstart",ev=>{const c=ev.target.closest("#card");if(!c||!FL||!FL.flipped){inner=null;return}inner=c.querySelector(".inner");x0=ev.touches[0].clientX;y0=ev.touches[0].clientY;dx=0},{passive:true});
+  main.addEventListener("touchmove",ev=>{if(!inner)return;dx=ev.touches[0].clientX-x0;const dy=ev.touches[0].clientY-y0;if(Math.abs(dx)<Math.abs(dy))return;inner.classList.add("drag");inner.style.transform=`rotateY(180deg) translateX(${-dx}px) rotate(${-dx/25}deg)`},{passive:true});
+  main.addEventListener("touchend",()=>{if(!inner)return;inner.classList.remove("drag");inner.style.transform="";if(Math.abs(dx)>80){swiped=true;setTimeout(()=>swiped=false,400);flashAnswer(dx>0);if(dx<0)vibrar(40)}inner=null});
+  // Evita que el toque del deslizamiento cuente también como «dar la vuelta»
+  main.addEventListener("click",ev=>{if(swiped){swiped=false;ev.stopImmediatePropagation();ev.preventDefault()}},true);
+})();
+
 /* ===================== ACTUALIZACIÓN AUTOMÁTICA ===================== */
 function verNovedades(desde){
   const todas=NOVEDADES.filter(([v])=>!desde||verCmp(v,desde)>0);
@@ -688,7 +744,7 @@ function verNovedades(desde){
     <div class="nov">${todas.slice(0,4).map(([v,items])=>`<h4>Versión ${v}</h4><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul>`).join("")}</div>
     <div class="sheet-nav"><button class="btn block" data-close="1">Entendido</button></div>
   </div></div>`;
-  s.hidden=false;
+  s.hidden=false;sheetShown();
 }
 (function(){
   const vista=store.get("tp-version",null);
