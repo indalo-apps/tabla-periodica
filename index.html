@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.3">
+<meta name="app-version" content="1.4">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -306,6 +306,29 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
   .scope select{min-height:44px}
   .sheet-nav .btn{min-height:46px}
 }
+/* Ajustes, tamaño de letra e instalación */
+.gear{flex:none;width:44px;height:44px;border:0;background:none;border-radius:12px;display:grid;place-items:center;color:var(--muted);margin-right:-8px}
+.gear svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.gear:active{background:var(--surface-2)}
+.hd h1 small span{font-family:var(--f-mono);font-size:11px}
+:root[data-fs="s"] main,:root[data-fs="s"] .sheet{zoom:.9}
+:root[data-fs="l"] main,:root[data-fs="l"] .sheet{zoom:1.15}
+:root[data-fs="xl"] main,:root[data-fs="xl"] .sheet{zoom:1.3}
+.set-group{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.set-group .seg{align-self:flex-start;flex-wrap:wrap}
+.preview{font-size:15px;color:var(--muted)}
+.install-banner{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 6px 8px 12px}
+.install-banner .ic{flex:none;width:36px;height:36px;border-radius:9px;overflow:hidden}
+.install-banner .ic img{width:100%;height:100%;display:block}
+.install-banner div{flex:1;min-width:0;font-size:13.5px;line-height:1.3}
+.install-banner b{display:block;font-size:14.5px}
+.install-banner .btn{padding:9px 14px;font-size:14px}
+.install-banner .x{flex:none;width:44px;height:44px;border:0;background:none;color:var(--muted);font-size:20px}
+.steps{margin:12px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.steps li{display:flex;gap:12px;align-items:flex-start;background:var(--surface-2);border-radius:12px;padding:10px 12px;counter-increment:st}
+.steps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 13px var(--f-mono)}
+.steps svg{width:20px;height:20px;vertical-align:-4px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kbd{display:inline-block;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:0 6px;font-weight:600}
 /* Versión y actualización */
 .ver{align-self:center;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;padding:10px}
 .nov h4{font:600 14px var(--f-display);margin:14px 0 4px}
@@ -321,8 +344,9 @@ nav.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);pa
 <header>
   <div class="hd gut">
     <div class="logo" aria-hidden="true"><i>4</i><b>Eso</b></div>
-    <h1>Tabla periódica<small>Repaso 4º ESO</small></h1>
+    <h1>Tabla periódica<small>4º ESO · <span id="hd-ver"></span></small></h1>
     <div class="sp"></div>
+    <button class="gear" id="gear" aria-label="Ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     <div class="scope">
       <label for="scope">Estudiar</label>
       <select id="scope"></select>
@@ -403,6 +427,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["1.4",["⚙️ Nuevo botón de ajustes (arriba a la derecha): tamaño de letra y modo claro u oscuro","🔢 La versión se ve siempre en la cabecera","📲 Instrucciones paso a paso para añadir la app a la pantalla de inicio del iPhone o del Android"]],
   ["1.3",["📍 Nueva pregunta en el test: «Colocar en la tabla». Te dicen un elemento y tocas su casilla en la tabla vacía","🧩 Nuevo modo «Rellenar familias» (en Test): coloca en orden los elementos de cada grupo o periodo, con su truco para memorizar"]],
   ["1.2",["📱 Mejor en el móvil: la tabla entera aprovecha todo el ancho y se lee mejor","👉 En las fichas, desliza la tarjeta: a la derecha si te la sabías, a la izquierda si no","➡️ En el test, el botón «Siguiente» queda siempre a mano, sin tener que bajar","⬇️ La ficha de un elemento se cierra deslizándola hacia abajo o con el botón «atrás» del móvil","🔍 Al buscar ya no se amplía la pantalla en el iPhone"]],
   ["1.1",["🔄 La app se actualiza sola cuando hay una versión nueva, sin cortar un test ni las fichas a medias","📲 Se puede añadir a la pantalla de inicio del móvil, con su propio icono","✈️ Funciona también sin conexión"]],
@@ -460,6 +485,7 @@ function renderTabla(){
     ? `<div class="lvleg">${LVNAME.map((n,i)=>`<span><i style="background:var(--lv${i})"></i>${n}</span>`).join("")}</div>`
     : `<div class="legend">${Object.entries(CATS).map(([k,n])=>`<button class="chip k-${k}" data-cat="${k}" aria-pressed="${filterCat===k}"><span class="sw" style="background:var(--cat)"></span>${n}</button>`).join("")}</div>`;
   main.innerHTML=`<section class="view gut">
+    ${installBannerHTML()}
     <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Busca un elemento (Fe, hierro, 26…)" autocomplete="off" value="${query}"></div>
     <div class="results" id="res"></div>
     <div class="row" style="justify-content:space-between">
@@ -784,7 +810,7 @@ function renderProgreso(){
     ${review.length?`<div class="panel"><h3>A repasar</h3><div class="miss" style="justify-content:flex-start">${review.map(e=>`<button class="k-${e.c}" data-z="${e.z}">${e.s}</button>`).join("")}</div></div>`:""}
     <div class="panel"><h3>Por familias</h3>${cats}</div>
     ${confirmReset?`<div class="confirm"><span style="flex:1;min-width:180px">¿Borrar todo tu progreso? No se puede deshacer.</span><button class="btn ghost" id="rs-no">Cancelar</button><button class="btn" style="background:var(--bad);color:#fff" id="rs-yes">Borrar</button></div>`:`<button class="btn ghost" id="rs" style="align-self:flex-start">Reiniciar progreso</button>`}
-    <button class="ver" id="ver">Versión ${VERSION} · Novedades</button>
+    <button class="ver" id="ver">Ajustes · Versión ${VERSION} · Novedades</button>
   </section>`;
 }
 
@@ -829,7 +855,9 @@ main.addEventListener("click",ev=>{
   if(t.closest("#rs")){confirmReset=true;renderProgreso();return}
   if(t.closest("#rs-no")){confirmReset=false;renderProgreso();return}
   if(t.closest("#rs-yes")){PROG={};saveProg();confirmReset=false;renderProgreso();return}
-  if(t.closest("#ver")){verNovedades(null);return}
+  if(t.closest("#ver")){openSettings();return}
+  if(t.closest("#ib-how")){openInstall();return}
+  if(t.closest("#ib-x")){store.set("tp-install-hide",1);renderTabla();return}
 });
 $("#sheet").addEventListener("click",ev=>{
   const t=ev.target;
@@ -844,7 +872,116 @@ document.addEventListener("keydown",ev=>{
     else if(QZ.q.picked!==null&&ev.key==="Enter"){nextQ();ev.preventDefault()}
   }
 });
-buildScope();render();
+buildScope();
+
+/* ===================== AJUSTES ===================== */
+$("#hd-ver").textContent="v"+VERSION;
+function applyLook(){
+  const r=document.documentElement;
+  r.dataset.fs=PREF.fs||"m";
+  if(PREF.theme&&PREF.theme!=="auto")r.dataset.theme=PREF.theme;else delete r.dataset.theme;
+  const dark=r.dataset.theme==="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme: dark)").matches);
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{m.content=dark?"#17212d":"#ffffff";m.removeAttribute("media")});
+}
+applyLook();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyLook);
+const FS=[["s","Pequeña"],["m","Normal"],["l","Grande"],["xl","Muy grande"]];
+const THEMES=[["auto","Automático"],["light","Claro"],["dark","Oscuro"]];
+function openSettings(){
+  const s=$("#sheet");
+  s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Ajustes">
+    <div class="grab"></div><h2>Ajustes</h2>
+    <div class="set-group"><h3>Tamaño de letra</h3>
+      <div class="seg" role="group" aria-label="Tamaño de letra">${FS.map(([k,l])=>`<button data-fsz="${k}" aria-pressed="${(PREF.fs||"m")===k}">${l}</button>`).join("")}</div>
+      <p class="preview" style="margin:0">Así se verán los textos de la app.</p></div>
+    <div class="set-group"><h3>Aspecto</h3>
+      <div class="seg" role="group" aria-label="Aspecto">${THEMES.map(([k,l])=>`<button data-theme-set="${k}" aria-pressed="${(PREF.theme||"auto")===k}">${l}</button>`).join("")}</div>
+      <p class="muted" style="margin:0;font-size:13px">«Automático» sigue el modo claro u oscuro del móvil.</p></div>
+    <div class="set-group"><h3>Instalar en el móvil</h3>
+      ${isStandalone()?`<p class="muted" style="margin:0">✓ Ya la estás usando como app instalada.</p>`:`<button class="btn ghost" id="set-install" style="align-self:flex-start">📲 Cómo añadirla a la pantalla de inicio</button>`}</div>
+    <div class="set-group"><h3>Versión</h3>
+      <p style="margin:0">Tabla periódica 4º ESO · <b>versión ${VERSION}</b></p>
+      <p class="muted" style="margin:0;font-size:13px">Se actualiza sola cuando hay una versión nueva.</p>
+      <button class="btn ghost" id="set-nov" style="align-self:flex-start">Ver novedades</button></div>
+    <div class="sheet-nav"><button class="btn block" data-close="1">Hecho</button></div>
+  </div></div>`;
+  s.hidden=false;sheetShown();
+}
+$("#gear").addEventListener("click",openSettings);
+$("#sheet").addEventListener("click",ev=>{
+  const t=ev.target;let b;
+  if(b=t.closest("[data-fsz]")){PREF.fs=b.dataset.fsz;savePref();applyLook();document.querySelectorAll("[data-fsz]").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
+  if(b=t.closest("[data-theme-set]")){PREF.theme=b.dataset.themeSet;savePref();applyLook();document.querySelectorAll("[data-theme-set]").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
+  if(t.closest("#set-nov")){verNovedades(null);return}
+  if(t.closest("#set-install")||t.closest("#inst-again")){openInstall();return}
+  if(t.closest("#inst-now")){installNow();return}
+});
+
+/* ===================== INSTALAR EN LA PANTALLA DE INICIO ===================== */
+const UA=navigator.userAgent;
+const IS_IOS=/iPhone|iPad|iPod/.test(UA)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const IS_ANDROID=/Android/.test(UA);
+const IN_APP=/FBAN|FBAV|Instagram|Line\/|; wv\)|GSA\//.test(UA);
+const IOS_OTHER=IS_IOS&&/CriOS|FxiOS|EdgiOS/.test(UA);
+let deferredPrompt=null;
+function isStandalone(){return matchMedia("(display-mode: standalone)").matches||navigator.standalone===true}
+addEventListener("beforeinstallprompt",ev=>{ev.preventDefault();deferredPrompt=ev;if(PREF.tab==="tabla"&&$("#sheet").hidden)renderTabla()});
+addEventListener("appinstalled",()=>{deferredPrompt=null;store.set("tp-install-hide",1);closeSheet();if(PREF.tab==="tabla")renderTabla()});
+function installBannerHTML(){
+  if(isStandalone()||store.get("tp-install-hide",0))return "";
+  if(!IS_IOS&&!IS_ANDROID&&!deferredPrompt)return "";
+  return `<div class="install-banner"><span class="ic"><img src="icon-192.png" alt=""></span>
+    <div><b>Instálala en tu móvil</b>Ábrela desde la pantalla de inicio, como una app.</div>
+    <button class="btn" id="ib-how">${deferredPrompt?"Instalar":"Ver cómo"}</button>
+    <button class="x" id="ib-x" aria-label="No mostrar más">×</button></div>`;
+}
+async function installNow(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  try{await deferredPrompt.userChoice}catch(e){}
+  deferredPrompt=null;
+}
+const SHARE_SVG='<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+const DOTS_SVG='<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
+const PLUS_SVG='<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>';
+function openInstall(){
+  if(deferredPrompt&&!IS_IOS){installNow();return}
+  let body;
+  if(IN_APP){
+    body=`<p style="margin:12px 0 0">Has abierto el enlace dentro de otra app. Para instalarla, ábrela primero en el navegador:</p>
+      <ol class="steps"><li><span>Toca el menú ${DOTS_SVG} o el botón ${SHARE_SVG} de esta pantalla.</span></li>
+      <li><span>Elige <b>«Abrir en ${IS_IOS?"Safari":"Chrome"}»</b> (o «Abrir en el navegador»).</span></li>
+      <li><span>Allí, vuelve a tocar <b>⚙️ → Cómo añadirla a la pantalla de inicio</b>.</span></li></ol>`;
+  }else if(IS_IOS){
+    body=`<p style="margin:12px 0 0">En el iPhone o el iPad, ${IOS_OTHER?"desde este navegador o desde Safari":"desde Safari"}:</p>
+      <ol class="steps">
+      <li><span>Toca el botón <b>Compartir</b> ${SHARE_SVG}. En Safari está en la barra de abajo (o arriba en el iPad). Si no lo ves, toca primero el botón <b>···</b>.</span></li>
+      <li><span>Baja en la lista y elige <b>«Añadir a pantalla de inicio»</b> ${PLUS_SVG}.</span></li>
+      <li><span>Si aparece <b>«Abrir como app web»</b>, déjalo activado. Pulsa <span class="kbd">Añadir</span>.</span></li>
+      <li><span>Listo: el icono <b>Tabla periódica</b> aparecerá en tu pantalla de inicio.</span></li></ol>`;
+  }else if(IS_ANDROID){
+    body=`<p style="margin:12px 0 0">En el móvil Android, con Chrome:</p>
+      <ol class="steps">
+      <li><span>Toca el menú ${DOTS_SVG} (arriba a la derecha).</span></li>
+      <li><span>Elige <b>«Añadir a pantalla de inicio»</b> o <b>«Instalar aplicación»</b>.</span></li>
+      <li><span>Pulsa <span class="kbd">Instalar</span>. El icono aparecerá en tu pantalla de inicio.</span></li></ol>`;
+  }else{
+    body=`<p style="margin:12px 0 0">Está pensada para el móvil: abre este mismo enlace en el teléfono y sigue los pasos que salen allí.</p>
+      <ol class="steps"><li><span>En el ordenador también se puede instalar con Chrome o Edge: busca el icono de instalar ${PLUS_SVG} a la derecha de la barra de direcciones.</span></li></ol>`;
+  }
+  const s=$("#sheet");
+  s.innerHTML=`<div class="sheet-bg" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="Instalar en el móvil">
+    <div class="grab"></div>
+    <div class="el-head"><img src="icon-192.png" alt="" style="width:56px;height:56px;border-radius:13px"><div><h2>Instalar la app</h2><span class="muted" style="font-size:13px">Gratis, sin tienda y sin registrarse</span></div></div>
+    ${body}
+    <p class="muted" style="font-size:13px;margin:12px 0 0">Una vez instalada se abre a pantalla completa, funciona sin conexión y se actualiza sola.</p>
+    <div class="sheet-nav">${deferredPrompt?`<button class="btn" id="inst-now">Instalar ahora</button>`:""}<button class="btn ${deferredPrompt?"ghost":"block"}" data-close="1">Entendido</button></div>
+  </div></div>`;
+  s.hidden=false;sheetShown();
+}
+// Enlace directo a las instrucciones: ...tabla-periodica/?instalar
+if(/[?&]instalar\b/.test(location.search)&&!isStandalone()){history.replaceState(null,"",location.pathname);setTimeout(openInstall,400)}
+render();
 
 /* ===================== GESTOS TÁCTILES ===================== */
 // Hoja de detalle: arrastrar hacia abajo para cerrar
