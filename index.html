@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="5.2">
+<meta name="app-version" content="5.3">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17212d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -612,6 +612,22 @@ body.locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ionchip:disabled{opacity:.25;box-shadow:none}
 .ionchip[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
 .topics .topic:last-child:nth-child(even){grid-column:1/-1;flex-direction:row;align-items:center;min-height:0;gap:12px}
+.k-poly{--cat:color-mix(in srgb,var(--accent) 22%,var(--surface))}
+
+/* Moles */
+.molform{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.molform label{min-width:0;display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+.molform input{width:100%;min-width:0;min-height:48px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:600 18px var(--f-body);padding:0 12px}
+.molform input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.molbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.molbox .lab-f{text-align:center;margin-bottom:4px}
+.mrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;padding:4px 0;border-bottom:1px dashed var(--line);font-size:14.5px}
+.mrow span:nth-child(2){color:var(--muted);text-align:right}
+.mrow.tot{border-bottom:0;font-size:16px}
+.mrow.tot b{color:var(--accent)}
+.mrow:last-child{border-bottom:0}
+.note.disc{background:var(--surface-2);border:1px solid var(--line)}
+.note.disc.w{background:color-mix(in srgb,#c026d3 12%,var(--surface));border-color:color-mix(in srgb,#c026d3 35%,var(--line))}
 </style>
 </head>
 <body>
@@ -706,6 +722,7 @@ const SCOPES={
 const VERSION=(document.querySelector('meta[name="app-version"]')||{}).content||"dev";
 // Lo que trae cada versión (lo más nuevo, arriba)
 const NOVEDADES=[
+  ["5.3",["⚛️ Ficha: protones, neutrones y electrones del isótopo más común; nuevas preguntas de partículas en «El átomo»","⚗️ Formular: hidróxidos, oxosales (nitratos, carbonatos, sulfatos, fosfatos) y ácidos (HCl, H₂SO₄…)","⚖️ Nuevo tema «Moles»: calcula la masa molar de cualquier fórmula y pasa de gramos a moles y partículas, con ejercicios","👩‍🔬 Ficha: quién descubrió cada elemento, destacando a las científicas"]],
   ["5.2",["⚗️ Formular: solo compuestos habituales (sin nitruros ni fosfuros de metales de transición, ni CuF, CuI₂ o FeI₃); los aniones que no combinan aparecen apagados"]],
   ["5.1",["⚗️ Nuevo: «Formular» en Ponte a prueba. Elige un catión y un anión y verás la fórmula, el nombre y cómo se compensan las cargas (Ca²⁺ + 2 Cl⁻ → CaCl₂)","❓ Preguntas de formulación: fórmula a partir del nombre, compuesto que forman dos iones y nombre a partir de la fórmula"]],
   ["5.0",["🎯 «Ponte a prueba» más fácil: toca un tema y empieza (Todo mezclado, Nombres y símbolos, Posición, Familias, El átomo, Propiedades o Rellenar familias)","⚙︎ Para combinar tipos de pregunta, «Hacer una ronda a mi medida»"]],
@@ -1022,67 +1039,173 @@ function openTableOpts(){
 })();
 
 
-/* ===================== FORMULACIÓN (compuestos iónicos binarios) ===================== */
+/* ===================== FORMULACIÓN (compuestos iónicos, ternarios y ácidos) ===================== */
 const SUBS="₀₁₂₃₄₅₆₇₈₉",subn=n=>n>1?String(n).split("").map(d=>SUBS[d]).join(""):"";
-// [Z, carga] de los cationes y aniones más habituales en 4º ESO
-const CATIONS=[[3,1],[11,1],[19,1],[4,2],[12,2],[20,2],[38,2],[56,2],[13,3],[30,2],[47,1],[26,2],[26,3],[29,1],[29,2],[82,2]];
-const ANIONS=[[9,-1],[17,-1],[35,-1],[53,-1],[8,-2],[16,-2],[7,-3],[15,-3]];
+const fsub=t=>t.replace(/\d+/g,m=>String(m).split("").map(d=>SUBS[d]).join(""));
+// Cationes [Z, carga] (el H⁺ va al final, para los ácidos)
+const CATIONS=[[3,1],[11,1],[19,1],[4,2],[12,2],[20,2],[38,2],[56,2],[13,3],[30,2],[47,1],[26,2],[26,3],[29,1],[29,2],[82,2],[1,1]];
+// Aniones monoatómicos y poliatómicos (oxoaniones e hidróxido)
+const ANIONS=[
+  {z:9,q:-1,f:"F",name:"fluoruro"},{z:17,q:-1,f:"Cl",name:"cloruro"},{z:35,q:-1,f:"Br",name:"bromuro"},{z:53,q:-1,f:"I",name:"yoduro"},
+  {z:8,q:-2,f:"O",name:"óxido"},{z:16,q:-2,f:"S",name:"sulfuro"},{z:7,q:-3,f:"N",name:"nitruro"},{z:15,q:-3,f:"P",name:"fosfuro"},
+  {poly:1,q:-1,f:"OH",name:"hidróxido"},{poly:1,q:-1,f:"NO3",name:"nitrato",acid:"nítrico"},{poly:1,q:-2,f:"CO3",name:"carbonato",acid:"carbónico"},
+  {poly:1,q:-2,f:"SO4",name:"sulfato",acid:"sulfúrico"},{poly:1,q:-3,f:"PO4",name:"fosfato",acid:"fosfórico"}];
+const anS=a=>fsub(a.f),anCls=a=>a.poly?"k-poly":"k-"+BYZ[a.z].c,anLabel=a=>anS(a)+ionSup(a.q);
 const VARIA=new Set([26,29,82]),ROM=["","I","II","III","IV"];
 const gcd=(a,b)=>b?gcd(b,a%b):a;
-// Solo compuestos habituales: nitruros y fosfuros solo con metales de los grupos 1, 2 y aluminio; sin CuF, CuI₂ ni FeI₃ (inestables)
-const RARE=new Set(["29,1,9","29,2,53","26,3,53"]);
-function okPair(cz,cq,az){if((az===7||az===15)&&!(BYZ[cz].g<=2||cz===13))return false;return !RARE.has(cz+","+cq+","+az)}
-const PAIRS=CATIONS.flatMap(([cz,cq],ci)=>ANIONS.map(([az,aq],ai)=>[ci,ai]).filter(([ci2,ai])=>okPair(cz,cq,ANIONS[ai][0])));
 const catLabel=(z,q)=>BYZ[z].s+ionSup(q),catName=(z,q)=>BYZ[z].n.toLowerCase()+(VARIA.has(z)?"("+ROM[q]+")":"");
-function compound(cz,cq,az,aq){const A=-aq,g=gcd(cq,A),nc=A/g,na=cq/g;
-  return {cz,cq,az,aq,nc,na,formula:BYZ[cz].s+subn(nc)+BYZ[az].s+subn(na),name:ANION[az]+" de "+catName(cz,cq)}}
+// Solo compuestos habituales en 4º ESO
+const RARE=new Set(["29,1,F","29,2,I","26,3,I","47,1,OH","26,3,CO3","13,3,CO3","4,2,P","4,2,CO3"]);
+function okPair(ci,ai){const [cz,cq]=CATIONS[ci],a=ANIONS[ai];
+  if(cz===1)return a.poly?!!a.acid:(a.q===-1||a.f==="S");
+  if(!a.poly&&(a.f==="N"||a.f==="P")&&!(BYZ[cz].g<=2||cz===13))return false;
+  if(a.poly&&cz===29&&cq===1)return false;
+  return !RARE.has(cz+","+cq+","+a.f)}
+const PAIRS=[];CATIONS.forEach((c,ci)=>ANIONS.forEach((a,ai)=>{if(okPair(ci,ai))PAIRS.push([ci,ai])}));
+const fmla=(cz,a,nc,na)=>BYZ[cz].s+subn(nc)+(a.poly&&na>1?"("+anS(a)+")"+subn(na):anS(a)+subn(na));
+function compound(ci,ai){const [cz,cq]=CATIONS[ci],a=ANIONS[ai],A=-a.q,g=gcd(cq,A),nc=A/g,na=cq/g;
+  const name=cz===1?(a.poly?"ácido "+a.acid:a.name+" de hidrógeno"):a.name+" de "+catName(cz,cq);
+  return {ci,ai,cz,cq,a,nc,na,formula:fmla(cz,a,nc,na),name}}
 const fNum=n=>n>1?n+" ":"";
-function compExpl(k){const c=catLabel(k.cz,k.cq),a=catLabel(k.az,k.aq);
-  return `${c} tiene carga +${k.cq} y ${a} tiene carga −${-k.aq}. Para que el total sea 0 hacen falta ${k.nc} ${k.nc>1?"cationes":"catión"} y ${k.na} ${k.na>1?"aniones":"anión"}: ${k.nc}·(+${k.cq}) + ${k.na}·(−${-k.aq}) = 0 → <b>${k.formula}</b>, ${k.name}.`}
+const cap=t=>t[0].toUpperCase()+t.slice(1);
+function compExpl(k){const c=catLabel(k.cz,k.cq),a=anLabel(k.a),aq=-k.a.q;
+  let t=`${c} tiene carga +${k.cq} y ${a} tiene carga −${aq}. Para que el total sea 0 hacen falta ${k.nc} ${k.nc>1?"cationes":"catión"} y ${k.na} ${k.na>1?"aniones":"anión"}: ${k.nc}·(+${k.cq}) + ${k.na}·(−${aq}) = 0 → <b>${k.formula}</b>, ${k.name}.`;
+  if(k.a.poly&&k.na>1)t+=` El paréntesis indica que el grupo ${anS(k.a)} se repite ${k.na} veces.`;
+  if(k.cz===1&&k.a.poly)t+=` Los oxoácidos se nombran «ácido» + la raíz del anión terminada en -ico (${k.a.name} → ${k.a.acid}).`;
+  return t}
 function buildForm(){
-  const [pci,pai]=PAIRS[Math.floor(Math.random()*PAIRS.length)],[cz,cq]=CATIONS[pci],[az,aq]=ANIONS[pai];
-  const k=compound(cz,cq,az,aq),v=Math.floor(Math.random()*3);
-  const fm=(a,b)=>BYZ[cz].s+subn(a)+BYZ[az].s+subn(b);
-  const wrongF=[fm(1,1),fm(k.na,k.nc),fm(-aq,cq),fm(cq,-aq),fm(k.nc+1,k.na),fm(k.nc,k.na+1),fm(k.nc*2,k.na),fm(k.nc,k.na*2),fm(1,2),fm(2,1),fm(1,3),fm(3,1),fm(2,3),fm(3,2)].filter(x=>x!==k.formula);
-  const tile=(z,q)=>`<div class="qbig k-${BYZ[z].c}" style="font-size:40px;padding:6px 14px">${catLabel(z,q)}</div>`;
+  const [ci,ai]=PAIRS[Math.floor(Math.random()*PAIRS.length)],k=compound(ci,ai),{cz,cq,a}=k,v=Math.floor(Math.random()*3);
+  const fm=(x,y)=>fmla(cz,a,x,y);
+  const wrongF=[fm(1,1),fm(k.na,k.nc),fm(-a.q,cq),fm(cq,-a.q),fm(k.nc+1,k.na),fm(k.nc,k.na+1),fm(k.nc*2,k.na),fm(k.nc,k.na*2),fm(1,2),fm(2,1),fm(1,3),fm(3,1),fm(2,3),fm(3,2)];
+  if(a.poly&&k.na>1)wrongF.unshift(BYZ[cz].s+subn(k.nc)+anS(a)+subn(k.na));
+  const tileC=`<div class="qbig k-${BYZ[cz].c}" style="font-size:40px;padding:6px 14px">${catLabel(cz,cq)}</div>`,tileA=`<div class="qbig ${anCls(a)}" style="font-size:40px;padding:6px 14px">${anLabel(a)}</div>`;
   let prompt,show,opts,correct;
   if(v===2){
-    correct=k.name;show=`<div class="qbig" style="font-size:44px;padding:6px 18px;background:var(--surface-2)">${k.formula}</div>`;prompt="¿Cómo se llama este compuesto?";
-    const alt=[...CATIONS.filter(([z,q])=>z===cz&&q!==cq).map(([z,q])=>compound(z,q,az,aq).name),
-      ...ANIONS.filter(([z])=>z!==az).map(([z,q])=>ANION[z]+" de "+catName(cz,cq)),
-      ...CATIONS.filter(([z])=>z!==cz).map(([z,q])=>ANION[az]+" de "+catName(z,q))];
-    opts=[correct,...pickOthers(correct,alt,3,alt.slice(0,4))];
+    correct=k.name;show=`<div class="qbig" style="font-size:40px;padding:6px 18px;background:var(--surface-2)">${k.formula}</div>`;prompt="¿Cómo se llama este compuesto?";
+    const CONF={sulfato:"sulfuro",sulfuro:"sulfato",nitrato:"nitruro",nitruro:"nitrato",fosfato:"fosfuro",fosfuro:"fosfato","hidróxido":"óxido","óxido":"hidróxido"};
+    const near=[];if(CONF[a.name]&&cz!==1)near.push(CONF[a.name]+" de "+catName(cz,cq));
+    CATIONS.forEach(([z,q])=>{if(z===cz&&q!==cq)near.push(a.name+" de "+catName(z,q))});
+    const alt=cz===1?ANIONS.filter(x=>x!==a&&(x.acid||x.q===-1)).map(x=>x.acid?"ácido "+x.acid:x.name+" de hidrógeno")
+      :[...ANIONS.filter(x=>x!==a).map(x=>x.name+" de "+catName(cz,cq)),...CATIONS.filter(([z])=>z!==cz&&z!==1).map(([z,q])=>a.name+" de "+catName(z,q))];
+    opts=[correct,...pickOthers(correct,[...near,...alt],3,near)];
   }else{
     correct=k.formula;
-    if(v===0){show=`<div class="qname" style="font-size:24px">${k.name[0].toUpperCase()+k.name.slice(1)}</div>`;prompt="¿Cuál es su fórmula?"}
-    else{show=`<div style="display:flex;gap:12px;align-items:center">${tile(cz,cq)}<span class="muted" style="font-weight:700">+</span>${tile(az,aq)}</div>`;prompt="¿Qué compuesto forman estos iones?"}
-    opts=[correct,...pickOthers(correct,[...new Set(wrongF)],3)];
+    if(v===0){show=`<div class="qname" style="font-size:24px">${cap(k.name)}</div>`;prompt="¿Cuál es su fórmula?"}
+    else{show=`<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center">${tileC}<span class="muted" style="font-weight:700">+</span>${tileA}</div>`;prompt="¿Qué compuesto forman estos iones?"}
+    opts=[correct,...pickOthers(correct,[...new Set(wrongF)].filter(x=>x!==correct),3,a.poly&&k.na>1?[wrongF[0]]:null)];
   }
   return {t:"form",z:cz,prompt,show,opts:shuffle(opts.slice(0,4)),correct,expl:compExpl(k),picked:null,mono:false,noRec:true};
 }
 function renderLab(){
   const ci=Math.min(PREF.fc??5,CATIONS.length-1);let ai=Math.min(PREF.fa??1,ANIONS.length-1);
-  if(!okPair(CATIONS[ci][0],CATIONS[ci][1],ANIONS[ai][0])){ai=ANIONS.findIndex(([z])=>okPair(CATIONS[ci][0],CATIONS[ci][1],z));PREF.fa=ai;savePref()}
-  const [cz,cq]=CATIONS[ci],[az,aq]=ANIONS[ai],k=compound(cz,cq,az,aq);
-  const chip=(z,q,i,kind,on,off)=>`<button class="ionchip k-${BYZ[z].c}" data-${kind}="${i}" aria-pressed="${on}" ${off?"disabled":""} aria-label="${kind==="fc"?"Catión "+catName(z,q):"Anión "+ANION[z]}">${catLabel(z,q)}</button>`;
-  const tok=(n,z,q)=>Array.from({length:n},()=>`<span class="tok k-${BYZ[z].c}">${catLabel(z,q)}</span>`).join("");
+  if(!okPair(ci,ai)){ai=ANIONS.findIndex((x,i)=>okPair(ci,i));PREF.fa=ai;savePref()}
+  const k=compound(ci,ai),[cz,cq]=CATIONS[ci],a=ANIONS[ai];
+  const cchip=([z,q],i)=>`<button class="ionchip k-${BYZ[z].c}" data-fc="${i}" aria-pressed="${i===ci}" aria-label="Catión ${z===1?"hidrógeno":catName(z,q)}">${catLabel(z,q)}</button>`;
+  const achip=(x,i)=>`<button class="ionchip ${anCls(x)}" data-fa="${i}" aria-pressed="${i===ai}" ${okPair(ci,i)?"":"disabled"} aria-label="Anión ${x.name}">${anLabel(x)}</button>`;
+  const tokC=Array.from({length:k.nc},()=>`<span class="tok k-${BYZ[cz].c}">${catLabel(cz,cq)}</span>`).join(""),tokA=Array.from({length:k.na},()=>`<span class="tok ${anCls(a)}">${anLabel(a)}</span>`).join("");
   main.innerHTML=`<section class="view gut"><div class="quiz">
-    <div class="tmhead"><div><span class="eyebrow">Compuestos iónicos</span><h2>Formular</h2></div><button class="xexit" id="tm-home" aria-label="Volver a los temas">✕</button></div>
-    <p class="muted" style="margin:0">Elige un catión (metal) y un anión (no metal). Se unen en la proporción justa para que las cargas sumen 0.</p>
+    <div class="tmhead"><div><span class="eyebrow">Compuestos iónicos y ácidos</span><h2>Formular</h2></div><button class="xexit" id="tm-home" aria-label="Volver a los temas">✕</button></div>
+    <p class="muted" style="margin:0">Elige un catión (un metal o el hidrógeno) y un anión. Se unen en la proporción justa para que las cargas sumen 0.</p>
     <div class="labres k-${BYZ[cz].c}" role="status" aria-live="polite">
       <div class="lab-f">${k.formula}</div>
-      <div class="lab-n">${k.name[0].toUpperCase()+k.name.slice(1)}</div>
-      <div class="lab-toks">${tok(k.nc,cz,cq)}${tok(k.na,az,aq)}</div>
-      <p class="lab-e">${fNum(k.nc)}${catLabel(cz,cq)} + ${fNum(k.na)}${catLabel(az,aq)} → ${k.formula}<br><span class="muted">Cargas: ${k.nc}·(+${cq}) + ${k.na}·(−${-aq}) = 0</span></p>
+      <div class="lab-n">${cap(k.name)}</div>
+      <div class="lab-toks">${tokC}${tokA}</div>
+      <p class="lab-e">${fNum(k.nc)}${catLabel(cz,cq)} + ${fNum(k.na)}${anLabel(a)} → ${k.formula}<br><span class="muted">Cargas: ${k.nc}·(+${cq}) + ${k.na}·(−${-a.q}) = 0</span></p>
     </div>
-    <div class="qgroup"><span class="ctl-l">1. Catión (metal)</span><div class="ionrow">${CATIONS.map(([z,q],i)=>chip(z,q,i,"fc",i===ci)).join("")}</div></div>
-    <div class="qgroup"><span class="ctl-l">2. Anión (no metal)</span><div class="ionrow">${ANIONS.map(([z,q],i)=>chip(z,q,i,"fa",i===ai,!okPair(cz,cq,z))).join("")}</div></div>
-    <p class="muted" style="margin:0;font-size:13px">Los aniones apagados no forman un compuesto habitual con ese metal. Los números romanos, como en hierro(III), indican la carga del metal cuando puede tener más de una.</p>
+    <div class="qgroup"><span class="ctl-l">1. Catión</span><div class="ionrow">${CATIONS.map(cchip).join("")}</div></div>
+    <div class="qgroup"><span class="ctl-l">2. Anión de un solo elemento (-uro, óxido)</span><div class="ionrow">${ANIONS.map((x,i)=>x.poly?"":achip(x,i)).join("")}</div></div>
+    <div class="qgroup"><span class="ctl-l">Anión de varios elementos (-ato, hidróxido)</span><div class="ionrow">${ANIONS.map((x,i)=>x.poly?achip(x,i):"").join("")}</div></div>
+    <p class="muted" style="margin:0;font-size:13px">Los aniones apagados no forman un compuesto habitual con ese catión. Los números romanos, como en hierro(III), indican la carga del metal cuando puede tener más de una. Con H⁺ se forman los ácidos: HCl (cloruro de hidrógeno), H₂SO₄ (ácido sulfúrico)…</p>
     <button class="btn block" id="lab-quiz">Ponerme a prueba: 10 fórmulas</button>
   </div></section>`;
 }
 
+/* ===================== CANTIDAD DE SUSTANCIA (MOL) ===================== */
+// Masas atómicas redondeadas, como se usan en clase (Cl = 35,5 y Cu = 63,5)
+const MR=z=>z===17?35.5:z===29?63.5:Math.round(parseFloat(String(BYZ[z].m).replace(/[()]/g,"")));
+const BYS={};E.forEach(e=>BYS[e.s]=e);
+const NA_TXT="6,022·10²³";
+const fmtN=x=>{const r=Math.round(x*100)/100;return String(r).replace(".",",")};
+function fmtSci(x){if(!x)return "0";const ex=Math.floor(Math.log10(x)),m=x/10**ex;let mm=Math.round(m*100)/100;let e2=ex;if(mm>=10){mm=mm/10;e2++}return String(mm.toFixed(2)).replace(".",",")+"·10"+sup(e2)}
+// Lee una fórmula como «Ca(OH)2» o «C6H12O6»; devuelve [[símbolo, nº de átomos], …] o null
+function parseFormula(t){
+  t=String(t||"").replace(/[₀-₉]/g,c=>"₀₁₂₃₄₅₆₇₈₉".indexOf(c)).replace(/\s+/g,"");if(!t)return null;
+  let i=0;
+  function group(){const out=new Map();
+    while(i<t.length){const c=t[i];
+      if(c==="("){i++;const g=group();if(t[i]!==")")throw 0;i++;const n=num();g.forEach((v,k)=>out.set(k,(out.get(k)||0)+v*n))}
+      else if(c===")")break;
+      else{const m=t.slice(i).match(/^[A-Z][a-z]?/);if(!m||!BYS[m[0]])throw 0;i+=m[0].length;const n=num();out.set(m[0],(out.get(m[0])||0)+n)}}
+    return out}
+  function num(){const m=t.slice(i).match(/^\d+/);if(!m)return 1;i+=m[0].length;return +m[0]}
+  try{const g=group();if(i!==t.length||!g.size)return null;return [...g.entries()]}catch(e){return null}
+}
+const molarMass=parts=>parts.reduce((s,[x,n])=>s+MR(BYS[x].z)*n,0);
+const prettyF=t=>fsub(String(t));
+// Compuestos frecuentes en los ejercicios [fórmula, nombre, ¿molecular?]
+const COMMON=[["H2O","agua",1],["CO2","dióxido de carbono",1],["NH3","amoniaco",1],["CH4","metano",1],["O2","oxígeno (O₂)",1],["HCl","cloruro de hidrógeno",1],["H2SO4","ácido sulfúrico",1],["C6H12O6","glucosa",1],
+  ["NaCl","cloruro de sodio",0],["NaOH","hidróxido de sodio",0],["CaCO3","carbonato de calcio",0],["Fe2O3","óxido de hierro(III)",0],["MgO","óxido de magnesio",0],["Ca(OH)2","hidróxido de calcio",0]];
+function molBreak(parts){return parts.map(([x,n])=>`<div class="mrow"><span>${n} ${x}</span><span>${n} × ${fmtN(MR(BYS[x].z))}</span><b>${fmtN(n*MR(BYS[x].z))}</b></div>`).join("")}
+function buildMol(){
+  const pick=(arr)=>arr[Math.floor(Math.random()*arr.length)];
+  let v=Math.floor(Math.random()*4);
+  const list=v===3?COMMON.filter(c=>c[2]):COMMON;
+  const [f,nm]=pick(list),parts=parseFormula(f),M=molarMass(parts),F=prettyF(f);
+  const n=pick(v===0||v===3?[0.5,1,2,3,4,0.25,5]:[0.5,2,3,4,0.25,5]),m=n*M;
+  const show=`<div class="qbig" style="font-size:40px;padding:6px 18px;background:var(--surface-2)">${F}</div><div class="muted">${nm}</div>`;
+  let prompt,correct,alts,expl;
+  const noSub=parts.reduce((s,[x])=>s+MR(BYS[x].z),0);
+  if(v===0){prompt="¿Cuál es su masa molar?";correct=fmtN(M)+" g/mol";
+    alts=[noSub,M+16,M-1,M*2,M+12,M-16,M+2].filter(x=>x>0&&Math.abs(x-M)>.01).map(x=>fmtN(x)+" g/mol");
+    expl=`Se suman las masas de todos los átomos: ${parts.map(([x,k])=>`${k>1?k+"·":""}${fmtN(MR(BYS[x].z))} (${x})`).join(" + ")} = <b>${fmtN(M)} g/mol</b>.`}
+  else if(v===1){prompt=`¿Cuántos moles hay en ${fmtN(m)} g?`;correct=fmtN(n)+" mol";
+    alts=[n*2,n/2,M/m,n+1,n*4,m/(noSub)].filter(x=>x>0&&Math.abs(x-n)>.001).map(x=>fmtN(x)+" mol");
+    expl=`M = ${fmtN(M)} g/mol. n = m / M = ${fmtN(m)} / ${fmtN(M)} = <b>${fmtN(n)} mol</b>.`}
+  else if(v===2){prompt=`¿Cuántos gramos son ${fmtN(n)} mol?`;correct=fmtN(m)+" g";
+    alts=[M,M/n,m*2,n*noSub,m+M,m/2].filter(x=>x>0&&Math.abs(x-m)>.01).map(x=>fmtN(x)+" g");
+    expl=`M = ${fmtN(M)} g/mol. m = n · M = ${fmtN(n)} · ${fmtN(M)} = <b>${fmtN(m)} g</b>.`}
+  else{prompt=`¿Cuántas moléculas hay en ${fmtN(n)} mol?`;const N=n*6.022e23;correct=fmtSci(N);
+    alts=[6.022e23,N*2,N/2,n*6.022e22,N*10,M*6.022e23*n].filter(x=>Math.abs(x-N)/N>.01).map(fmtSci);
+    expl=`Cada mol tiene ${NA_TXT} moléculas (número de Avogadro). N = ${fmtN(n)} · ${NA_TXT} = <b>${fmtSci(N)}</b> moléculas.`}
+  const opts=[correct,...pickOthers(correct,[...new Set(alts)].filter(x=>x!==correct),3)];
+  const unit=correct.replace(/^[\d,·⁰¹²³⁴⁵⁶⁷⁸⁹]+/,"");const base=parseFloat(correct.replace(",","."));
+  for(let k=3;opts.length<4&&k<12;k++){const x=fmtN(base*k)+unit;if(!opts.includes(x))opts.push(x)}
+  return {t:"mol",z:BYS[parts[0][0]].z,prompt,show,opts:shuffle(opts.slice(0,4)),correct,expl,picked:null,mono:false,noRec:true};
+}
+function molResult(){
+  const f=$("#mol-f"),g=$("#mol-g"),out=$("#mol-out");if(!f||!out)return;
+  PREF.molf=f.value;PREF.molg=g.value;savePref();
+  const parts=parseFormula(f.value);
+  if(!parts){out.innerHTML=`<p class="muted" style="margin:0">Escribe una fórmula válida, por ejemplo H2O, CaCO3 o Ca(OH)2. Respeta mayúsculas y minúsculas: Co es cobalto y CO, monóxido de carbono.</p>`;return}
+  const M=molarMass(parts),m=parseFloat(String(g.value).replace(",","."));
+  let h=`<div class="molbox"><div class="lab-f" style="font-size:36px">${prettyF(f.value)}</div>${molBreak(parts)}<div class="mrow tot"><span>Masa molar</span><span></span><b>${fmtN(M)} g/mol</b></div></div>`;
+  if(m>0){const n=m/M;h+=`<div class="molbox"><div class="mrow"><span>Moles</span><span>n = m / M = ${fmtN(m)} / ${fmtN(M)}</span><b>${fmtN(n)} mol</b></div><div class="mrow"><span>Partículas</span><span>N = n · ${NA_TXT}</span><b>${fmtSci(n*6.022e23)}</b></div></div>`}
+  out.innerHTML=h;
+}
+function renderMol(){
+  main.innerHTML=`<section class="view gut"><div class="quiz">
+    <div class="tmhead"><div><span class="eyebrow">Cantidad de sustancia</span><h2>Moles</h2></div><button class="xexit" id="tm-home" aria-label="Volver a los temas">✕</button></div>
+    <p class="muted" style="margin:0">Escribe una fórmula para calcular su masa molar y, si quieres, los gramos para pasar a moles y partículas.</p>
+    <div class="molform"><label>Fórmula<input id="mol-f" autocomplete="off" autocapitalize="off" spellcheck="false" value="${(PREF.molf||"H2O").replace(/"/g,"")}"></label><label>Gramos<input id="mol-g" inputmode="decimal" value="${(PREF.molg??"36").toString().replace(/"/g,"")}"></label></div>
+    <div class="ionrow">${COMMON.map(([f])=>`<button class="chip rect" data-molf="${f}">${prettyF(f)}</button>`).join("")}</div>
+    <div id="mol-out" role="status" aria-live="polite"></div>
+    <p class="muted" style="margin:0;font-size:13px">Masas atómicas redondeadas, como en clase (H = 1, C = 12, O = 16, Cl = 35,5…). n = m / M · 1 mol = ${NA_TXT} partículas.</p>
+    <button class="btn block" id="mol-quiz">Ponerme a prueba: 10 ejercicios</button>
+  </div></section>`;
+  molResult();
+}
+
+/* Quién descubrió cada elemento (👩‍🔬 = participó o se honra a una científica) */
+const DISC={"1": "Henry Cavendish, 1766", "2": "Pierre Janssen y Norman Lockyer, en la luz del Sol, 1868", "3": "Johan August Arfwedson, 1817", "4": "Louis-Nicolas Vauquelin, 1798", "5": "Gay-Lussac y Thénard, y Humphry Davy, 1808", "6": "Conocido desde la Antigüedad", "7": "Daniel Rutherford, 1772", "8": "Carl Wilhelm Scheele y Joseph Priestley, 1771–1774", "9": "Henri Moissan lo aisló en 1886", "10": "William Ramsay y Morris Travers, 1898", "11": "Humphry Davy, 1807", "12": "Humphry Davy lo aisló en 1808", "13": "Hans Christian Ørsted, 1825", "14": "Jöns Jacob Berzelius, 1824", "15": "Hennig Brand, 1669", "16": "Conocido desde la Antigüedad", "17": "Carl Wilhelm Scheele, 1774", "18": "Lord Rayleigh y William Ramsay, 1894", "19": "Humphry Davy, 1807", "20": "Humphry Davy, 1808", "21": "Lars Fredrik Nilson, 1879", "22": "William Gregor, 1791", "23": "Andrés Manuel del Río, en México, 1801 (redescubierto por Nils Sefström en 1830)", "24": "Louis-Nicolas Vauquelin, 1797", "25": "Johan Gottlieb Gahn, 1774", "26": "Conocido desde la Antigüedad", "27": "Georg Brandt, 1735", "28": "Axel Fredrik Cronstedt, 1751", "29": "Conocido desde la Antigüedad", "30": "Conocido en la India desde la Edad Media; Andreas Marggraf lo aisló en Europa en 1746", "31": "Paul-Émile Lecoq de Boisbaudran, 1875", "32": "Clemens Winkler, 1886", "33": "Alberto Magno, hacia 1250", "34": "Jöns Jacob Berzelius, 1817", "35": "Antoine-Jérôme Balard y Carl Löwig, 1825–1826", "36": "William Ramsay y Morris Travers, 1898", "37": "Robert Bunsen y Gustav Kirchhoff, 1861", "38": "Adair Crawford, 1790 (Humphry Davy lo aisló en 1808)", "39": "Johan Gadolin, 1794", "40": "Martin Heinrich Klaproth, 1789", "41": "Charles Hatchett, 1801", "42": "Carl Wilhelm Scheele, 1778", "43": "Carlo Perrier y Emilio Segrè, 1937: el primer elemento obtenido artificialmente", "44": "Karl Ernst Claus, 1844", "45": "William Hyde Wollaston, 1803", "46": "William Hyde Wollaston, 1802", "47": "Conocido desde la Antigüedad", "48": "Friedrich Stromeyer, 1817", "49": "Ferdinand Reich y Theodor Richter, 1863", "50": "Conocido desde la Antigüedad", "51": "Conocido desde la Antigüedad", "52": "Franz-Joseph Müller von Reichenstein, 1782", "53": "Bernard Courtois, 1811", "54": "William Ramsay y Morris Travers, 1898", "55": "Robert Bunsen y Gustav Kirchhoff, 1860", "56": "Humphry Davy lo aisló en 1808", "57": "Carl Gustaf Mosander, 1839", "58": "Jöns Jacob Berzelius y Wilhelm Hisinger, y Martin Klaproth, 1803", "61": "Jacob Marinsky, Lawrence Glendenin y Charles Coryell, 1945", "62": "Paul-Émile Lecoq de Boisbaudran, 1879", "63": "Eugène-Anatole Demarçay, 1901", "64": "Jean Charles Galissard de Marignac, 1880", "72": "Dirk Coster y George de Hevesy, 1923", "73": "Anders Gustaf Ekeberg, 1802", "74": "Los hermanos Juan José y Fausto Elhuyar, en Bergara (España), 1783", "75": "Ida Noddack, Walter Noddack y Otto Berg, 1925", "76": "Smithson Tennant, 1803", "77": "Smithson Tennant, 1803", "78": "El español Antonio de Ulloa lo describió en 1748", "79": "Conocido desde la Antigüedad", "80": "Conocido desde la Antigüedad", "81": "William Crookes, 1861", "82": "Conocido desde la Antigüedad", "83": "Conocido desde la Edad Media", "84": "Marie Curie y Pierre Curie, 1898. Marie lo llamó así por Polonia, su país", "85": "Dale Corson, Kenneth MacKenzie y Emilio Segrè, 1940", "86": "Friedrich Ernst Dorn, 1900", "87": "Marguerite Perey, 1939", "88": "Marie Curie y Pierre Curie, 1898", "89": "André-Louis Debierne, 1899", "90": "Jöns Jacob Berzelius, 1829", "91": "Kasimir Fajans y Oswald Göhring (1913), y Lise Meitner y Otto Hahn (1918)", "92": "Martin Heinrich Klaproth, 1789", "93": "Edwin McMillan y Philip Abelson, 1940", "94": "Glenn Seaborg y su equipo, 1940", "95": "Glenn Seaborg y su equipo, 1944", "96": "Glenn Seaborg, Ralph James y Albert Ghiorso, 1944. Su nombre honra a Marie y Pierre Curie", "97": "Equipo de Glenn Seaborg en Berkeley, 1949", "98": "Equipo de Glenn Seaborg en Berkeley, 1950", "99": "En los restos de la primera bomba de hidrógeno, 1952", "100": "En los restos de la primera bomba de hidrógeno, 1952", "101": "Albert Ghiorso, Glenn Seaborg y su equipo, 1955", "106": "Equipo de Albert Ghiorso en Berkeley, 1974. Su nombre honra a Glenn Seaborg", "109": "Laboratorio GSI de Darmstadt (Alemania), 1982. Su nombre honra a la física Lise Meitner", "113": "Laboratorio RIKEN (Japón), 2004", "118": "Laboratorios de Dubna (Rusia) y Livermore (EE. UU.), 2002. Su nombre honra a Yuri Oganessian"};
+const DISC_W=new Set([75,84,87,88,91,96,109]);
 /* ===================== FICHA DE DETALLE ===================== */
+/* ===================== PARTÍCULAS DEL ÁTOMO ===================== */
+// Número másico del isótopo más abundante (Z 1–83); para el resto, el del isótopo más estable (masa entre paréntesis o redondeada)
+const ISOA=[0,..."1 4 7 9 11 12 14 16 19 20 23 24 27 28 31 32 35 40 39 40 45 48 51 52 55 56 59 58 63 64 69 74 75 80 79 84 85 88 89 90 93 98 98 102 103 106 107 114 115 120 121 130 127 132 133 138 139 140 141 142 145 152 153 158 159 164 165 166 169 174 175 180 181 184 187 192 193 195 197 202 205 208 209".split(" ").map(Number)];
+function isoA(e){if(e.z<ISOA.length)return ISOA[e.z];const m=String(e.m).replace(/[()]/g,"");return Math.round(parseFloat(m))}
+const isoStable=e=>e.z<ISOA.length&&e.z!==43&&e.z!==61;
+const isoStr=e=>sup(isoA(e))+e.s;
+function partHTML(e){const A=isoA(e);return `<div class="wide"><dt>Partículas · ${isoStable(e)?"isótopo más abundante":"isótopo más estable"}: ${isoStr(e)}</dt><dd>${e.z} protones · ${A-e.z} neutrones · ${e.z} electrones</dd></div>`}
 function factsHTML(e){
   const v=valence(e);
   return `<dl class="facts">
@@ -1092,6 +1215,7 @@ function factsHTML(e){
     <div><dt>Periodo</dt><dd>${e.p}</dd></div>
     <div><dt>Tipo</dt><dd>${kindOf(e)}</dd></div>
     <div><dt>Estado (25 °C)</dt><dd>${stateOf(e)}${artificial(e)?" · artificial":""}</dd></div>
+    ${partHTML(e)}
     <div class="wide"><dt>Configuración electrónica</dt><dd class="mono">${confFull(e.z)}</dd></div>
     ${e.z>2?`<div class="wide"><dt>Abreviada</dt><dd class="mono">${confShort(e.z)}</dd></div>`:""}
     ${v?`<div class="wide"><dt>Electrones de valencia</dt><dd>${v} (capa ${e.p})</dd></div>`:""}
@@ -1110,6 +1234,7 @@ function openSheet(z){
       <span class="muted" style="font-size:13px">${familyOf(e)&&familyOf(e)!==CATS[e.c]?familyOf(e)+" · ":""}${lv?LVNAME[lv]:"Aún no lo has practicado"}${r?` · ${r.ok} ✓ ${r.ko} ✗`:""}</span></div></div>
     ${factsHTML(e)}
     ${notes.map(n=>`<div class="note">${n}</div>`).join("")}
+    ${DISC[z]?`<div class="note disc${DISC_W.has(z)?" w":""}"><b>${DISC_W.has(z)?"👩‍🔬":"🔬"} Descubrimiento:</b> ${DISC[z]}.</div>`:""}
     <div class="elnav">${z>1?(()=>{const a=BYZ[z-1];return `<button class="nb k-${a.c}" data-go="${z-1}" aria-label="Anterior: ${a.n}"><span class="ar" aria-hidden="true">‹</span><span class="tl" aria-hidden="true">${a.s}</span><span class="tx"><small>Anterior</small>${a.n}</span></button>`})():`<span class="nb ph"></span>`}${z<118?(()=>{const a=BYZ[z+1];return `<button class="nb r k-${a.c}" data-go="${z+1}" aria-label="Siguiente: ${a.n}"><span class="tx"><small>Siguiente</small>${a.n}</span><span class="tl" aria-hidden="true">${a.s}</span><span class="ar" aria-hidden="true">›</span></button>`})():`<span class="nb ph"></span>`}</div>
   </div></div>`;
   s.hidden=false;sheetShown();
@@ -1178,10 +1303,10 @@ function renderFichas(){
 function flashAnswer(ok){record(FL.deck[FL.i],ok);if(ok)FL.known++;else if(FL.deck.length-FL.i>4){FL.deck.splice(FL.i+4+Math.floor(Math.random()*4),0,FL.deck[FL.i])}FL.i++;FL.flipped=false;renderFichas()}
 
 /* ===================== TEST ===================== */
-const QTYPES={form:"Formulación",place:"Colocar en la tabla",ion:"Iones",trend:"Propiedades periódicas",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
+const QTYPES={mol:"Cantidad de sustancia",part:"Partículas del átomo",form:"Formulación",place:"Colocar en la tabla",ion:"Iones",trend:"Propiedades periódicas",s2n:"Símbolo → nombre",n2s:"Nombre → símbolo",fam:"Familia",kind:"Metal o no metal",pos:"Posición en la tabla",gp:"Grupo y periodo",conf:"Configuración electrónica"};
 const ROUND=10;
-const TOPICS=[["names","🔤","Nombres y símbolos","Fe → hierro",["s2n","n2s"]],["pos","📍","Posición","Grupo y periodo",["place","pos","gp"]],["fam","🎨","Familias","¿Halógeno?",["fam","kind"]],["atom","⚛️","El átomo","1s² 2s² 2p⁶…",["conf","ion"]],["props","📈","Propiedades","¿Cuál es mayor?",["trend"]]];
-const QGROUPS=[["Nombres y símbolos",["s2n","n2s"]],["Posición en la tabla",["place","pos","gp"]],["Familias y tipos",["fam","kind"]],["Estructura del átomo",["conf","ion"]],["Propiedades",["trend"]],["Formulación",["form"]]];
+const TOPICS=[["names","🔤","Nombres y símbolos","Fe → hierro",["s2n","n2s"]],["pos","📍","Posición","Grupo y periodo",["place","pos","gp"]],["fam","🎨","Familias","¿Halógeno?",["fam","kind"]],["atom","⚛️","El átomo","Protones, electrones…",["part","conf","ion"]],["props","📈","Propiedades","¿Cuál es mayor?",["trend"]]];
+const QGROUPS=[["Nombres y símbolos",["s2n","n2s"]],["Posición en la tabla",["place","pos","gp"]],["Familias y tipos",["fam","kind"]],["Estructura del átomo",["part","conf","ion"]],["Propiedades",["trend"]],["Formulación",["form"]],["Cantidad de sustancia",["mol"]]];
 let QZ=null;
 function pickOthers(answer,cands,n,prefer){
   const out=[],seen=new Set([answer]);
@@ -1198,8 +1323,10 @@ function makeQuestion(){
     if(t==="gp")cands=P.filter(e=>!e.f);
     if(t==="conf")cands=P.filter(e=>e.z<=56&&!EXC[e.z]);
     if(t==="ion")cands=P.filter(e=>ionOf(e)!=null);
+    if(t==="part")cands=P.filter(e=>e.z<=56&&e.z!==43);
     if(t==="trend"){const tp=trendPair();if(tp)return buildTrend(tp);continue}
     if(t==="form")return buildForm();
+    if(t==="mol")return buildMol();
     if(!cands.length)continue;
     const e=weightedPick(cands);
     if(QZ&&QZ.recent.includes(e.z)&&cands.length>4)continue;
@@ -1241,6 +1368,21 @@ function buildQ(t,e,P){
     const v=valence(e);
     expl=q>0?`Tiene ${v} ${v>1?"electrones":"electrón"} de valencia: ${v>1?"los pierde":"lo pierde"} y queda con la configuración del gas noble anterior → <b>${correct}</b> (catión ${e.n.toLowerCase()}).`
       :`Tiene ${v} electrones de valencia: gana ${-q} para completar 8 (como el gas noble siguiente) → <b>${correct}</b> (anión ${ANION[e.z]}).`;
+  }else if(t==="part"){
+    const A=isoA(e),N=A-e.z,q=ionOf(e),v=q!=null&&Math.random()<.34?2:Math.floor(Math.random()*2);
+    const nums=(c,alts)=>[...new Set(alts.filter(x=>x>0&&x!==c))].map(String);
+    if(v===0){correct=String(N);show=`<div class="qbig k-${e.c}">${isoStr(e)}</div><div class="muted">${e.n}</div>`;prompt="¿Cuántos neutrones tiene este átomo?";
+      opts=[correct,...pickOthers(correct,nums(N,[e.z,A,A+e.z,N+1,N-1,N+2]),3,nums(N,[e.z,A]))];
+      for(let d=1;opts.length<4;d++)for(const x of [+correct+d,+correct-d])if(x>=0&&!opts.includes(String(x))&&opts.length<4)opts.push(String(x));
+      expl=`A = ${A} (protones + neutrones) y Z = ${e.z} (protones). Neutrones = A − Z = ${A} − ${e.z} = <b>${N}</b>.`}
+    else if(v===1){correct=String(e.z);show=`<div class="qbig k-${e.c}">${isoStr(e)}</div><div class="muted">${e.n}</div>`;prompt="¿Cuántos protones tiene?";
+      opts=[correct,...pickOthers(correct,nums(e.z,[A,N,e.z+1,e.z-1,A-1]),3,nums(e.z,[A,N]))];
+      for(let d=1;opts.length<4;d++)for(const x of [+correct+d,+correct-d])if(x>=0&&!opts.includes(String(x))&&opts.length<4)opts.push(String(x));
+      expl=`El número de protones es el número atómico: Z = <b>${e.z}</b>. El ${A} es el número másico (protones + neutrones).`}
+    else{const ne=e.z-q;correct=String(ne);show=`<div class="qbig k-${e.c}">${ionStr(e,q)}</div><div class="muted">ion ${q>0?"":ANION[e.z]?"("+ANION[e.z]+")":""}</div>`;prompt="¿Cuántos electrones tiene este ion?";
+      opts=[correct,...pickOthers(correct,nums(ne,[e.z,e.z+q,ne+1,ne-1,isoA(e)]),3,nums(ne,[e.z,e.z+q]))];
+      for(let d=1;opts.length<4;d++)for(const x of [+correct+d,+correct-d])if(x>=0&&!opts.includes(String(x))&&opts.length<4)opts.push(String(x));
+      expl=`El átomo neutro tiene ${e.z} electrones. ${q>0?`Al perder ${q}`:`Al ganar ${-q}`} queda con ${e.z} ${q>0?"−":"+"} ${Math.abs(q)} = <b>${ne}</b> electrones.`}
   }else if(t==="place"){
     correct=e.z;show=`<div class="qbig k-${e.c}">${e.s}</div><div class="muted">${e.n}</div>`;prompt="Toca su casilla en la tabla";opts=[];
     expl=`El ${e.n.toLowerCase()} está en ${e.f?"los "+(e.c==="lan"?"lantánidos":"actínidos")+", periodo "+e.p:"el grupo "+e.g+", periodo "+e.p}.`;
@@ -1281,6 +1423,7 @@ function optLabel(q,o){if(q.t==="trend"){return `<b>${o}</b>&nbsp;<span class="m
 function renderTest(){
   if(!QZ&&PREF.tmode==="fill"){renderFill();return}
   if(!QZ&&PREF.tmode==="lab"){renderLab();return}
+  if(!QZ&&PREF.tmode==="mol"){renderMol();return}
   if(!QZ&&PREF.tmode!=="custom"){
     main.innerHTML=`<section class="view gut"><div class="quiz">
       <div style="display:flex;flex-direction:column;gap:4px"><h2>Ponte a prueba</h2>
@@ -1289,6 +1432,7 @@ function renderTest(){
         <button class="topic mix" data-topic="mix"><span class="ic" aria-hidden="true">🎯</span><span><b>Todo mezclado</b><small>Más preguntas de lo que fallas</small></span></button>
         ${TOPICS.map(([k,ic,t,ex])=>`<button class="topic" data-topic="${k}"><span class="ic" aria-hidden="true">${ic}</span><b>${t}</b><span class="ex">${ex}</span></button>`).join("")}
         <button class="topic" data-topic="lab"><span class="ic" aria-hidden="true">⚗️</span><b>Formular</b><span class="ex">Ca²⁺ + Cl⁻ → CaCl₂</span></button>
+        <button class="topic" data-topic="mol"><span class="ic" aria-hidden="true">⚖️</span><b>Moles</b><span class="ex">Gramos ↔ mol</span></button>
         <button class="topic" data-topic="fill"><span class="ic" aria-hidden="true">🧩</span><b>Rellenar familias</b><span class="ex">Tabla muda</span></button>
       </div>
       <button class="lnk" id="tm-custom">⚙︎ Hacer una ronda a mi medida</button>
@@ -1634,12 +1778,15 @@ main.addEventListener("click",ev=>{
   if(t.closest("#qz-start")){startQuiz(PREF.types,"A mi medida");return}
   if(t.closest("#qz-again")){startQuiz(QZ&&QZ.types,QZ&&QZ.title);return}
   if(b=t.closest("[data-topic]")){const k=b.dataset.topic;
+    if(k==="mol"){PREF.tmode="mol";savePref();renderTest();SC.scrollTop=0;return}
     if(k==="lab"){PREF.tmode="lab";savePref();renderTest();SC.scrollTop=0;return}
     if(k==="fill"){PREF.tmode="fill";savePref();FILL=null;renderTest();SC.scrollTop=0;return}
     if(k==="mix"){startQuiz(Object.keys(QTYPES),"Todo mezclado");return}
     const tp=TOPICS.find(x=>x[0]===k);startQuiz(tp[4],tp[2]);return}
   if(b=t.closest("[data-fc]")){PREF.fc=+b.dataset.fc;savePref();renderLab();return}
   if(b=t.closest("[data-fa]")){PREF.fa=+b.dataset.fa;savePref();renderLab();return}
+  if(b=t.closest("[data-molf]")){const f=$("#mol-f");if(f){f.value=b.dataset.molf;molResult()}return}
+  if(t.closest("#mol-quiz")){startQuiz(["mol"],"Moles");return}
   if(t.closest("#lab-quiz")){startQuiz(["form"],"Formulación");return}
   if(t.closest("#tm-custom")){PREF.tmode="custom";savePref();renderTest();SC.scrollTop=0;return}
   if(t.closest("#tm-home")){PREF.tmode="home";savePref();FILL=null;renderTest();SC.scrollTop=0;return}
@@ -1697,6 +1844,7 @@ function applyLook(){
 }
 applyLook();
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyLook);
+main.addEventListener("input",ev=>{if(ev.target.id==="mol-f"||ev.target.id==="mol-g")molResult()});
 main.addEventListener("change",ev=>{if(ev.target.id==="fl-deck"){PREF.fdeck=ev.target.value;savePref();FL=null;renderFichas()}});
 const FS=[["s","Pequeña"],["m","Normal"],["l","Grande"],["xl","Muy grande"],["xxl","Enorme"]];
 const THEMES=[["auto","Automático"],["light","Claro"],["dark","Oscuro"]];
